@@ -1,0 +1,13 @@
+*.vscode
+*.vs
+build
+out
+Debug
+Release
+x64
+*.user
+CMakeSettings.json
+*.sln
+*.vcxproj
+*.filters
+*.bak
