@@ -12,15 +12,14 @@ set(imgui_tag_version v1.91.9)
 set(imgui_sfml_tag_version v3.0)
 set(asio_tag_version asio-1-36-0)
 
-
+# Project Sources
 set(project_sources
     src/RoboMotion.cpp
 )
-
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 # Enable FetchContent
 include(FetchContent)
-
 # Set default build type
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)
@@ -44,7 +43,7 @@ set(SFML_BUILD_AUDIO FALSE)
 set(SFML_BUILD_NETWORK FALSE)
 set(SFML_BUILD_GRAPHICS TRUE)
 FetchContent_MakeAvailable(SFML)
-
+set_target_properties(sfml-main sfml-system sfml-window sfml-graphics PROPERTIES FOLDER "Dependencies/SFML")
 # ============================================================================
 # Fetch ImGui
 # ============================================================================
@@ -65,7 +64,7 @@ add_library(imgui STATIC
     ${imgui_SOURCE_DIR}/imgui_widgets.cpp
 )
 target_include_directories(imgui PUBLIC ${imgui_SOURCE_DIR})
-
+set_target_properties(imgui PROPERTIES FOLDER "Dependencies/ImGui")
 # ============================================================================
 # Fetch ImGui-SFML
 # ============================================================================
@@ -79,7 +78,7 @@ set(IMGUI_DIR ${imgui_SOURCE_DIR})
 set(IMGUI_SFML_FIND_SFML OFF)
 set(IMGUI_SFML_IMGUI_DEMO ON)
 FetchContent_MakeAvailable(imgui-sfml)
-
+set_target_properties(ImGui-SFML PROPERTIES FOLDER "Dependencies/ImGui-SFML")
 # ============================================================================
 # Fetch Boost (Asio header-only)
 # ============================================================================
@@ -91,7 +90,6 @@ FetchContent_Declare(
     SOURCE_SUBDIR asio
 )
 FetchContent_MakeAvailable(asio)
-
 # Create header-only Asio interface library
 add_library(asio INTERFACE)
 target_include_directories(asio INTERFACE ${asio_SOURCE_DIR}/asio/include)
@@ -102,10 +100,14 @@ if(WIN32)
     target_compile_definitions(asio INTERFACE _WIN32_WINNT=0x0601)
 endif()
 
+set_target_properties(asio PROPERTIES FOLDER "Dependencies/Asio")
 # ============================================================================
 # Create executable
 # ============================================================================
 add_executable(${PROJECT_NAME} ${project_sources})
+add_subdirectory(src/libraryIntegration)
+add_subdirectory(src/visualization)
+
 
 # ============================================================================
 # Link libraries
