@@ -1,6 +1,11 @@
 cmake_minimum_required(VERSION 3.24)
 project(RoboMotionSim VERSION 1.0.0 LANGUAGES CXX)
 
+# Set startup project for Visual Studio
+if(MSVC)
+    set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT RoboMotionSim)
+endif()
+
 # Set C++ standard
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -34,6 +39,7 @@ endif()
 # Fetch SFML
 # ============================================================================
 message(STATUS "Fetching SFML...")
+
 FetchContent_Declare(
     SFML
     GIT_REPOSITORY https://github.com/SFML/SFML.git
@@ -112,13 +118,15 @@ add_subdirectory(src/visualization)
 # ============================================================================
 # Link libraries
 # ============================================================================
-target_link_libraries(${PROJECT_NAME} PRIVATE
+target_link_libraries(${PROJECT_NAME} PUBLIC
     sfml-graphics
     sfml-window
     sfml-system
     ImGui-SFML::ImGui-SFML
     imgui
     asio
+    libraryIntegration
+    visualization
 )
 
 # Windows needs ws2_32 and wsock32 for Asio
