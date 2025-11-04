@@ -3,7 +3,12 @@
 
 void CompositeShape::draw(sf::RenderTarget& target, sf::RenderStates states) const {
 	states.transform *= getTransform();
-	//Bounding box
+	for (auto& drawable : _drawables)
+		target.draw(*drawable, states);
+}
+
+void CompositeShape::drawBoundingBox(sf::RenderTarget& target, sf::RenderStates states) const {
+	states.transform *= getTransform();
 	sf::RectangleShape rect;
 	rect.setPosition(_bounds.position);
 	rect.setSize(_bounds.size);
@@ -11,12 +16,6 @@ void CompositeShape::draw(sf::RenderTarget& target, sf::RenderStates states) con
 	rect.setOutlineColor({ 255,255,255 });
 	rect.setOutlineThickness(1);
 	target.draw(rect, states);
-
-
-	for (auto& drawable : _drawables)
-		target.draw(*drawable, states);
-
-
 }
 
 void CompositeShape::updateBounds() {
