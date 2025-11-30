@@ -1,7 +1,7 @@
 #ifndef CONFIG_MANAGER_HPP
 #define CONFIG_MANAGER_HPP
 
-#include<string>
+#include <string>
 #include "RoboConfig.hpp"
 class ConfigManager {
 public:

@@ -64,8 +64,8 @@ RobotShape::RobotShape(const RoboConfig& config, bool drawCenter, bool showSpeed
 	for (const auto& [wheel, motor] : axels)
 		AddWheel(wheel);
 
+    _numberOfWheels = _wheelMountingPoints.size();
     auto shape = makeRobotBase(_wheelMountingPoints);
-
     add(std::make_unique<sf::ConvexShape>(shape));
 }
 void RobotShape::UpdateSpeed(std::vector<float> speedOfWheels) {
