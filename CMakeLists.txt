@@ -18,8 +18,10 @@ set(imgui_sfml_tag_version v3.0)
 set(asio_tag_version asio-1-36-0)
 
 # Project Sources
-set(project_sources
-    src/RoboMotion.cpp
+
+file(GLOB project_sources
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/*.hpp"
 )
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
@@ -127,7 +129,7 @@ set_target_properties(exprtk PROPERTIES FOLDER "Dependencies/ExprTk")
 add_executable(${PROJECT_NAME} ${project_sources})
 add_subdirectory(src/libraryIntegration)
 add_subdirectory(src/visualization)
-
+add_subdirectory(src/physicsEngine)
 
 # ============================================================================
 # Link libraries
@@ -141,6 +143,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
     asio
     libraryIntegration
     visualization
+    physicsEngine
 )
 
 # Windows needs ws2_32 and wsock32 for Asio

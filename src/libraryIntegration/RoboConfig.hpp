@@ -4,6 +4,7 @@
 #include <vector>
 #include <format>
 #include "Utils.hpp"
+#include "PhysicsObjects.hpp"
 namespace RoboParts {
 	class Motor {
 	public:
@@ -50,8 +51,9 @@ namespace RoboParts {
 		// Angle of the rollers on the omni wheel in radians
 		const float roller_angle;
 
+		float wheel_angular_speed = 0;
 		std::string ExportToConfig() {
-			return std::format("{},{},{},{},{}", diameter, x_position, y_position,Utils::RadiansToDegree(  wheel_angle),Utils::RadiansToDegree( roller_angle));
+			return std::format("{},{},{},{},{}", diameter, x_position, y_position, Utils::RadiansToDegree(wheel_angle), Utils::RadiansToDegree(roller_angle));
 		}
 
 		static Wheel CreateFromConfig(const std::string& values, ExprEvaluator<float>& evaluator) {
@@ -75,13 +77,16 @@ namespace RoboParts {
 class RoboConfig {
 public:
 	const std::vector<RoboParts::DriveAxle_t>& GetRobotDriveAxels() const { return _axels; }
+	std::vector<RoboParts::DriveAxle_t>& GetRobotDriveAxels() { return _axels; }
 	const std::string& GetDriveType() { return _driveType; }
 	void AddAxel(RoboParts::DriveAxle_t& axel) { _axels.push_back(axel); }
 	void AddAxel(RoboParts::DriveAxle_t axel) { _axels.push_back(axel); }
 	void ChangeDriveType(const std::string& type) { _driveType = type; }
+	PhysicsHandle* GetPhysicsHandle() { return &handle; }
 private:
 	std::vector<RoboParts::DriveAxle_t> _axels;
 	std::string _driveType = "";
+	PhysicsHandle handle;
 	// Things used in simulator only
 	// TODO
 	// 1) Add chassis

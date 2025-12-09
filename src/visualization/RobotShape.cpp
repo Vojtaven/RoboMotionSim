@@ -69,12 +69,6 @@ RobotShape::RobotShape(const RoboConfig& config, bool drawCenter, bool showSpeed
     add(std::make_unique<sf::ConvexShape>(shape));
 }
 void RobotShape::UpdateSpeed(std::vector<float> speedOfWheels) {
-	if (speedOfWheels.size() != _speedOfWheels.size())
-		throw std::runtime_error("Wrong size of speed vector");
-
-	for (int i = 0; i < speedOfWheels.size();i++)
-		_speedOfWheels[i].setString(std::format("{:.4f}", speedOfWheels[i]));
-
 }
 
 void RobotShape::draw(sf::RenderTarget& target, sf::RenderStates states) const {

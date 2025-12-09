@@ -17,7 +17,7 @@ private:
 	bool _showSpeed;
 	bool _drawCenter;
 	int _numberOfWheels = 0;
-	std::vector<sf::Text> _speedOfWheels;
+	std::vector<CompositeShape*> _speedOfWheels;
 	std::vector<sf::Vector2f> _wheelMountingPoints;
 };
 #endif // !ROBOTSHAPE_HPP
