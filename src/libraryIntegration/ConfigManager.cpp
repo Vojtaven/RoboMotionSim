@@ -5,6 +5,9 @@
 #include <sstream>
 #include <algorithm>
 #include <fstream>
+#include "exprtk.hpp"
+
+
 static inline std::string trim(std::string s) {
 	s.erase(s.begin(), std::find_if(s.begin(), s.end(),
 		[](unsigned char ch) { return !std::isspace(ch); }));
@@ -85,8 +88,10 @@ void ConfigManager::LoadConfigFromFile(const std::string& path) {
 
 	_config = RoboConfig();
 	_config.ChangeDriveType(type);
+	ExprEvaluator<float> evaluator;
+
 	for (size_t i = 0; i < wheelCount; i++)
-		_config.AddAxel({ RoboParts::Wheel::CreateFromConfig(wheels[i].second),RoboParts::Motor::CreateFromConfig(motors[i].second) });
+		_config.AddAxel({ RoboParts::Wheel::CreateFromConfig(wheels[i].second,evaluator),RoboParts::Motor::CreateFromConfig(motors[i].second,evaluator) });
 }
 
 void WriteConfigLine(const std::string& identifier, const std::string& value, std::ofstream& file) {

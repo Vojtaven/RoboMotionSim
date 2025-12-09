@@ -23,16 +23,16 @@ namespace RoboParts {
 			return std::format("{},{},{},{}", pin1, pin2, hardwareMaxSpeedLimit, stepsPerRotation);
 		}
 
-		static Motor CreateFromConfig(std::string values) {
+		static Motor CreateFromConfig(const std::string& values, ExprEvaluator<float>& evaluator) {
 			auto splittedValues = Utils::split(values, ',');
 
 			if (splittedValues.size() != 4)
 				throw std::runtime_error("Wrong number of values for motor constructor");
 
-			int pin1 = std::stoi(splittedValues[0]);
-			int pin2 = std::stoi(splittedValues[1]);
-			float maxSpeed = std::stof(splittedValues[2]);
-			float steps = std::stof(splittedValues[3]);
+			int pin1 = evaluator.EvaluateExpressions(splittedValues[0]);
+			int pin2 = evaluator.EvaluateExpressions(splittedValues[1]);
+			float maxSpeed = evaluator.EvaluateExpressions(splittedValues[2]);
+			float steps = evaluator.EvaluateExpressions(splittedValues[3]);
 
 			return Motor{ maxSpeed,steps,pin1,pin2 };
 		}
@@ -54,17 +54,17 @@ namespace RoboParts {
 			return std::format("{},{},{},{},{}", diameter, x_position, y_position,Utils::RadiansToDegree(  wheel_angle),Utils::RadiansToDegree( roller_angle));
 		}
 
-		static Wheel CreateFromConfig(std::string values) {
+		static Wheel CreateFromConfig(const std::string& values, ExprEvaluator<float>& evaluator) {
 			auto splittedValues = Utils::split(values, ',');
 
 			if (splittedValues.size() != 5)
 				throw std::runtime_error("Wrong number of values for motor constructor");
 
-			float diameter = std::stof(splittedValues[0]);
-			float x = std::stof(splittedValues[1]);
-			float y = std::stof(splittedValues[2]);
-			float angle = Utils::DegreesToRadians(std::stof(splittedValues[3]));
-			float roller = Utils::DegreesToRadians(std::stof(splittedValues[4]));
+			float diameter = evaluator.EvaluateExpressions(splittedValues[0]);
+			float x = evaluator.EvaluateExpressions(splittedValues[1]);
+			float y = evaluator.EvaluateExpressions(splittedValues[2]);
+			float angle = Utils::DegreesToRadians(evaluator.EvaluateExpressions(splittedValues[3]));
+			float roller = Utils::DegreesToRadians(evaluator.EvaluateExpressions(splittedValues[4]));
 
 			return Wheel{ diameter,x,y,angle,roller };
 		}

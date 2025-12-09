@@ -4,8 +4,8 @@ project(RoboMotionSim VERSION 1.0.0 LANGUAGES CXX)
 # Set startup project for Visual Studio
 if(MSVC)
     set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT RoboMotionSim)
+    add_compile_options(/bigobj)
 endif()
-
 # Set C++ standard
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -107,6 +107,20 @@ if(WIN32)
 endif()
 
 set_target_properties(asio PROPERTIES FOLDER "Dependencies/Asio")
+
+# ============================================================================
+# Integrate ExprTk (Header-Only)
+# ============================================================================
+message(STATUS "Integrating ExprTk...")
+
+set(EXPRTK_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src/3rdPartyLibs/exprtk") 
+
+# Create an INTERFACE library to define the include path
+add_library(exprtk INTERFACE)
+target_include_directories(exprtk INTERFACE ${EXPRTK_INCLUDE_DIR})
+
+set_target_properties(exprtk PROPERTIES FOLDER "Dependencies/ExprTk")
+
 # ============================================================================
 # Create executable
 # ============================================================================
