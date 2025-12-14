@@ -5,7 +5,7 @@
 #include <sstream>
 #include <algorithm>
 #include <fstream>
-#include "exprtk.hpp"
+#include "silent_exprtk.hpp"
 
 
 static inline std::string trim(std::string s) {

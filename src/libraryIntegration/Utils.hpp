@@ -5,16 +5,16 @@
 #include <string>
 #include <sstream>
 #include <numbers>
-#include <exprtk.hpp>
-static class Utils {
+#include "silent_exprtk.hpp"
+class Utils {
 public:
 	static std::vector<std::string> split(const std::string& s, char delimiter);
 	static inline float DegreesToRadians(float degrees) {
-		return degrees * (std::numbers::pi / 180);
+		return (float)(degrees * (std::numbers::pi / 180));
 	}
 
 	static inline float RadiansToDegree(float radians) {
-		return radians / (std::numbers::pi / 180);
+		return (float)(radians / (std::numbers::pi / 180));
 	}
 };
 

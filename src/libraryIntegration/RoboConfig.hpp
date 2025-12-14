@@ -30,8 +30,8 @@ namespace RoboParts {
 			if (splittedValues.size() != 4)
 				throw std::runtime_error("Wrong number of values for motor constructor");
 
-			int pin1 = evaluator.EvaluateExpressions(splittedValues[0]);
-			int pin2 = evaluator.EvaluateExpressions(splittedValues[1]);
+			int pin1 = (int)evaluator.EvaluateExpressions(splittedValues[0]);
+			int pin2 = (int)evaluator.EvaluateExpressions(splittedValues[1]);
 			float maxSpeed = evaluator.EvaluateExpressions(splittedValues[2]);
 			float steps = evaluator.EvaluateExpressions(splittedValues[3]);
 
