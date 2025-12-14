@@ -15,7 +15,7 @@ protected:
 	void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 private:
 	void AddWheel(const RoboParts::Wheel& wheel);
-	void AddWheelVector(const sf::Vector2f& position);
+	void AddWheelVector(const RoboParts::Wheel& wheel);
 	bool _showSpeed;
 	bool _drawCenter;
 	int _numberOfWheels = 0;

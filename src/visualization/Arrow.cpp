@@ -16,8 +16,8 @@ Arrow::Arrow(float length, sf::Color color, float thickness,sf::Vector2f headSiz
 
 	head->setPosition({ length, 0 });
 
-	this->shaft = shaft.get();
-	this->head = head.get();
+	this->_shaft = shaft.get();
+	this->_head = head.get();
 	add(std::move(shaft));
 	add(std::move(head));
 }
@@ -25,8 +25,8 @@ Arrow::Arrow(float length, sf::Color color, float thickness,sf::Vector2f headSiz
 
 void Arrow::setLength(float length) {
 	float absLength = std::abs(length);
-	shaft->setSize({ absLength, shaft->getSize().y });
-	head->setPosition({ absLength, 0 });
+	_shaft->setSize({ absLength, _shaft->getSize().y });
+	_head->setPosition({ absLength, 0 });
 
 	if (length < 0)
 		setScale({ -1.f, 1.f });

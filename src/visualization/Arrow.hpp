@@ -9,8 +9,8 @@ public:
     void setLength(float length);
 
 private:
-    sf::RectangleShape* shaft;
-    sf::ConvexShape* head;
+    sf::RectangleShape* _shaft;
+    sf::ConvexShape* _head;
 };
 
 #endif // !ARROW_HPP

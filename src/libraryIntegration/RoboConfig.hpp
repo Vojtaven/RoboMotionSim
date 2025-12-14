@@ -82,11 +82,11 @@ public:
 	void AddAxel(RoboParts::DriveAxle_t& axel) { _axels.push_back(axel); }
 	void AddAxel(RoboParts::DriveAxle_t axel) { _axels.push_back(axel); }
 	void ChangeDriveType(const std::string& type) { _driveType = type; }
-	PhysicsHandle* GetPhysicsHandle() { return &handle; }
+	PhysicsHandle* GetPhysicsHandle() { return &_handle; }
 private:
 	std::vector<RoboParts::DriveAxle_t> _axels;
 	std::string _driveType = "";
-	PhysicsHandle handle;
+	PhysicsHandle _handle;
 	// Things used in simulator only
 	// TODO
 	// 1) Add chassis

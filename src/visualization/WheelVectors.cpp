@@ -4,26 +4,26 @@ WheelVectors::WheelVectors(sf::Vector2f position,
 	sf::Angle forwardAngle, float forwardBaseLength,
 	sf::Angle rollerAngle, float rollerBaseLength,
 	sf::Color color, float thickness, sf::Vector2f headSize)
-	: forwardBaseLength(forwardBaseLength), rollerBaseLength(rollerBaseLength)
+	: _forwardBaseLength(forwardBaseLength), _rollerBaseLength(rollerBaseLength)
 {
-	auto fwdVec = std::make_unique<PointVector>(position, forwardAngle, forwardBaseLength, color, thickness, headSize);
-	auto rollVec = std::make_unique<PointVector>(position, rollerAngle, rollerBaseLength, color, thickness, headSize);
-	forwardVector = fwdVec.get();
-	rollerVector = rollVec.get();
+	auto fwdVec = std::make_unique<PointVector>(position, forwardAngle, _forwardBaseLength, color, thickness, headSize);
+	auto rollVec = std::make_unique<PointVector>(position, rollerAngle, _rollerBaseLength, color, thickness, headSize);
+	_forwardVector = fwdVec.get();
+	_rollerVector = rollVec.get();
 	add(std::move(fwdVec));
 	add(std::move(rollVec));
 }
 void WheelVectors::setForwardLength(float length) {
-	forwardVector->setLength(length + (length > 0 ? 1 : -1) * forwardBaseLength);
+	_forwardVector->setLength(length + (length > 0 ? 1 : -1) * _forwardBaseLength);
 }
 void WheelVectors::setRollerLength(float length) {
-	rollerVector->setLength(length + (length > 0 ? 1 : -1) * rollerBaseLength);
+	_rollerVector->setLength(length + (length > 0 ? 1 : -1) * _rollerBaseLength);
 }
 
-void WheelVectors::RollerVectorVisible(bool visible) { rollerVectorVisible = visible; }
-void WheelVectors::ForwardVectorVisible(bool visible) { forwardVectorVisible = visible; }
+void WheelVectors::RollerVectorVisible(bool visible) { _rollerVectorVisible = visible; }
+void WheelVectors::ForwardVectorVisible(bool visible) { _forwardVectorVisible = visible; }
 // X = forward length, Y = roller length
 void WheelVectors::setBothVectors(sf::Vector2f lengths) {
-	forwardVector->setLength(lengths.x + (lengths.x > 0 ? 1 : -1) * forwardBaseLength);
-	rollerVector->setLength(lengths.y + (lengths.y > 0 ? 1 : -1) * rollerBaseLength);
+	_forwardVector->setLength(lengths.x + (lengths.x > 0 ? 1 : -1) * _forwardBaseLength);
+	_rollerVector->setLength(lengths.y + (lengths.y > 0 ? 1 : -1) * _rollerBaseLength);
 }

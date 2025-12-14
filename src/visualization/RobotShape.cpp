@@ -92,11 +92,15 @@ void RobotShape::AddWheel(const RoboParts::Wheel& wheel) {
 	add(std::move(wheelShape));
 	_wheelMountingPoints.push_back({ wheel.x_position,wheel.y_position });
 
+	AddWheelVector(wheel);
+}
+
+void RobotShape::AddWheelVector(const RoboParts::Wheel& wheel) {
 	//Vector of speed for this wheel
 	auto wheelVectors = std::make_unique<WheelVectors>(
 		sf::Vector2f{ wheel.x_position,wheel.y_position },
-		sf::radians(wheel.wheel_angle), wheel.diameter/2.f,
-		sf::radians(wheel.wheel_angle + wheel.roller_angle), wheel.diameter /4.f,
+		sf::radians(wheel.wheel_angle), wheel.diameter / 2.f,
+		sf::radians(wheel.wheel_angle + wheel.roller_angle), wheel.diameter / 4.f,
 		sf::Color::Red, 4.f, sf::Vector2f{ 25, 25 });
 
 	_speedOfWheels.push_back(wheelVectors.get());

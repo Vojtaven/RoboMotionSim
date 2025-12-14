@@ -5,12 +5,12 @@
 #include <SFML/Graphics.hpp>
 class WheelVectors : public CompositeShape {
 private:
-	PointVector* forwardVector;
-	PointVector* rollerVector;
-	float forwardBaseLength = 0;
-	float rollerBaseLength = 0;
-	bool rollerVectorVisible = true;
-	bool forwardVectorVisible = true;
+	PointVector* _forwardVector;
+	PointVector* _rollerVector;
+	float _forwardBaseLength = 0;
+	float _rollerBaseLength = 0;
+	bool _rollerVectorVisible = true;
+	bool _forwardVectorVisible = true;
 public:
 	WheelVectors(sf::Vector2f position,
 		sf::Angle forwardAngle, float forwardBaseLength,
