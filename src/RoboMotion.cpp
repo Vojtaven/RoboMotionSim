@@ -18,7 +18,7 @@ int main() {
     configManager.SaveConfigToFile("../src/libraryIntegration/outTestConfig.ini");
 	sf::RenderWindow window(sf::VideoMode({ 800, 800 }), "RoboMotionSim Test");
     auto grid = Visualization::GenerateGridLines({ 800,800 }, { 25,25 }, { 0,0 }, { 80,80,80 }, 1);
-	window.setFramerateLimit(60);
+	window.setFramerateLimit(244);
 	auto config = configManager.GetReadOnlyConfig();
 	RobotShape roboShape(config);
 	roboShape.setPosition({ 400,400 });

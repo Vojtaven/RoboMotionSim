@@ -1,6 +1,6 @@
 #include "Arrow.hpp"
 
-Arrow::Arrow(float length, sf::Color color, float thickness, float headWidth, float headHeight) {
+Arrow::Arrow(float length, sf::Color color, float thickness,sf::Vector2f headSize) {
 	auto shaft = std::make_unique<sf::RectangleShape>();
 	auto head = std::make_unique<sf::ConvexShape>();
 	shaft->setFillColor(color);
@@ -9,10 +9,10 @@ Arrow::Arrow(float length, sf::Color color, float thickness, float headWidth, fl
 
 	head->setFillColor(color);
 	head->setPointCount(3);
-	head->setPoint(0, { headHeight, 0 });
-	head->setPoint(1, { 0, headWidth/2 });
-	head->setPoint(2, { 0, -headWidth/2 });
-	head->setOrigin({ 10, 0 });
+	head->setPoint(0, { headSize.y, 0 });
+	head->setPoint(1, { 0, headSize.x /2 });
+	head->setPoint(2, { 0, -headSize.x /2 });
+	head->setOrigin({ 0, 0 });
 
 	head->setPosition({ length, 0 });
 

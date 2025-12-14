@@ -2,6 +2,7 @@
 #define ROBOTSHAPE_HPP
 #include "CompositeShape.hpp"
 #include "RoboConfig.hpp"
+#include "WheelVectors.hpp"
 #include <vector>
 class RobotShape : public CompositeShape {
 public:
@@ -14,10 +15,11 @@ protected:
 	void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 private:
 	void AddWheel(const RoboParts::Wheel& wheel);
+	void AddWheelVector(const sf::Vector2f& position);
 	bool _showSpeed;
 	bool _drawCenter;
 	int _numberOfWheels = 0;
-	std::vector<CompositeShape*> _speedOfWheels;
+	std::vector<WheelVectors*> _speedOfWheels;
 	std::vector<sf::Vector2f> _wheelMountingPoints;
 };
 #endif // !ROBOTSHAPE_HPP
