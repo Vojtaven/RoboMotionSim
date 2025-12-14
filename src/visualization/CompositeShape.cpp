@@ -36,6 +36,8 @@ void CompositeShape::updateBounds() {
 			b = sprite->getGlobalBounds();
 		else if (auto text = dynamic_cast<sf::Text*>(d.get()))
 			b = text->getGlobalBounds();
+		else if (auto compositeShape = dynamic_cast<CompositeShape*>(d.get()))
+			b = compositeShape->getLocalBounds();
 		else
 			throw std::runtime_error("Unknown type in drawable vector!");
 

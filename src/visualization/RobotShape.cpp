@@ -1,6 +1,6 @@
 #include "RobotShape.hpp"
 #include <format>
-
+#include "Arrow.hpp"
 sf::ConvexShape makeRobotBase(const std::vector<sf::Vector2f>& points) {
     if (points.size() < 3) {
         // Too few points for a polygon
@@ -67,6 +67,7 @@ RobotShape::RobotShape(const RoboConfig& config, bool drawCenter, bool showSpeed
     _numberOfWheels = _wheelMountingPoints.size();
     auto shape = makeRobotBase(_wheelMountingPoints);
     add(std::make_unique<sf::ConvexShape>(shape));
+    add(std::make_unique<Arrow>(100,sf::Color::Red,10,25,25));
 }
 void RobotShape::UpdateSpeed(std::vector<float> speedOfWheels) {
 }
@@ -74,10 +75,10 @@ void RobotShape::UpdateSpeed(std::vector<float> speedOfWheels) {
 void RobotShape::draw(sf::RenderTarget& target, sf::RenderStates states) const {
 	CompositeShape::draw(target, states);
 	states.transform *= getTransform();
-	if (_showSpeed) {
-		for (auto& text : _speedOfWheels)
-			target.draw(text, states);
-	}
+	//if (_showSpeed) {
+	//	for (auto& text : _speedOfWheels)
+	//		target.draw(text, states);
+	//}
 }
 
 void RobotShape::AddWheel(const RoboParts::Wheel& wheel) {

@@ -8,8 +8,6 @@ template <typename T>
 concept SFMLDrawableTransformable = std::derived_from<T, sf::Drawable>&&
 std::derived_from<T, sf::Transformable>;
 
-
-
 class CompositeShape : public sf::Drawable, public sf::Transformable {
 public:
 
