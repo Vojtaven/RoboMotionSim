@@ -64,8 +64,7 @@ private:
 
 		std::unique_ptr<sf::RectangleShape> line;
 		for (int i = 0; i < numberOfVerticalLines; i++) {
-			line = std::make_unique<sf::RectangleShape>(sf::Vector2f(_lastWindowSize.y, _gridLineThickness));
-			line->rotate(sf::degrees(90));
+			line = std::make_unique<sf::RectangleShape>(sf::Vector2f( _gridLineThickness, _lastWindowSize.y));
 			line->setPosition({ pixelSpacing.x * i,0 });
 			line->setFillColor(_gridColor);
 			line->setOutlineColor(_gridColor);

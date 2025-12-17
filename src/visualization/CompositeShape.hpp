@@ -19,8 +19,8 @@ public:
 
 	sf::FloatRect getLocalBounds() const { return _bounds; }
 
-protected:
 	void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
+protected: 
 	void drawBoundingBox(sf::RenderTarget& target, sf::RenderStates states) const;
 private:
 	std::vector<std::unique_ptr<sf::Drawable>> _drawables;

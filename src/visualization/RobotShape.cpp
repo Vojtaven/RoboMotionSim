@@ -62,12 +62,18 @@ RobotShape::RobotShape(const RoboConfig& config, bool drawCenter, bool showSpeed
 	auto axels = config.GetRobotDriveAxels();
 	if (_drawCenter) {}
 
-	for (const auto& [wheel, motor] : axels)
-		AddWheel(wheel);
-
+	std::transform(axels.begin(),axels.end(),std::back_inserter(_wheelMountingPoints),
+		[](const RoboParts::DriveAxle_t& axle) {
+			return sf::Vector2f{ axle.wheel.x_position, axle.wheel.y_position };
+		});
 	_numberOfWheels = _wheelMountingPoints.size();
 	auto shape = makeRobotBase(_wheelMountingPoints);
 	add(std::move(shape));
+
+	for (const auto& [wheel, motor] : axels)
+		AddWheel(wheel);
+
+
 }
 void RobotShape::UpdateSpeed(std::vector<float> speedOfWheels) {
 }

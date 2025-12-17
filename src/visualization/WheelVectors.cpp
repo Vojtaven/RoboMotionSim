@@ -27,3 +27,11 @@ void WheelVectors::setBothVectors(sf::Vector2f lengths) {
 	_forwardVector->setLength(lengths.x + (lengths.x > 0 ? 1 : -1) * _forwardBaseLength);
 	_rollerVector->setLength(lengths.y + (lengths.y > 0 ? 1 : -1) * _rollerBaseLength);
 }
+
+
+void WheelVectors::draw(sf::RenderTarget& target, sf::RenderStates states) const {
+	if (_forwardVectorVisible)
+		_forwardVector->draw(target, states);
+	if (_rollerVectorVisible)
+		_rollerVector->draw(target, states);
+}

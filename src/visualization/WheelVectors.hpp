@@ -22,6 +22,7 @@ public:
 
 	void RollerVectorVisible(bool visible);
 	void ForwardVectorVisible(bool visible);
+	void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 };
 
 

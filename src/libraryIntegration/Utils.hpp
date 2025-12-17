@@ -41,7 +41,7 @@ public:
 					": " + error.diagnostic + "\n";
 			}
 
-			throw std::runtime_error(error_message);
+			throw std::invalid_argument(error_message);
 		}
 
 		return g_expression.value();
