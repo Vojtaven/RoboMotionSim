@@ -58,11 +58,14 @@ std::unique_ptr<sf::ConvexShape> makeRobotBase(const std::vector<sf::Vector2f>& 
 
 
 
-RobotShape::RobotShape(const RoboConfig& config, bool drawCenter, bool showSpeed) :_showSpeed(showSpeed), _drawCenter(drawCenter) {
+RobotShape::RobotShape(const RoboConfig& config, bool drawCenter, bool showSpeed) :
+	_showSpeed(showSpeed),
+	_drawCenter(drawCenter)
+{
 	auto axels = config.GetRobotDriveAxels();
 	if (_drawCenter) {}
 
-	std::transform(axels.begin(),axels.end(),std::back_inserter(_wheelMountingPoints),
+	std::transform(axels.begin(), axels.end(), std::back_inserter(_wheelMountingPoints),
 		[](const RoboParts::DriveAxle_t& axle) {
 			return sf::Vector2f{ axle.wheel.x_position, axle.wheel.y_position };
 		});
@@ -72,10 +75,6 @@ RobotShape::RobotShape(const RoboConfig& config, bool drawCenter, bool showSpeed
 
 	for (const auto& [wheel, motor] : axels)
 		AddWheel(wheel);
-
-
-}
-void RobotShape::UpdateSpeed(std::vector<float> speedOfWheels) {
 }
 
 void RobotShape::draw(sf::RenderTarget& target, sf::RenderStates states) const {
@@ -104,9 +103,9 @@ void RobotShape::AddWheel(const RoboParts::Wheel& wheel) {
 void RobotShape::AddWheelVector(const RoboParts::Wheel& wheel) {
 	//Vector of speed for this wheel
 	auto wheelVectors = std::make_unique<WheelVectors>(
-		sf::Vector2f{ wheel.x_position,wheel.y_position },
-		sf::radians(wheel.wheel_angle), wheel.diameter / 2.f,
-		sf::radians(wheel.wheel_angle + wheel.roller_angle), wheel.diameter / 4.f,
+		wheel,
+		wheel.diameter / 2.f,
+		wheel.diameter / 4.f,
 		sf::Color::Red, 4.f, sf::Vector2f{ 25, 25 });
 
 	_speedOfWheels.push_back(wheelVectors.get());

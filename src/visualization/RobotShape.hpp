@@ -4,13 +4,13 @@
 #include "RoboConfig.hpp"
 #include "WheelVectors.hpp"
 #include <vector>
+
 class RobotShape : public CompositeShape {
 public:
 	RobotShape(const RoboConfig& config, bool drawCenter = false, bool showSpeed = false);
 	RobotShape(const RoboConfig* config, bool drawCenter = false, bool showSpeed = false) : RobotShape(*config, drawCenter, showSpeed) {}
 	void ShowSpeedEnable() { _showSpeed = true; }
 	void ShowSpeedDisable() { _showSpeed = false; }
-	void UpdateSpeed(std::vector<float> speedOfWheels);
 	void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 private:
 	void AddWheel(const RoboParts::Wheel& wheel);

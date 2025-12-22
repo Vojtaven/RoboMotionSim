@@ -1,13 +1,13 @@
 #include "WheelVectors.hpp"
 
-WheelVectors::WheelVectors(sf::Vector2f position,
-	sf::Angle forwardAngle, float forwardBaseLength,
-	sf::Angle rollerAngle, float rollerBaseLength,
+WheelVectors::WheelVectors(const RoboParts::Wheel& wheel, float forwardBaseLength, float rollerBaseLength,
 	sf::Color color, float thickness, sf::Vector2f headSize)
-	: _forwardBaseLength(forwardBaseLength), _rollerBaseLength(rollerBaseLength)
+	: _wheel(wheel), _forwardBaseLength(forwardBaseLength), _rollerBaseLength(rollerBaseLength)
 {
-	auto fwdVec = std::make_unique<PointVector>(position, forwardAngle, _forwardBaseLength, color, thickness, headSize);
-	auto rollVec = std::make_unique<PointVector>(position, rollerAngle, _rollerBaseLength, color, thickness, headSize);
+	auto position = sf::Vector2f{ wheel.x_position, wheel.y_position };
+
+	auto fwdVec = std::make_unique<PointVector>(position, wheel.wheel_angle, _forwardBaseLength, color, thickness, headSize);
+	auto rollVec = std::make_unique<PointVector>(position,wheel.roller_angle, _rollerBaseLength, color, thickness, headSize);
 	_forwardVector = fwdVec.get();
 	_rollerVector = rollVec.get();
 	add(std::move(fwdVec));
@@ -30,8 +30,13 @@ void WheelVectors::setBothVectors(sf::Vector2f lengths) {
 
 
 void WheelVectors::draw(sf::RenderTarget& target, sf::RenderStates states) const {
-	if (_forwardVectorVisible)
+	if (_forwardVectorVisible) 
+	{
+		_forwardVector->setLength(0);
 		_forwardVector->draw(target, states);
+	}
 	if (_rollerVectorVisible)
+	{
 		_rollerVector->draw(target, states);
+	}
 }

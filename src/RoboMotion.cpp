@@ -9,6 +9,7 @@
 #include "ConfigManager.hpp"
 #include <RobotShape.hpp>
 #include <numbers> 
+#include "PhysicsEngine.hpp"
 constexpr size_t VIEW_WIDTH = 800;
 constexpr size_t VIEW_HEIGHT = 800;
 
@@ -22,10 +23,12 @@ int main() {
 	window.setView(view);
 
 	VisualizationEngine vizEngine(window, configManager.GetReadOnlyConfig());
+	PhysicsEngine physicsEngine;
 	vizEngine.setScaleFactor(1);
 	vizEngine.setGridSpacing({ 50,50 });
 	window.setFramerateLimit(244);
-
+	auto config = configManager.GetConfig();
+	config->GetPhysicsHandle()->speed = { 10,10,0 };
 	const float moveStep = 2;
 	const sf::Angle rotationStep = sf::degrees(2);
 	while (window.isOpen()) {

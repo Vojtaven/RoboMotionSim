@@ -2,6 +2,7 @@
 #define WHEEL_VECTORS_HPP
 #include "PointVector.hpp"
 #include "CompositeShape.hpp"
+#include "RoboConfig.hpp"
 #include <SFML/Graphics.hpp>
 class WheelVectors : public CompositeShape {
 private:
@@ -11,10 +12,9 @@ private:
 	float _rollerBaseLength = 0;
 	bool _rollerVectorVisible = true;
 	bool _forwardVectorVisible = true;
+	const RoboParts::Wheel& _wheel;
 public:
-	WheelVectors(sf::Vector2f position,
-		sf::Angle forwardAngle, float forwardBaseLength,
-		sf::Angle rollerAngle, float rollerBaseLength,
+	WheelVectors(const RoboParts::Wheel& wheel, float forwardBaseLength, float rollerBaseLength,
 		sf::Color color = sf::Color::White, float thickness = 8.f, sf::Vector2f headSize = { 25,25 });
 	void setForwardLength(float length);
 	void setRollerLength(float length);

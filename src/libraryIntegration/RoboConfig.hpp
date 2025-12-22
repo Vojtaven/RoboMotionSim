@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <format>
+#include <algorithm>
 #include "Utils.hpp"
 #include "PhysicsObjects.hpp"
 namespace RoboParts {
@@ -48,10 +49,11 @@ namespace RoboParts {
 		const float y_position;
 		// Angle of the wheel's driving direction relative to robot frame in radians
 		const float wheel_angle;
-		// Angle of the rollers on the omni wheel in radians
+		// Angle of the rollers on the omni wheel in radians 
 		const float roller_angle;
 
-		float wheel_angular_speed = 0;
+		float angular_speed = 0;
+		float linear_speed = 0;
 		std::string ExportToConfig() {
 			return std::format("{},{},{},{},{}", diameter, x_position, y_position, Utils::RadiansToDegree(wheel_angle), Utils::RadiansToDegree(roller_angle));
 		}
@@ -78,6 +80,7 @@ class RoboConfig {
 public:
 	const std::vector<RoboParts::DriveAxle_t>& GetRobotDriveAxels() const { return _axels; }
 	std::vector<RoboParts::DriveAxle_t>& GetRobotDriveAxels() { return _axels; }
+	auto GetRobotWheels() { return _axels | std::ranges::views::transform([](auto& axel) -> RoboParts::Wheel& { return axel.wheel; }); }
 	const std::string& GetDriveType() { return _driveType; }
 	void AddAxel(RoboParts::DriveAxle_t& axel) { _axels.push_back(axel); }
 	void AddAxel(RoboParts::DriveAxle_t axel) { _axels.push_back(axel); }

@@ -6,7 +6,11 @@ file(GLOB LIBRARY_SOURCES
 )
 
 set(MODULE_NAME physicsEngine)
-
 add_library(${MODULE_NAME} STATIC ${LIBRARY_SOURCES} )
+
+target_link_libraries(${MODULE_NAME} PUBLIC
+    libraryIntegration
+)
+
 target_include_directories(${MODULE_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 set_target_properties(${MODULE_NAME} PROPERTIES FOLDER "Project Modules")

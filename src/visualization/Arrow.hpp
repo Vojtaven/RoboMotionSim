@@ -8,7 +8,7 @@ public:
     Arrow(float length, sf::Color color = sf::Color::White, float thickness = 3.f, sf::Vector2f headSize = {10,10});
     void setLength(float length);
 
-private:
+protected:
     sf::RectangleShape* _shaft;
     sf::ConvexShape* _head;
 };
