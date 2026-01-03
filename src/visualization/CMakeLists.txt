@@ -17,6 +17,7 @@ target_link_libraries(${MODULE_NAME} PUBLIC
     imgui
     ImGui-SFML
     libraryIntegration
+    core
 )
 
 target_include_directories(${MODULE_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

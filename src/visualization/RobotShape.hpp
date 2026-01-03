@@ -1,20 +1,22 @@
 #ifndef ROBOTSHAPE_HPP
 #define ROBOTSHAPE_HPP
 #include "CompositeShape.hpp"
-#include "RoboConfig.hpp"
+#include "RobotConfig.hpp"
+#include "RobotShape.hpp"
 #include "WheelVectors.hpp"
 #include <vector>
 
 class RobotShape : public CompositeShape {
 public:
-	RobotShape(const RoboConfig& config, bool drawCenter = false, bool showSpeed = false);
-	RobotShape(const RoboConfig* config, bool drawCenter = false, bool showSpeed = false) : RobotShape(*config, drawCenter, showSpeed) {}
+	RobotShape(const RobotConfig& config, bool drawCenter = false, bool showSpeed = false);
+	RobotShape(const RobotConfig* config, bool drawCenter = false, bool showSpeed = false) : RobotShape(*config, drawCenter, showSpeed) {}
 	void ShowSpeedEnable() { _showSpeed = true; }
 	void ShowSpeedDisable() { _showSpeed = false; }
+	void Update(const RobotState& state);
 	void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 private:
-	void AddWheel(const RoboParts::Wheel& wheel);
-	void AddWheelVector(const RoboParts::Wheel& wheel);
+	void AddWheel(const RobotParts::Wheel& wheel);
+	void AddWheelVector(const RobotParts::Wheel& wheel);
 	bool _showSpeed;
 	bool _drawCenter;
 	int _numberOfWheels = 0;

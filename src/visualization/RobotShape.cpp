@@ -2,6 +2,7 @@
 #include <format>
 #include "Arrow.hpp"
 #include "WheelVectors.hpp"
+#include "SFMLHelper.hpp"
 std::unique_ptr<sf::ConvexShape> makeRobotBase(const std::vector<sf::Vector2f>& points) {
 	if (points.size() < 3) {
 		// Too few points for a polygon
@@ -58,7 +59,7 @@ std::unique_ptr<sf::ConvexShape> makeRobotBase(const std::vector<sf::Vector2f>& 
 
 
 
-RobotShape::RobotShape(const RoboConfig& config, bool drawCenter, bool showSpeed) :
+RobotShape::RobotShape(const RobotConfig& config, bool drawCenter, bool showSpeed) :
 	_showSpeed(showSpeed),
 	_drawCenter(drawCenter)
 {
@@ -66,29 +67,33 @@ RobotShape::RobotShape(const RoboConfig& config, bool drawCenter, bool showSpeed
 	if (_drawCenter) {}
 
 	std::transform(axels.begin(), axels.end(), std::back_inserter(_wheelMountingPoints),
-		[](const RoboParts::DriveAxle_t& axle) {
+		[](const RobotParts::DriveAxle_t& axle) {
 			return sf::Vector2f{ axle.wheel.x_position, axle.wheel.y_position };
 		});
 	_numberOfWheels = _wheelMountingPoints.size();
 	auto shape = makeRobotBase(_wheelMountingPoints);
 	add(std::move(shape));
 
-	for (const auto& [wheel, motor] : axels)
+	for (const auto& wheel : config.GetRobotWheels())
 		AddWheel(wheel);
 }
 
 void RobotShape::draw(sf::RenderTarget& target, sf::RenderStates states) const {
-	static sf::Angle g = sf::radians(0.f);
-	g += sf::radians(0.4f);
 	CompositeShape::draw(target, states);
 	states.transform *= getTransform();
-	//if (_showSpeed) {
-	//	for (auto& text : _speedOfWheels)
-	//		target.draw(text, states);
-	//}
 }
 
-void RobotShape::AddWheel(const RoboParts::Wheel& wheel) {
+void RobotShape::Update(const RobotState& state) {
+	setPosition(ToSFMLVector(state.position));
+	setRotation(ToSFMLAngle(state.chassisAngle));
+
+
+	for (int i = 0; i < state.wheelCount;i++) {
+		_speedOfWheels[i]->update(state.wheels[i]);
+	}
+}
+
+void RobotShape::AddWheel(const RobotParts::Wheel& wheel) {
 	auto wheelShape = std::make_unique<sf::RectangleShape>();
 	wheelShape->setSize({ wheel.diameter,wheel.diameter / 2.f });
 	wheelShape->setOrigin({ wheel.diameter / 2.f,wheel.diameter / 4.f });
@@ -100,7 +105,7 @@ void RobotShape::AddWheel(const RoboParts::Wheel& wheel) {
 	AddWheelVector(wheel);
 }
 
-void RobotShape::AddWheelVector(const RoboParts::Wheel& wheel) {
+void RobotShape::AddWheelVector(const RobotParts::Wheel& wheel) {
 	//Vector of speed for this wheel
 	auto wheelVectors = std::make_unique<WheelVectors>(
 		wheel,

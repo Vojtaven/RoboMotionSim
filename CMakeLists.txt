@@ -129,7 +129,7 @@ add_executable(${PROJECT_NAME} ${project_sources})
 add_subdirectory(src/libraryIntegration)
 add_subdirectory(src/visualization)
 add_subdirectory(src/physicsEngine)
-
+add_subdirectory(src/core)
 # ============================================================================
 # Link libraries
 # ============================================================================
@@ -143,6 +143,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
     libraryIntegration
     visualization
     physicsEngine
+    core
 )
 
 # Windows needs ws2_32 and wsock32 for Asio

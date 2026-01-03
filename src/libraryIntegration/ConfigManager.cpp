@@ -2,11 +2,11 @@
 
 #include <vector>
 #include <fstream>
-#include <sstream>
-#include <algorithm>
-#include <fstream>
-#include "silent_exprtk.hpp"
 
+#include <algorithm>
+#include "Utils.hpp"
+#include "silent_exprtk.hpp"
+#include "RobotConfig.hpp"
 
 static inline std::string trim(std::string s) {
 	s.erase(s.begin(), std::find_if(s.begin(), s.end(),
@@ -86,12 +86,12 @@ void ConfigManager::LoadConfigFromFile(const std::string& path) {
 	if (motors.size() != wheelCount)
 		throw std::runtime_error("Number of wheels and number of motors in list doesn't match");
 
-	_config = RoboConfig();
+	_config = RobotConfig();
 	_config.ChangeDriveType(type);
 	ExprEvaluator<float> evaluator;
 
 	for (size_t i = 0; i < wheelCount; i++)
-		_config.AddAxel({ RoboParts::Wheel::CreateFromConfig(wheels[i].second,evaluator),RoboParts::Motor::CreateFromConfig(motors[i].second,evaluator) });
+		_config.AddAxel(RobotParts::DriveAxle_t{ CreateFromConfigWheel(wheels[i].second,evaluator),CreateFromConfigMotor(motors[i].second,evaluator) });
 }
 
 void WriteConfigLine(const std::string& identifier, const std::string& value, std::ofstream& file) {
@@ -105,14 +105,58 @@ void ConfigManager::SaveConfigToFile(const std::string& nameOfFile) {
 
 	auto axels = _config.GetRobotDriveAxels();
 	int wheelCount = axels.size();
-	WriteConfigLine("DRIVE_TYPE", _config.GetDriveType(), file);
+	WriteConfigLine("DRIVE_TYPE", _config.GetRobotDriveType(), file);
 	WriteConfigLine("WHEELS", std::to_string(wheelCount), file);
 
 	for (int i = 0; i < wheelCount; i++)
-		WriteConfigLine(std::format("WHEEL_{}", i), axels[i].wheel.ExportToConfig(),file);
+		WriteConfigLine(std::format("WHEEL_{}", i), ExportToConfig(axels[i].wheel),file);
 
 	for (int i = 0; i < wheelCount; i++)
-		WriteConfigLine(std::format("MOTOR_{}", i), axels[i].motor.ExportToConfig(), file);
+		WriteConfigLine(std::format("MOTOR_{}", i), ExportToConfig(axels[i].motor), file);
 
 	file.close();
+}
+
+
+std::string ConfigManager::ExportToConfig(const RobotParts::Motor& motor) {
+	return std::format("{},{},{},{}", motor.pin1, motor.pin2, motor.hardwareMaxSpeedLimit,
+		motor.stepsPerRotation);
+}
+
+RobotParts::Motor ConfigManager::CreateFromConfigMotor(const std::string& values,ExprEvaluator<float>& evaluator) {
+	auto splittedValues = Utils::split(values, ',');
+
+	if (splittedValues.size() != 4)
+		throw std::runtime_error("Wrong number of values for motor constructor");
+
+	int pin1 = (int)evaluator.EvaluateExpressions(splittedValues[0]);
+	int pin2 = (int)evaluator.EvaluateExpressions(splittedValues[1]);
+	float maxSpeed = evaluator.EvaluateExpressions(splittedValues[2]);
+	float steps = evaluator.EvaluateExpressions(splittedValues[3]);
+
+	return RobotParts::Motor{ maxSpeed, steps, pin1, pin2 };
+}
+
+std::string ConfigManager::ExportToConfig(const RobotParts::Wheel& wheel) {
+	return std::format("{},{},{},{},{}", wheel.diameter, wheel.x_position, wheel.y_position,
+		Utils::RadiansToDegree(wheel.wheel_angle),
+		Utils::RadiansToDegree(wheel.roller_angle));
+}
+
+RobotParts::Wheel ConfigManager::CreateFromConfigWheel(const std::string& values,
+	ExprEvaluator<float>& evaluator) {
+	auto splittedValues = Utils::split(values, ',');
+
+	if (splittedValues.size() != 5)
+		throw std::runtime_error("Wrong number of values for motor constructor");
+
+	float diameter = evaluator.EvaluateExpressions(splittedValues[0]);
+	float x = evaluator.EvaluateExpressions(splittedValues[1]);
+	float y = evaluator.EvaluateExpressions(splittedValues[2]);
+	float angle =
+		Utils::DegreesToRadians(evaluator.EvaluateExpressions(splittedValues[3]));
+	float roller =
+		Utils::DegreesToRadians(evaluator.EvaluateExpressions(splittedValues[4]));
+
+	return RobotParts::Wheel{ diameter, x, y, angle, roller };
 }
