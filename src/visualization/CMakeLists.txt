@@ -16,7 +16,6 @@ target_link_libraries(${MODULE_NAME} PUBLIC
     sfml-graphics
     imgui
     ImGui-SFML
-    libraryIntegration
     core
 )
 

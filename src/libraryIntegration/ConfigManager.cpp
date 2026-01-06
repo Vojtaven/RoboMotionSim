@@ -61,7 +61,7 @@ std::vector<std::pair<std::string, std::string>> getByPrefix(
 
 
 
-void ConfigManager::LoadConfigFromFile(const std::string& path) {
+void ConfigManager::loadConfigFromFile(const std::string& path) {
 	auto parsedConfig = readIni(path);
 	int wheelCount;
 	std::string type;
@@ -87,43 +87,44 @@ void ConfigManager::LoadConfigFromFile(const std::string& path) {
 		throw std::runtime_error("Number of wheels and number of motors in list doesn't match");
 
 	_config = RobotConfig();
-	_config.ChangeDriveType(type);
+	_config.ChangeDriveType(stringToRobotDriveType(type));
 	ExprEvaluator<float> evaluator;
 
 	for (size_t i = 0; i < wheelCount; i++)
-		_config.AddAxel(RobotParts::DriveAxle_t{ CreateFromConfigWheel(wheels[i].second,evaluator),CreateFromConfigMotor(motors[i].second,evaluator) });
+		_config.AddAxel(RobotParts::DriveAxle_t{ createFromConfigWheel(wheels[i].second,evaluator),createFromConfigMotor(motors[i].second,evaluator) });
 }
 
 void WriteConfigLine(const std::string& identifier, const std::string& value, std::ofstream& file) {
 	file << std::format("{} = {}\n", identifier, value);
 }
 
-void ConfigManager::SaveConfigToFile(const std::string& nameOfFile) {
+void ConfigManager::saveConfigToFile(const std::string& nameOfFile) {
 	std::ofstream file(nameOfFile);
 	if (!file.is_open())
 		throw std::runtime_error("Output file cannot be opened.");
 
 	auto axels = _config.GetRobotDriveAxels();
 	int wheelCount = axels.size();
-	WriteConfigLine("DRIVE_TYPE", _config.GetRobotDriveType(), file);
+	RobotDriveType type = _config.GetRobotDriveType();
+	WriteConfigLine("DRIVE_TYPE",robotDriveTypeToString(type), file);
 	WriteConfigLine("WHEELS", std::to_string(wheelCount), file);
 
 	for (int i = 0; i < wheelCount; i++)
-		WriteConfigLine(std::format("WHEEL_{}", i), ExportToConfig(axels[i].wheel),file);
+		WriteConfigLine(std::format("WHEEL_{}", i), exportToConfig(axels[i].wheel),file);
 
 	for (int i = 0; i < wheelCount; i++)
-		WriteConfigLine(std::format("MOTOR_{}", i), ExportToConfig(axels[i].motor), file);
+		WriteConfigLine(std::format("MOTOR_{}", i), exportToConfig(axels[i].motor), file);
 
 	file.close();
 }
 
 
-std::string ConfigManager::ExportToConfig(const RobotParts::Motor& motor) {
+std::string ConfigManager::exportToConfig(const RobotParts::Motor& motor) {
 	return std::format("{},{},{},{}", motor.pin1, motor.pin2, motor.hardwareMaxSpeedLimit,
 		motor.stepsPerRotation);
 }
 
-RobotParts::Motor ConfigManager::CreateFromConfigMotor(const std::string& values,ExprEvaluator<float>& evaluator) {
+RobotParts::Motor ConfigManager::createFromConfigMotor(const std::string& values,ExprEvaluator<float>& evaluator) {
 	auto splittedValues = Utils::split(values, ',');
 
 	if (splittedValues.size() != 4)
@@ -137,13 +138,13 @@ RobotParts::Motor ConfigManager::CreateFromConfigMotor(const std::string& values
 	return RobotParts::Motor{ maxSpeed, steps, pin1, pin2 };
 }
 
-std::string ConfigManager::ExportToConfig(const RobotParts::Wheel& wheel) {
+std::string ConfigManager::exportToConfig(const RobotParts::Wheel& wheel) {
 	return std::format("{},{},{},{},{}", wheel.diameter, wheel.x_position, wheel.y_position,
 		Utils::RadiansToDegree(wheel.wheel_angle),
 		Utils::RadiansToDegree(wheel.roller_angle));
 }
 
-RobotParts::Wheel ConfigManager::CreateFromConfigWheel(const std::string& values,
+RobotParts::Wheel ConfigManager::createFromConfigWheel(const std::string& values,
 	ExprEvaluator<float>& evaluator) {
 	auto splittedValues = Utils::split(values, ',');
 
@@ -159,4 +160,26 @@ RobotParts::Wheel ConfigManager::CreateFromConfigWheel(const std::string& values
 		Utils::DegreesToRadians(evaluator.EvaluateExpressions(splittedValues[4]));
 
 	return RobotParts::Wheel{ diameter, x, y, angle, roller };
+}
+
+
+RobotDriveType ConfigManager::stringToRobotDriveType(const std::string& str) {
+	std::string lower = str;
+	std::transform(lower.begin(), lower.end(), lower.begin(), ::tolower);
+
+	if (lower == "differential") return RobotDriveType::DIFFERENTIAL;
+	if (lower == "omni_wheel" || lower == "omniwheel") return RobotDriveType::OMNI_WHEEL;
+	if (lower == "mecanum") return RobotDriveType::MECANUM;
+
+	throw std::invalid_argument("Invalid RobotDriveType: " + str);
+}
+
+// Convert enum to string
+std::string ConfigManager::robotDriveTypeToString(RobotDriveType type) {
+	switch (type) {
+	case RobotDriveType::DIFFERENTIAL: return "DIFFERENTIAL";
+	case RobotDriveType::OMNI_WHEEL: return "OMNI_WHEEL";
+	case RobotDriveType::MECANUM: return "MECANUM";
+	default: throw std::invalid_argument("Unknown RobotDriveType");
+	}
 }

@@ -5,10 +5,9 @@
 #include <format>
 #include <ranges>
 #include <vector>
-
+#include "MathUtils.hpp"
 namespace RobotParts {
-	class Motor {
-	public:
+	struct Motor {
 		/**
 		 * @brief Stores the absolute maximum speed the hardware can theoretically
 		 * handle (in steps/sec). This acts as an upper safety limit, potentially used
@@ -23,8 +22,7 @@ namespace RobotParts {
 		const int pin1, pin2;
 	};
 
-	class Wheel {
-	public:
+	struct Wheel {
 		const float diameter;
 		// Position of wheel center relative to robot center in mm
 		const float x_position;
@@ -34,6 +32,8 @@ namespace RobotParts {
 		const float wheel_angle;
 		// Angle of the rollers on the omni wheel in radians
 		const float roller_angle;
+
+		const Vec2 driveVector;
 	};
 
 	struct DriveAxle_t {
@@ -41,6 +41,13 @@ namespace RobotParts {
 		Motor motor;
 	};
 } // namespace RobotParts
+
+enum class RobotDriveType {
+	DIFFERENTIAL,
+	OMNI_WHEEL,
+	MECANUM
+};
+
 class RobotConfig {
 public:
 	const std::vector<RobotParts::DriveAxle_t>& GetRobotDriveAxels() const;
@@ -53,14 +60,14 @@ public:
 		return _axels |
 			std::ranges::views::transform([](auto& axel) -> RobotParts::Wheel& { return axel.wheel; });
 	}
-	const std::string& GetRobotDriveType();
+	const RobotDriveType GetRobotDriveType();
 	void AddAxel(RobotParts::DriveAxle_t& axel);
 	void AddAxel(RobotParts::DriveAxle_t axel);
-	void ChangeDriveType(const std::string& type);
+	void ChangeDriveType(RobotDriveType type);
 	int getWheelCount() const;
 private:
 	std::vector<RobotParts::DriveAxle_t> _axels;
-	std::string _driveType = "";
+	RobotDriveType _DriveType;
 	// Things used in simulator only
 	// TODO
 	// 1) Add chassis

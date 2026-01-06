@@ -15,7 +15,6 @@ set(MODULE_NAME libraryIntegration)
 add_library(${MODULE_NAME} STATIC ${LIBRARY_SOURCES} ${CONFIG_FILES})
 
 target_include_directories(${MODULE_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(${MODULE_NAME} PUBLIC physicsEngine)
 target_link_libraries(${MODULE_NAME} PUBLIC exprtk)
 target_link_libraries(${MODULE_NAME} PUBLIC core)
 set_target_properties(${MODULE_NAME} PROPERTIES FOLDER "Project Modules")

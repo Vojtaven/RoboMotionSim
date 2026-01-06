@@ -20,15 +20,15 @@ using Clock = std::chrono::steady_clock;
 int main() {
 	ConfigManager configManager;
 	std::cout << std::filesystem::current_path() << "\n";
-	configManager.LoadConfigFromFile("../src/libraryIntegration/testConfig.ini");
-	configManager.SaveConfigToFile("../src/libraryIntegration/outTestConfig.ini");
-	auto config = configManager.GetReadOnlyConfig();
+	configManager.loadConfigFromFile("../src/libraryIntegration/testConfig.ini");
+	configManager.saveConfigToFile("../src/libraryIntegration/outTestConfig.ini");
+	auto config = configManager.getReadOnlyConfig();
 
 	sf::View view(sf::FloatRect({ 0.f, 0.f }, { VIEW_WIDTH	, VIEW_HEIGHT }));
 	sf::RenderWindow window(sf::VideoMode({ VIEW_WIDTH, VIEW_HEIGHT }), "RoboMotionSim Test");
 	window.setView(view);
 
-	VisualizationEngine vizEngine(window, configManager.GetReadOnlyConfig());
+	VisualizationEngine vizEngine(window, configManager.getReadOnlyConfig());
 	PhysicsEngine physicsEngine;
 	RobotState state(config.getWheelCount());
 	vizEngine.setScaleFactor(1);

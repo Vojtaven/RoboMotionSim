@@ -36,18 +36,13 @@ void PhysicsEngine::ToWheelSpeed(RobotState& state, const RobotConfig& config){
         float local_vx = robotSpeed.x - (omega * wheel.y_position);
         float local_vy = robotSpeed.y + (omega * wheel.x_position);
 
-        if(omega != 0)
-        std::cout << "Wheel " << i << " at [" << wheel.x_position << "," << wheel.y_position << "] "
-            << "Omega: " << omega << " -> LocalVX: " << local_vx;
-
+        float v_long = local_vx * cos(wheel.wheel_angle) + local_vy * sin(wheel.wheel_angle);
+        float v_tran = -local_vx * sin(wheel.wheel_angle) + local_vy * cos(wheel.wheel_angle);
         // 2. Project that velocity onto the wheel's direction
         // This is the generalized formula for Omni/Mecanum wheels
         float angleSum = wheel.wheel_angle + wheel.roller_angle;
 
-        state.wheels[i].speed = (local_vx * cos(angleSum) + local_vy * sin(angleSum))
-            / cos(wheel.roller_angle);
-        if (omega != 0)
-        std::cout << " Speed: " << state.wheels[i].speed << std::endl;
+        state.wheels[i].speed = v_long + v_tran * tan(wheel.roller_angle);
         i++;
     }
 }

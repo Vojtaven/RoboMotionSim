@@ -7,16 +7,18 @@
 #include "Utils.hpp"
 class ConfigManager {
 public:
-	void LoadConfigFromFile(const std::string& path);
-	void SaveConfigToFile(const std::string& nameOfFile);
+	void loadConfigFromFile(const std::string& path);
+	void saveConfigToFile(const std::string& nameOfFile);
 
-	const RobotConfig& GetReadOnlyConfig() const { return _config; }
-	RobotConfig& GetConfig() { return _config; }
+	const RobotConfig& getReadOnlyConfig() const { return _config; }
+	RobotConfig& getConfig() { return _config; }
 private:
-	static std::string ExportToConfig(const RobotParts::Motor& motor);
-	static std::string ExportToConfig(const RobotParts::Wheel& motor);
-	static RobotParts::Motor CreateFromConfigMotor(const std::string& values, ExprEvaluator<float>& evaluator);
-	static RobotParts::Wheel CreateFromConfigWheel(const std::string& values,ExprEvaluator<float>& evaluator);
+	static std::string exportToConfig(const RobotParts::Motor& motor);
+	static std::string exportToConfig(const RobotParts::Wheel& motor);
+	static RobotParts::Motor createFromConfigMotor(const std::string& values, ExprEvaluator<float>& evaluator);
+	static RobotParts::Wheel createFromConfigWheel(const std::string& values,ExprEvaluator<float>& evaluator);
+	RobotDriveType stringToRobotDriveType(const std::string& str);
+	std::string robotDriveTypeToString(RobotDriveType type);
 	RobotConfig _config;
 };
 
