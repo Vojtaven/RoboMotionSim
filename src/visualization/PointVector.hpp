@@ -14,7 +14,7 @@ public:
 	}
 
 	void draw(sf::RenderTarget& target, sf::RenderStates states) const override {
-		if (_shaft->getSize().x != 0)
+		if (std::abs( _shaft->getSize().x) > 0.1f)
 			Arrow::draw(target, states);
 	}
 };

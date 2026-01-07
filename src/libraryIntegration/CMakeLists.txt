@@ -6,8 +6,10 @@ file(GLOB LIBRARY_SOURCES
 )
 
 set(CONFIG_FILES
-    "${CMAKE_CURRENT_SOURCE_DIR}/testConfig.ini"
     "${CMAKE_CURRENT_SOURCE_DIR}/outTestConfig.ini"
+    "${CMAKE_CURRENT_SOURCE_DIR}/OmniConfig.ini"
+    "${CMAKE_CURRENT_SOURCE_DIR}/DifferentialConfig.ini"
+    "${CMAKE_CURRENT_SOURCE_DIR}/MecanumConfig.ini"
 )
 
 set(MODULE_NAME libraryIntegration)

@@ -1,13 +1,14 @@
 #include "WheelVectors.hpp"
 #include "RobotState.hpp"
 WheelVectors::WheelVectors(const RobotParts::Wheel& wheel, float forwardBaseLength, float rollerBaseLength,
-	sf::Color color, float thickness, sf::Vector2f headSize)
+	sf::Color forwardColor, sf::Color rollerColor,
+	float thickness, sf::Vector2f headSize)
 	:_forwardBaseLength(forwardBaseLength), _rollerBaseLength(rollerBaseLength)
 {
 	auto position = sf::Vector2f{ wheel.x_position, wheel.y_position };
 
-	auto fwdVec = std::make_unique<PointVector>(position, wheel.wheel_angle, _forwardBaseLength, color, thickness, headSize);
-	auto rollVec = std::make_unique<PointVector>(position,wheel.roller_angle, _rollerBaseLength, color, thickness, headSize);
+	auto fwdVec = std::make_unique<PointVector>(position, wheel.wheel_angle, _forwardBaseLength, forwardColor, thickness, headSize);
+	auto rollVec = std::make_unique<PointVector>(position,wheel.roller_angle, _rollerBaseLength, rollerColor, thickness, headSize);
 	_forwardVector = fwdVec.get();
 	_rollerVector = rollVec.get();
 	add(std::move(fwdVec));

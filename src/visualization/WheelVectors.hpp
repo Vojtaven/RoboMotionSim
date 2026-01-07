@@ -15,7 +15,8 @@ private:
 	bool _forwardVectorVisible = true;
 public:
 	WheelVectors(const RobotParts::Wheel& wheel, float forwardBaseLength, float rollerBaseLength,
-		sf::Color color = sf::Color::White, float thickness = 8.f, sf::Vector2f headSize = { 25,25 });
+		sf::Color forwardColor = sf::Color::White, sf::Color rollerColor = sf::Color::White,
+		float thickness = 8.f, sf::Vector2f headSize = { 25,25 });
 	void setForwardLength(float length);
 	void setRollerLength(float length);
 	void update(const WheelState& state);

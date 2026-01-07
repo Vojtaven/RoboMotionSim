@@ -4,10 +4,11 @@
 #include "RobotState.hpp"
 class PhysicsEngine {
 public:
-	void Update(const float dt, RobotState& state,const RobotConfig& config);
+	void update(const float dt, RobotState& state,const RobotConfig& config);
 private:
-	void UpdatePosition(const float dt, RobotState& state);
-	void ToWheelSpeed(RobotState& state, const RobotConfig& config);
-	void ToGlobalFrame(RobotState& state);
+	void updatePosition(const float dt, RobotState& state);
+	void toWheelSpeed(RobotState& state, const RobotConfig& config);
+	void toGlobalFrame(RobotState& state);
+	void limitMovement(RobotState& state, const RobotConfig& config);
 };
 #endif // PHYSICS_ENGINE_HPP

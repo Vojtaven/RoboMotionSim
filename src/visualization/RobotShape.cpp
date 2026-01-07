@@ -111,7 +111,9 @@ void RobotShape::AddWheelVector(const RobotParts::Wheel& wheel) {
 		wheel,
 		wheel.diameter / 2.f,
 		wheel.diameter / 4.f,
-		sf::Color::Red, 4.f, sf::Vector2f{ 25, 25 });
+		sf::Color::Red,
+		sf::Color::Green,
+		4.f, sf::Vector2f{ 25, 25 });
 
 	_speedOfWheels.push_back(wheelVectors.get());
 	add(std::move(wheelVectors));

@@ -20,7 +20,9 @@ using Clock = std::chrono::steady_clock;
 int main() {
 	ConfigManager configManager;
 	std::cout << std::filesystem::current_path() << "\n";
-	configManager.loadConfigFromFile("../src/libraryIntegration/testConfig.ini");
+	//configManager.loadConfigFromFile("../src/libraryIntegration/DifferentialConfig.ini");
+	//configManager.loadConfigFromFile("../src/libraryIntegration/MecanumConfig.ini");
+	configManager.loadConfigFromFile("../src/libraryIntegration/OmniConfig.ini");
 	configManager.saveConfigToFile("../src/libraryIntegration/outTestConfig.ini");
 	auto config = configManager.getReadOnlyConfig();
 
@@ -57,13 +59,13 @@ int main() {
 			}
 		}
 
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::W))
-			speed.y -= moveStep;
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::S))
-			speed.y += moveStep;
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::A))
-			speed.x -= moveStep;
+			speed.y -= moveStep;
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::D))
+			speed.y += moveStep;
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::S))
+			speed.x -= moveStep;
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::W))
 			speed.x += moveStep;
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::Q))
 			rotationSpeed -= rotationStep;
@@ -74,7 +76,7 @@ int main() {
 		state.angularVelocity = rotationSpeed;
 		auto now = Clock::now();
 		std::chrono::duration<float> delta = now - last;
-		physicsEngine.Update(delta.count(), state, config);
+		physicsEngine.update(delta.count(), state, config);
 		last = now;
 		vizEngine.update(state);
 		window.clear();

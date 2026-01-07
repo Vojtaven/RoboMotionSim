@@ -7,7 +7,7 @@ std::vector<RobotParts::DriveAxle_t>& RobotConfig::GetRobotDriveAxels() {
 	return _axels;
 }
 
-const RobotDriveType RobotConfig::GetRobotDriveType() {
+const RobotDriveType RobotConfig::GetRobotDriveType() const  {
 	return _DriveType;
 }
 void RobotConfig::AddAxel(RobotParts::DriveAxle_t& axel) {

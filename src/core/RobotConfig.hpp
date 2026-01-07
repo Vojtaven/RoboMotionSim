@@ -60,7 +60,7 @@ public:
 		return _axels |
 			std::ranges::views::transform([](auto& axel) -> RobotParts::Wheel& { return axel.wheel; });
 	}
-	const RobotDriveType GetRobotDriveType();
+	const RobotDriveType GetRobotDriveType() const;
 	void AddAxel(RobotParts::DriveAxle_t& axel);
 	void AddAxel(RobotParts::DriveAxle_t axel);
 	void ChangeDriveType(RobotDriveType type);
