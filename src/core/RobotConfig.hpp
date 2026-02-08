@@ -1,8 +1,6 @@
 #ifndef ROBO_CONFIG_H
 #define ROBO_CONFIG_H
 
-#include <algorithm>
-#include <format>
 #include <ranges>
 #include <vector>
 #include "MathUtils.hpp"
@@ -33,7 +31,7 @@ namespace RobotParts {
 		// Angle of the rollers on the omni wheel in radians
 		const float roller_angle;
 
-		const Vec2 driveVector;
+		const Vec2f driveVector;
 	};
 
 	struct DriveAxle_t {

@@ -12,12 +12,12 @@ struct WheelState {
 struct RobotState {
 	RobotState(int wheelCount) : wheelCount(wheelCount), wheels(wheelCount) {}
 
-	Vec2 position;
+	Vec2f position;
 	float chassisAngle = 0;
 	float frontAngle = 0;
 
-	Vec2 localVelocity;
-	Vec2 globalvelocity;
+	Vec2f localVelocity;
+	Vec2f globalvelocity;
 	float angularVelocity = 0;
 
 	int wheelCount;

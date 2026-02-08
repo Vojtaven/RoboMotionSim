@@ -4,6 +4,7 @@ add_library(core STATIC
     RobotConfig.cpp
     RobotState.hpp
     MathUtils.hpp
+    AppConfig.hpp
 )
 
 target_include_directories(core PUBLIC

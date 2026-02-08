@@ -8,7 +8,7 @@ WheelVectors::WheelVectors(const RobotParts::Wheel& wheel, float forwardBaseLeng
 	auto position = sf::Vector2f{ wheel.x_position, wheel.y_position };
 
 	auto fwdVec = std::make_unique<PointVector>(position, wheel.wheel_angle, _forwardBaseLength, forwardColor, thickness, headSize);
-	auto rollVec = std::make_unique<PointVector>(position,wheel.roller_angle, _rollerBaseLength, rollerColor, thickness, headSize);
+	auto rollVec = std::make_unique<PointVector>(position,wheel.roller_angle + wheel.wheel_angle, _rollerBaseLength, rollerColor, thickness, headSize);
 	_forwardVector = fwdVec.get();
 	_rollerVector = rollVec.get();
 	add(std::move(fwdVec));

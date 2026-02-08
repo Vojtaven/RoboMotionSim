@@ -84,7 +84,7 @@ void RobotShape::draw(sf::RenderTarget& target, sf::RenderStates states) const {
 }
 
 void RobotShape::Update(const RobotState& state) {
-	setPosition(ToSFMLVector(state.position));
+	setPosition(ToSFMLVector2f(state.position));
 	setRotation(ToSFMLAngle(state.chassisAngle));
 
 

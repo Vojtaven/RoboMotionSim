@@ -1,0 +1,16 @@
+{
+  "appName": "PARSER WILL ADD",
+  "appVersion": "PARSER WILL ADD",
+  "MainWindowConfig": {
+    "open": true,
+    "resizable": true,
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "size": {
+      "x": 0,
+      "y": 0
+    }
+  }
+}

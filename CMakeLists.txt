@@ -1,9 +1,12 @@
 cmake_minimum_required(VERSION 3.24)
-project(RoboMotionSim VERSION 1.0.0 LANGUAGES CXX)
+set(APP_NAME "RoboMotionSim")
+set(APP_VERSION "0.5.0")
+
+project(${APP_NAME} VERSION 1.0.0 LANGUAGES CXX)
 
 # Set startup project for Visual Studio
 if(MSVC)
-    set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT RoboMotionSim)
+    set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${APP_NAME})
     add_compile_options(/bigobj)
 endif()
 # Set C++ standard
@@ -11,12 +14,18 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+# Useful variables
+add_compile_definitions(
+    APP_NAME="${APP_NAME}"
+    APP_VERSION="${APP_VERSION}"
+)
+
 # Libraries versions
 set(sfml_tag_version 3.0.2)
 set(imgui_tag_version v1.91.9)
 set(imgui_sfml_tag_version v3.0)
 set(asio_tag_version asio-1-36-0)
-
+set(nlohmann_json_version v3.12.0)
 # Project Sources
 
 file(GLOB project_sources
@@ -87,6 +96,19 @@ set(IMGUI_SFML_FIND_SFML OFF)
 set(IMGUI_SFML_IMGUI_DEMO ON)
 FetchContent_MakeAvailable(imgui-sfml)
 set_target_properties(ImGui-SFML PROPERTIES FOLDER "Dependencies/ImGui-SFML")
+
+# ============================================================================
+# Fetch Nlohmann json
+# ============================================================================
+message(STATUS "Fetching Nlohmann json...")
+FetchContent_Declare(
+    nlohmann_json
+  GIT_REPOSITORY https://github.com/nlohmann/json.git
+  GIT_TAG ${nlohmann_json_version}
+)
+
+FetchContent_MakeAvailable(nlohmann_json)
+set_target_properties(nlohmann_json PROPERTIES FOLDER "Dependencies/Nlohmann_json")
 # ============================================================================
 # Fetch Boost (Asio header-only)
 # ============================================================================
@@ -130,6 +152,7 @@ add_subdirectory(src/libraryIntegration)
 add_subdirectory(src/visualization)
 add_subdirectory(src/physicsEngine)
 add_subdirectory(src/core)
+
 # ============================================================================
 # Link libraries
 # ============================================================================

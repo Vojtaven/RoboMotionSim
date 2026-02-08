@@ -17,8 +17,8 @@ void PhysicsEngine::updatePosition(const float dt, RobotState& state) {
 }
 
 void PhysicsEngine::toGlobalFrame(RobotState& state) {
-	Vec2& global = state.globalvelocity;
-	Vec2& local = state.localVelocity;
+	Vec2f& global = state.globalvelocity;
+	Vec2f& local = state.localVelocity;
 	const float angle = state.frontAngle;
 	global.x = local.x * cos(angle) - local.y * sin(angle);
 	global.y = local.x * sin(angle) + local.y * cos(angle);

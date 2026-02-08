@@ -2,24 +2,35 @@
 #define CONFIG_MANAGER_HPP
 
 #include <string>
+#include <filesystem>
 #include "RobotConfig.hpp"
-#include "silent_exprtk.hpp"
-#include "Utils.hpp"
+#include "AppConfig.hpp"
+#include "MathUtils.hpp"
+#include "ExportHelper.hpp"
+#include "ImportHelper.hpp"
 class ConfigManager {
-public:
-	void loadConfigFromFile(const std::string& path);
-	void saveConfigToFile(const std::string& nameOfFile);
-
-	const RobotConfig& getReadOnlyConfig() const { return _config; }
-	RobotConfig& getConfig() { return _config; }
 private:
-	static std::string exportToConfig(const RobotParts::Motor& motor);
-	static std::string exportToConfig(const RobotParts::Wheel& motor);
-	static RobotParts::Motor createFromConfigMotor(const std::string& values, ExprEvaluator<float>& evaluator);
-	static RobotParts::Wheel createFromConfigWheel(const std::string& values,ExprEvaluator<float>& evaluator);
-	RobotDriveType stringToRobotDriveType(const std::string& str);
-	std::string robotDriveTypeToString(RobotDriveType type);
-	RobotConfig _config;
+	RobotConfig _robotConfig;
+	AppConfig _appConfig;
+	const std::filesystem::path _systemConfigDir;
+
+public:
+	ConfigManager(const Vec2i screenSize);
+
+	void loadRobotConfig(const std::string& path) { _robotConfig = ImportHelper::loadRobotConfigFrom(path); }
+	void saveRobotConfig(const std::string& nameOfFile) { ExportHelper::saveRobotConfigTo(_robotConfig, nameOfFile); }
+	void loadAppConfig(const std::string& path) { _appConfig = ImportHelper::loadAppConfigFrom(path); }
+	void saveAppConfig(const std::string& nameOfFile) { ExportHelper::saveAppConfigTo(_appConfig, nameOfFile); }
+	void saveDefaultAppConfig() { saveAppConfig((_systemConfigDir / "app_config.json").string()); }
+	void setAppConfig(const AppConfig& config) { _appConfig = config; }
+	const AppConfig& getConstAppConfig() const { return _appConfig; }
+	AppConfig& getAppConfig() { return _appConfig; }
+	const RobotConfig& getConstRobotConfig() const { return _robotConfig; }
+	RobotConfig& getRobotConfig() { return _robotConfig; }
+private:
+	void createDefaultConfigs(std::filesystem::path path, const char* data, const int lenght);
+	void loadDefaultConfigs(const Vec2i screenSize);
+	std::filesystem::path getUserConfigDir();
 };
 
 #endif //CONFIG_PARSER_HPP
