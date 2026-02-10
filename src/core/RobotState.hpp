@@ -19,6 +19,7 @@ struct RobotState {
 	Vec2f localVelocity;
 	Vec2f globalvelocity;
 	float angularVelocity = 0;
+	float frontAngularVelocity = 0;
 
 	int wheelCount;
 	std::vector<WheelState> wheels;

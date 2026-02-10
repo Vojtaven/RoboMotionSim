@@ -1,6 +1,7 @@
 #include "RobotShape.hpp"
 #include <format>
-#include "Arrow.hpp"
+#include "PointVector.hpp"
+#include <memory>
 #include "WheelVectors.hpp"
 #include "SFMLHelper.hpp"
 std::unique_ptr<sf::ConvexShape> makeRobotBase(const std::vector<sf::Vector2f>& points) {
@@ -73,9 +74,19 @@ RobotShape::RobotShape(const RobotConfig& config, bool drawCenter, bool showSpee
 	_numberOfWheels = _wheelMountingPoints.size();
 	auto shape = makeRobotBase(_wheelMountingPoints);
 	add(std::move(shape));
+	float distanceFromCenter = 0;
+	for(const auto& x : _wheelMountingPoints)
+		distanceFromCenter += std::sqrtf(x.x * x.x + x.y * x.y);
+
+	distanceFromCenter /= _numberOfWheels * 3;
+
+	auto frontVec = std::make_unique<PointVector>(sf::Vector2f{0,0}, 0.0f, distanceFromCenter, sf::Color::White);
+	_frontVector = frontVec.get();
 
 	for (const auto& wheel : config.GetRobotWheels())
 		AddWheel(wheel);
+
+	add(std::move(frontVec));
 }
 
 void RobotShape::draw(sf::RenderTarget& target, sf::RenderStates states) const {
@@ -86,7 +97,7 @@ void RobotShape::draw(sf::RenderTarget& target, sf::RenderStates states) const {
 void RobotShape::Update(const RobotState& state) {
 	setPosition(ToSFMLVector2f(state.position));
 	setRotation(ToSFMLAngle(state.chassisAngle));
-
+	_frontVector->setRotation(state.frontAngle);
 
 	for (int i = 0; i < state.wheelCount;i++) {
 		_speedOfWheels[i]->update(state.wheels[i]);
@@ -109,10 +120,9 @@ void RobotShape::AddWheelVector(const RobotParts::Wheel& wheel) {
 	//Vector of speed for this wheel
 	auto wheelVectors = std::make_unique<WheelVectors>(
 		wheel,
-		wheel.diameter / 2.f,
-		wheel.diameter / 4.f,
 		sf::Color::Red,
 		sf::Color::Green,
+		sf::Color::Yellow,
 		4.f, sf::Vector2f{ 25, 25 });
 
 	_speedOfWheels.push_back(wheelVectors.get());

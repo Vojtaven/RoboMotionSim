@@ -1,6 +1,7 @@
 #include "PhysicsEngine.hpp"
 #include "RobotState.hpp"
 #include "RobotConfig.hpp"
+#include <iostream>
 #include <algorithm> // For std::abs
 void PhysicsEngine::update(const float dt, RobotState& state, const RobotConfig& config)
 {
@@ -11,32 +12,35 @@ void PhysicsEngine::update(const float dt, RobotState& state, const RobotConfig&
 }
 
 void PhysicsEngine::updatePosition(const float dt, RobotState& state) {
-	state.position += state.globalvelocity * dt;
+	//state.position += state.globalvelocity * dt;
 	state.chassisAngle += state.angularVelocity * dt;
-	state.frontAngle = state.chassisAngle;
+	state.frontAngle += state.frontAngularVelocity * dt;
 }
 
 void PhysicsEngine::toGlobalFrame(RobotState& state) {
 	Vec2f& global = state.globalvelocity;
 	Vec2f& local = state.localVelocity;
-	const float angle = state.frontAngle;
+	const float angle = state.frontAngle + state.chassisAngle;
 	global.x = local.x * cos(angle) - local.y * sin(angle);
 	global.y = local.x * sin(angle) + local.y * cos(angle);
-
 }
 
 void PhysicsEngine::toWheelSpeed(RobotState& state, const RobotConfig& config) {
 	const auto wheels = config.GetRobotWheels();
-	const auto robotSpeed = state.localVelocity;
-	const auto omega = state.angularVelocity;
 	const RobotDriveType driveType = config.GetRobotDriveType();
+	const float chassisCos = cos(state.chassisAngle);
+	const float chassisSin = sin(state.chassisAngle);
+	// Convert global velocity to chassis-front-relative velocity
+	const float chassis_vx = state.globalvelocity.x * chassisCos + state.globalvelocity.y * chassisSin;
+	const float chassis_vy = -state.globalvelocity.x * chassisSin + state.globalvelocity.y * chassisCos;
 
+	const auto omega = state.angularVelocity;
 	int i = 0;
 	for (const auto& wheel : wheels) {
 		float finalWheelSpeed = 0.0f;
 
-		float local_vx = robotSpeed.x - (omega * wheel.y_position);
-		float local_vy = robotSpeed.y + (omega * wheel.x_position);
+		float local_vx = chassis_vx - (omega * wheel.y_position);
+		float local_vy = chassis_vy + (omega * wheel.x_position);
 
 		float cos_w = cos(wheel.wheel_angle);
 		float sin_w = sin(wheel.wheel_angle);

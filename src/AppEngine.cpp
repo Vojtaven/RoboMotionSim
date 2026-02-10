@@ -39,7 +39,7 @@ void AppEngine::run() {
 	while (vizEngine->isWindowOpen()) {
 		Vec2f speed{ 0,0 };
 		float rotationSpeed = 0;
-
+		float frontRotationSpeed = 0;
 
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::A))
 			speed.y -= moveStep;
@@ -53,9 +53,14 @@ void AppEngine::run() {
 			rotationSpeed -= rotationStep;
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::E))
 			rotationSpeed += rotationStep;
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::J))
+			frontRotationSpeed -= rotationStep;
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::K))
+			frontRotationSpeed += rotationStep;
 
 		robotState->localVelocity = speed;
 		robotState->angularVelocity = rotationSpeed;
+		robotState->frontAngularVelocity = frontRotationSpeed;
 		auto now = Clock::now();
 		std::chrono::duration<float> delta = now - last;
 		physicsEngine->update(delta.count(), *robotState, robotConfig);

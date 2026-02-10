@@ -4,6 +4,7 @@
 #include "RobotConfig.hpp"
 #include "RobotShape.hpp"
 #include "WheelVectors.hpp"
+#include "PointVector.hpp"
 #include <vector>
 
 class RobotShape : public CompositeShape {
@@ -20,6 +21,7 @@ private:
 	bool _showSpeed;
 	bool _drawCenter;
 	int _numberOfWheels = 0;
+	PointVector* _frontVector = nullptr;
 	std::vector<WheelVectors*> _speedOfWheels;
 	std::vector<sf::Vector2f> _wheelMountingPoints;
 };
