@@ -134,4 +134,3 @@ void VisualizationEngine::resetRobotPosition(sf::Vector2f pos) {
 Vec2f VisualizationEngine::getWindowCenter() const {
 	return FromSFMLVector((sf::Vector2f)_mainWindow->getSize() / 2.f);
 }
-

@@ -10,5 +10,6 @@ private:
 	void toWheelSpeed(RobotState& state, const RobotConfig& config);
 	void toGlobalFrame(RobotState& state);
 	void limitMovement(RobotState& state, const RobotConfig& config);
+	void updateDirectionVectors(RobotState& state);
 };
 #endif // PHYSICS_ENGINE_HPP

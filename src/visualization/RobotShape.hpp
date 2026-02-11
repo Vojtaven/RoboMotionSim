@@ -18,11 +18,13 @@ public:
 private:
 	void AddWheel(const RobotParts::Wheel& wheel);
 	void AddWheelVector(const RobotParts::Wheel& wheel);
+	void UpdateDirectionVectors(const RobotState& state);
 	bool _showSpeed;
 	bool _drawCenter;
 	int _numberOfWheels = 0;
 	PointVector* _frontVector = nullptr;
 	std::vector<WheelVectors*> _speedOfWheels;
 	std::vector<sf::Vector2f> _wheelMountingPoints;
+	std::vector<PointVector*> _directionVectors;
 };
 #endif // !ROBOTSHAPE_HPP

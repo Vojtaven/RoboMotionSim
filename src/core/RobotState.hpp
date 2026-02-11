@@ -9,6 +9,12 @@ struct WheelState {
 	float rollerSpeed = 0;
 };
 
+struct DirectionVector {
+	float angle = 0;
+	float length = 0;
+	Vec2f position;
+};
+
 struct RobotState {
 	RobotState(int wheelCount) : wheelCount(wheelCount), wheels(wheelCount) {}
 
@@ -23,6 +29,7 @@ struct RobotState {
 
 	int wheelCount;
 	std::vector<WheelState> wheels;
+	std::vector<DirectionVector> directionVectors;
 };
 
 #endif // !ROBOTSTATE_HPP

@@ -29,10 +29,15 @@ AppEngine::AppEngine()
 
 	robotState = std::make_unique<RobotState>(robotConfig.getWheelCount());
 	robotState->position = vizEngine->getWindowCenter();
+	robotState->frontAngle = DegreesToRadians(-90);
+
+	DirectionVector centerPoint;
+	centerPoint.position = Vec2f{ 0.0f, 0.0f };
+	robotState->directionVectors.push_back(centerPoint);
 }
 void AppEngine::run() {
 	const float moveStep = 200; // 200mm/s
-	const float rotationStep = DegreesToRadians(30); // 30 degrees/s
+	const float rotationStep = DegreesToRadians(60); // 30 degrees/s
 	auto& robotConfig = configManager->getConstRobotConfig();
 	auto last = Clock::now();
 

@@ -102,6 +102,38 @@ void RobotShape::Update(const RobotState& state) {
 	for (int i = 0; i < state.wheelCount;i++) {
 		_speedOfWheels[i]->update(state.wheels[i]);
 	}
+	
+	UpdateDirectionVectors(state);
+}
+
+void RobotShape::UpdateDirectionVectors(const RobotState& state) {
+	// If the number of direction vectors changed, rebuild them
+	if (_directionVectors.size() != state.directionVectors.size()) {
+		_directionVectors.clear();
+		
+		// Add new direction vectors
+		for (const auto& dirVec : state.directionVectors) {
+			auto pointVec = std::make_unique<PointVector>(
+				ToSFMLVector2f(dirVec.position),
+				dirVec.angle,
+				dirVec.length,
+				sf::Color::Magenta,
+				6.f,
+				sf::Vector2f{20, 20}
+			);
+			_directionVectors.push_back(pointVec.get());
+			add(std::move(pointVec));
+		}
+	}
+	else {
+		// Update existing direction vectors
+		for (size_t i = 0; i < state.directionVectors.size(); ++i) {
+			const auto& dirVec = state.directionVectors[i];
+			_directionVectors[i]->setPosition(ToSFMLVector2f(dirVec.position));
+			_directionVectors[i]->setRotation(dirVec.angle);
+			_directionVectors[i]->setLength(dirVec.length);
+		}
+	}
 }
 
 void RobotShape::AddWheel(const RobotParts::Wheel& wheel) {
