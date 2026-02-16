@@ -4,6 +4,9 @@
 #include "RobotState.hpp"
 #include "SFMLHelper.hpp"
 #include "MathUtils.hpp"
+#include <imgui.h>
+#include <imgui-SFML.h>
+#include <cstdint>
 
 void  VisualizationEngine::CreateMainWindow(const AppConfig& appConfig) {
 	auto& mainConfig = appConfig.MainWindowConfig;
@@ -20,10 +23,109 @@ void  VisualizationEngine::CreateMainWindow(const AppConfig& appConfig) {
 VisualizationEngine::VisualizationEngine(const AppConfig& appConfig, const RobotConfig& robotConfig)
 	:_appConfig(appConfig), _robotShape(std::make_unique<RobotShape>(robotConfig)) {
 	CreateMainWindow(appConfig);
+	InitImGui();
+
+	// Wire up the settings window callback
+	_settingsWindow.setOnSettingsChanged([this](const VisualizationSettings& s) {
+		setScaleFactor(s.scaleFactor);
+		setGridSpacing({ s.gridSpacing[0], s.gridSpacing[1] });
+		setGridColor(sf::Color(
+			(uint8_t)(s.gridColor[0] * 255),
+			(uint8_t)(s.gridColor[1] * 255),
+			(uint8_t)(s.gridColor[2] * 255)
+		));
+	});
 
 	setScaleFactor(1);
 	setGridSpacing({ 50,50 });
 	resetRobotPosition((sf::Vector2f)_mainWindow->getSize() / 2.0f);
+}
+
+VisualizationEngine::~VisualizationEngine() {
+	_settingsWindow.close();
+	ImGui::SFML::SetCurrentWindow(*_mainWindow);
+	ImGui::SFML::Shutdown();
+}
+
+void VisualizationEngine::InitImGui() {
+	if (!ImGui::SFML::Init(*_mainWindow)) {
+		// Handle initialization failure if needed
+	}
+	
+	ImGuiIO& io = ImGui::GetIO();
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+
+	// Configure ImGui style
+	ImGuiStyle& style = ImGui::GetStyle();
+	style.WindowRounding = 6.0f;
+	style.FrameRounding = 4.0f;
+	style.GrabRounding = 4.0f;
+	
+	// Set colors for a modern look
+	ImVec4* colors = style.Colors;
+	colors[ImGuiCol_WindowBg] = ImVec4(0.1f, 0.1f, 0.1f, 0.95f);
+	colors[ImGuiCol_TitleBg] = ImVec4(0.2f, 0.2f, 0.2f, 1.0f);
+	colors[ImGuiCol_TitleBgActive] = ImVec4(0.3f, 0.3f, 0.3f, 1.0f);
+	colors[ImGuiCol_Button] = ImVec4(0.25f, 0.25f, 0.25f, 1.0f);
+	colors[ImGuiCol_ButtonHovered] = ImVec4(0.35f, 0.35f, 0.35f, 1.0f);
+	colors[ImGuiCol_ButtonActive] = ImVec4(0.45f, 0.45f, 0.45f, 1.0f);
+}
+
+void VisualizationEngine::RenderImGuiMenu() {
+	// Get window size for positioning
+	ImVec2 windowSize = ImGui::GetIO().DisplaySize;
+	
+	// Menu button in top-right corner
+	const float menuButtonSize = 40.0f;
+	const float padding = 10.0f;
+	ImGui::SetNextWindowPos(ImVec2(windowSize.x - menuButtonSize - padding, padding));
+	ImGui::SetNextWindowSize(ImVec2(menuButtonSize, menuButtonSize));
+	
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(4, 4));
+	ImGui::Begin("##MenuButton", nullptr, 
+		ImGuiWindowFlags_NoTitleBar | 
+		ImGuiWindowFlags_NoResize | 
+		ImGuiWindowFlags_NoMove | 
+		ImGuiWindowFlags_NoScrollbar |
+		ImGuiWindowFlags_NoScrollWithMouse |
+		ImGuiWindowFlags_NoBackground);
+	
+	if (ImGui::Button("=", ImVec2(menuButtonSize - 8, menuButtonSize - 8))) {
+		_showMenu = !_showMenu;
+	}
+	if (ImGui::IsItemHovered()) {
+		ImGui::SetTooltip("Menu");
+	}
+	ImGui::End();
+	ImGui::PopStyleVar();
+	
+	// Show dropdown menu if button was clicked
+	if (_showMenu) {
+		ImGui::SetNextWindowPos(ImVec2(windowSize.x - 200.0f - padding, menuButtonSize + padding * 2));
+		ImGui::SetNextWindowSize(ImVec2(200, 0));
+		
+		ImGui::Begin("Menu", &_showMenu, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
+		
+		if (ImGui::MenuItem("Settings")) {
+			VisualizationSettings current;
+			current.scaleFactor = _scaleFactor;
+			current.gridSpacing[0] = _gridSpacing.x;
+			current.gridSpacing[1] = _gridSpacing.y;
+			current.gridColor[0] = _gridColor.r / 255.0f;
+			current.gridColor[1] = _gridColor.g / 255.0f;
+			current.gridColor[2] = _gridColor.b / 255.0f;
+			_settingsWindow.open(current, *_mainWindow);
+			_showMenu = false;
+		}
+		
+		ImGui::Separator();
+		
+		if (ImGui::MenuItem("Exit", "ESC")) {
+			_mainWindow->close();
+		}
+		ImGui::ShowDemoWindow();
+		ImGui::End();
+	}
 }
 
 void VisualizationEngine::setRobotConfig(const RobotConfig& config, bool holdPosition) {
@@ -43,9 +145,13 @@ void VisualizationEngine::moveRobotBy(const sf::Vector2f offset, const sf::Angle
 }
 
 void VisualizationEngine::draw() {
+	// Restore main window ImGui context before rendering
+	ImGui::SFML::SetCurrentWindow(*_mainWindow);
+	
 	_mainWindow->clear();
 	_mainWindow->draw(_gridLines);
 	_mainWindow->draw(*_robotShape);
+	ImGui::SFML::Render(*_mainWindow);
 	_mainWindow->display();
 }
 
@@ -64,9 +170,21 @@ void VisualizationEngine::setGridColor(const sf::Color color) {
 	_gridColor = color;
 	RegenerateGridLines();
 }
+
 void VisualizationEngine::update(const RobotState& state) { 
 	_robotShape->Update(state); 
+	
+	// 1. Update the separate settings window FIRST (its own context)
+	_settingsWindow.update();
+	
+	// 2. Switch to main window ImGui context and start frame
+	ImGui::SFML::SetCurrentWindow(*_mainWindow);
+	ImGui::SFML::Update(*_mainWindow, _deltaClock.restart());
+	
+	// 3. Process main window events
 	while (const std::optional event = _mainWindow->pollEvent()) {
+		ImGui::SFML::ProcessEvent(*_mainWindow, *event);
+		
 		if (event->is<sf::Event::Closed>()) {
 			saveAppConfigBeforeClose();
 			_mainWindow->close();
@@ -81,8 +199,17 @@ void VisualizationEngine::update(const RobotState& state) {
 			_mainWindow->setView(*_mainView);
 			updateAfterResize();
 		}
+		
+		// Close menu with ESC key
+		if (event->is<sf::Event::KeyPressed>()) {
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape)) {
+				_showMenu = false;
+			}
+		}
 	}
-
+	
+	// 4. Render ImGui menu on main window
+	RenderImGuiMenu();
 }
 
 void VisualizationEngine::saveAppConfigBeforeClose() {
@@ -133,4 +260,12 @@ void VisualizationEngine::resetRobotPosition(sf::Vector2f pos) {
 
 Vec2f VisualizationEngine::getWindowCenter() const {
 	return FromSFMLVector((sf::Vector2f)_mainWindow->getSize() / 2.f);
+}
+
+void AddDirectionVectorToRobot(Vec2f position, RobotState& state) {
+	DirectionVector dirVec;
+	dirVec.position = position;
+	dirVec.angle = std::atan2(position.y, position.x);
+	dirVec.length = std::hypot(position.x, position.y);
+	state.directionVectors.push_back(dirVec);
 }

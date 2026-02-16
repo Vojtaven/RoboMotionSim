@@ -9,9 +9,12 @@
 #include "MathUtils.hpp"
 #include "AppConfig.hpp"
 #include "SFMLHelper.hpp"
+#include "SettingsWindow.hpp"
+
 class VisualizationEngine {
 public:
 	VisualizationEngine(const AppConfig& appConfig, const RobotConfig& robotConfig = RobotConfig());
+	~VisualizationEngine();
 	void setRobotConfig(const RobotConfig& config, bool holdPosition = false);
 	void setRobotPosition(const sf::Vector2f position, const sf::Angle angle);
 	void moveRobotBy(const sf::Vector2f offset, const sf::Angle angleOffset);
@@ -30,6 +33,9 @@ private:
 	void saveAppConfigBeforeClose();
 	void resetRobotPosition(sf::Vector2f pos);
 	void CreateMainWindow(const AppConfig& appConfig);
+	void InitImGui();
+	void RenderImGuiMenu();
+
 	std::unique_ptr<RobotShape> _robotShape;
 	std::unique_ptr<sf::View> _mainView;
 	std::unique_ptr<sf::RenderWindow> _mainWindow;
@@ -39,6 +45,13 @@ private:
 	float _gridLineThickness = 1.0f;
 	CompositeShape _gridLines;
 	AppConfig _appConfig;
+
+	// ImGui state
+	bool _showMenu = false;
+	sf::Clock _deltaClock;
+
+	// Separate settings window
+	SettingsWindow _settingsWindow;
 };
 
 #endif //ROBOT_VISUALIZATION_HPP
