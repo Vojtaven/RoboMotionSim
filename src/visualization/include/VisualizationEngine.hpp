@@ -48,6 +48,7 @@ private:
 
 	// ImGui state
 	bool _showMenu = false;
+	bool _showFps = false;
 	sf::Clock _deltaClock;
 
 	// Separate settings window

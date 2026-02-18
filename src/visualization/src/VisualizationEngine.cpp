@@ -119,11 +119,26 @@ void VisualizationEngine::RenderImGuiMenu() {
 		}
 		
 		ImGui::Separator();
-		
+
 		if (ImGui::MenuItem("Exit", "ESC")) {
 			_mainWindow->close();
 		}
 		ImGui::ShowDemoWindow();
+		ImGui::End();
+	}
+
+	if (_showFps) {
+		const float fpsWindowPadding = 10.0f;
+		ImGui::SetNextWindowPos(ImVec2(fpsWindowPadding, fpsWindowPadding));
+		ImGui::SetNextWindowBgAlpha(0.6f);
+		ImGui::Begin("##FPS", nullptr,
+			ImGuiWindowFlags_NoTitleBar |
+			ImGuiWindowFlags_NoResize |
+			ImGuiWindowFlags_NoMove |
+			ImGuiWindowFlags_NoScrollbar |
+			ImGuiWindowFlags_NoSavedSettings |
+			ImGuiWindowFlags_AlwaysAutoResize);
+		ImGui::Text("FPS: %.0f", ImGui::GetIO().Framerate);
 		ImGui::End();
 	}
 }
@@ -204,6 +219,9 @@ void VisualizationEngine::update(const RobotState& state) {
 		if (event->is<sf::Event::KeyPressed>()) {
 			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape)) {
 				_showMenu = false;
+			}
+			if (event->getIf<sf::Event::KeyPressed>()->scancode == sf::Keyboard::Scancode::F8) {
+				_showFps = !_showFps;
 			}
 		}
 	}
