@@ -1,8 +1,8 @@
-#include "RobotShape.hpp"
+#include "shapes/RobotShape.hpp"
 #include <format>
-#include "PointVector.hpp"
+#include "shapes/PointVector.hpp"
 #include <memory>
-#include "WheelVectors.hpp"
+#include "shapes/WheelVectors.hpp"
 #include "SFMLHelper.hpp"
 std::unique_ptr<sf::ConvexShape> makeRobotBase(const std::vector<sf::Vector2f>& points) {
 	if (points.size() < 3) {

@@ -29,8 +29,8 @@ set(nlohmann_json_version v3.12.0)
 # Project Sources
 
 file(GLOB project_sources
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/*.hpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.hpp"
 )
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 

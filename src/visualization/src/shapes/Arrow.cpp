@@ -1,4 +1,4 @@
-#include "Arrow.hpp"
+#include "shapes/Arrow.hpp"
 
 Arrow::Arrow(float length, sf::Color color, float thickness,sf::Vector2f headSize) {
 	auto shaft = std::make_unique<sf::RectangleShape>();

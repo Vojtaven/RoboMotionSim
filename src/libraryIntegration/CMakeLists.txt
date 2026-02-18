@@ -4,7 +4,8 @@ set (CONFIG_FOLDER "${CMAKE_CURRENT_SOURCE_DIR}/ConfigFiles")
 set(APP_DEFAULT_CONFIG_OUT ${CMAKE_CURRENT_BINARY_DIR}/AppDefaultConfig.h)
 set(ROBOT_DEFAULT_CONFIG_OUT  ${CMAKE_CURRENT_BINARY_DIR}/RobotDefaultConfig.h)
 
-file(GLOB LIBRARY_SOURCES
+file(GLOB_RECURSE LIBRARY_SOURCES
+    CONFIGURE_DEPENDS
     "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/*.hpp"
 )
@@ -54,14 +55,15 @@ add_library(${MODULE_NAME} STATIC
 )
 
 target_include_directories(${MODULE_NAME} PUBLIC 
-    ${CMAKE_CURRENT_SOURCE_DIR}     
+    ${CMAKE_CURRENT_SOURCE_DIR}   
+    ${CMAKE_CURRENT_SOURCE_DIR}/include  
     ${CMAKE_CURRENT_BINARY_DIR} 
 )
 target_link_libraries(${MODULE_NAME} PUBLIC exprtk)
 target_link_libraries(${MODULE_NAME} PUBLIC core)
 target_link_libraries(${MODULE_NAME} PUBLIC nlohmann_json)
 set_target_properties(${MODULE_NAME} PROPERTIES FOLDER "Project Modules")
-
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${LIBRARY_SOURCES})
 source_group("Config Files" FILES ${CONFIG_FILES})
 source_group("Default Config Files" FILES ${DEFAULT_CONFIG_FILES})
 source_group("Generated Config Headers" FILES 

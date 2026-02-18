@@ -1,4 +1,4 @@
-#include "CompositeShape.hpp"
+#include "shapes/CompositeShape.hpp"
 
 
 void CompositeShape::draw(sf::RenderTarget& target, sf::RenderStates states) const {

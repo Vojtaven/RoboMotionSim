@@ -1,6 +1,6 @@
 #include "VisualizationEngine.hpp"
-#include "CompositeShape.hpp"
-#include "RobotShape.hpp"
+#include "shapes/CompositeShape.hpp"
+#include "shapes/RobotShape.hpp"
 #include "RobotState.hpp"
 #include "SFMLHelper.hpp"
 #include "MathUtils.hpp"

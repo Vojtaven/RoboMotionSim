@@ -3,13 +3,13 @@
 
 #include <SFML/Graphics.hpp>
 #include "RobotConfig.hpp"
-#include <CompositeShape.hpp>
-#include <RobotShape.hpp>
+#include <shapes/CompositeShape.hpp>
+#include <shapes/RobotShape.hpp>
 #include "RobotState.hpp"
 #include "MathUtils.hpp"
 #include "AppConfig.hpp"
 #include "SFMLHelper.hpp"
-#include "SettingsWindow.hpp"
+#include "windows/SettingsWindow.hpp"
 
 class VisualizationEngine {
 public:

@@ -1,14 +1,11 @@
 #include "AppEngine.hpp"
 #include <SFML/Graphics.hpp>
-#include <imgui.h>
-#include <imgui-SFML.h>
 #include <iostream>
 #include <string>
 #include <asio.hpp>
 #include "VisualizationEngine.hpp"
 #include "RobotConfig.hpp"
 #include "ConfigManager.hpp"
-#include <RobotShape.hpp>
 #include <numbers> 
 #include "PhysicsEngine.hpp"
 #include <chrono>

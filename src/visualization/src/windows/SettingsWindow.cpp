@@ -1,4 +1,4 @@
-#include "SettingsWindow.hpp"
+#include "windows/SettingsWindow.hpp"
 #include <imgui.h>
 #include <imgui-SFML.h>
 #include <cstdint>
