@@ -13,3 +13,19 @@ int main() {
 		return EXIT_FAILURE;
 	}
 }
+
+
+/* TODO list
+* Add proper input handling 
+* Controller
+* Robot designer
+* Robot settigns
+* App settings 
+* Program input
+* Serial intpu* 
+*/
+
+
+
+
+

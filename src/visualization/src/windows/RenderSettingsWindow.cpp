@@ -1,11 +1,11 @@
-#include "windows/SettingsWindow.hpp"
+#include "windows/RenderSettingsWindow.hpp"
 #include <imgui.h>
 #include <imgui-SFML.h>
 #include <algorithm>
 #include <cstdint>
 #include "SFMLHelper.hpp"
-SettingsWindow::SettingsWindow(const AppConfig& config) {
-	_windowConfig = config.settingsWindowConfig;
+RenderSettingsWindow::RenderSettingsWindow(const AppConfig& config) {
+	_windowConfig = config.renderSettingsWindow;
 	_settings = config.renderSettings;
 	_gridSpacingRatio = (_settings.gridSpacing.x != 0.0f) ? _settings.gridSpacing.y / _settings.gridSpacing.x : 1.0f;
 	if (_windowConfig.open) {
@@ -13,17 +13,17 @@ SettingsWindow::SettingsWindow(const AppConfig& config) {
 	}
 }
 
-SettingsWindow::~SettingsWindow() {
+RenderSettingsWindow::~RenderSettingsWindow() {
 	close();
 }
 
-void SettingsWindow::open(const RenderSettings& settings) {
+void RenderSettingsWindow::open(const RenderSettings& settings) {
 	_settings = settings;
 	_gridSpacingRatio = (_settings.gridSpacing.x != 0.0f) ? _settings.gridSpacing.y / _settings.gridSpacing.x : 1.0f;
 	open();
 }
 
-void SettingsWindow::open() {
+void RenderSettingsWindow::open() {
 	if (isOpen()) {
 		_window->requestFocus();
 		return;
@@ -40,7 +40,6 @@ void SettingsWindow::open() {
 		sf::VideoMode({ (uint32_t)_windowConfig.size.x, (uint32_t)_windowConfig.size.y }),
 		"Settings",
 		sf::Style::Titlebar | sf::Style::Close| sf::Style::Resize);
-	_window->setFramerateLimit(_windowConfig.frameRateLimit);
 	_window->setPosition({ _windowConfig.position.x, _windowConfig.position.y });
 
 	if (!ImGui::SFML::Init(*_window)) {
@@ -54,12 +53,11 @@ void SettingsWindow::open() {
 	_isOpen = true;
 }
 
-void SettingsWindow::firstTimeSetup() {
+void RenderSettingsWindow::firstTimeSetup() {
 	auto screenSize = sf::VideoMode::getDesktopMode().size;
 
 	_windowConfig.size = { 420, 600 };
 	_windowConfig.position = { ((int)screenSize.x - _windowConfig.size.x) / 2, ((int)screenSize.y - _windowConfig.size.y) / 2 };
-	_windowConfig.frameRateLimit = 60;
 	_windowConfig.resizable = true;
 	_windowConfig.open = false;
 	_windowConfig.wasOpenedBefore = true;
@@ -68,7 +66,7 @@ void SettingsWindow::firstTimeSetup() {
 // Close the settings window. 
 // If closeFromRoot is true, it indicates that the close action was initiated from the main window,
 // so we should not set open to false in the config to allow reopening the settings window without issues.
-void SettingsWindow::close(bool closeFromRoot) {
+void RenderSettingsWindow::close(bool closeFromRoot) {
 	if (!isOpen()) return;
 
 	ImGui::SFML::SetCurrentWindow(*_window);
@@ -81,11 +79,11 @@ void SettingsWindow::close(bool closeFromRoot) {
 	_isOpen = false;
 }
 
-bool SettingsWindow::isOpen() const {
+bool RenderSettingsWindow::isOpen() const {
 	return _isOpen;
 }
 
-void SettingsWindow::update(sf::Time dt) {
+void RenderSettingsWindow::update(sf::Time dt) {
 	if (!isOpen()) return;
 
 	// Switch to settings window context
@@ -110,7 +108,7 @@ void SettingsWindow::update(sf::Time dt) {
 	renderContent();
 }
 
-void SettingsWindow::draw() {
+void RenderSettingsWindow::draw() {
 	if(!isOpen()) return;
 
 	ImGui::SFML::SetCurrentWindow(*_window);
@@ -119,14 +117,13 @@ void SettingsWindow::draw() {
 	_window->display();
 }
 
-void SettingsWindow::saveConfig() {
-	_windowConfig.frameRateLimit = _windowConfig.frameRateLimit;
+void RenderSettingsWindow::saveConfig() {
 	_windowConfig.position = FromSFMLVector(_window->getPosition());
 	_windowConfig.size = FromSFMLVector( _window->getSize());
 	_windowConfig.resizable = true;
 }
 
-void SettingsWindow::renderContent() {
+void RenderSettingsWindow::renderContent() {
 	ImVec2 windowSize = ImGui::GetIO().DisplaySize;
 	ImGui::SetNextWindowPos(ImVec2(0, 0));
 	ImGui::SetNextWindowSize(windowSize);
@@ -147,12 +144,8 @@ void SettingsWindow::renderContent() {
 
 	// Scale factor
 	ImGui::Text("Scale Factor");
-	if (ImGui::SliderFloat("##Scale", &_settings.scaleFactor, 0.1f, 5.0f, "%.2f", sliderFlags)) {
-		changed = true;
-	}
-
-	ImGui::Checkbox("Lock on Robot Center While Scaling", &_settings.lockOnRobotCenterWhileScaling);
-
+	changed |= ImGui::SliderFloat("##Scale", &_settings.scaleFactor, 0.1f, 5.0f, "%.2f", sliderFlags);
+	changed |= ImGui::Checkbox("Lock on view on robot", &_settings.lockViewOnRobot);
 	ImGui::Spacing();
 
 	// Grid spacing
@@ -174,9 +167,7 @@ void SettingsWindow::renderContent() {
 
 	ImGui::Spacing();
 	ImGui::Checkbox("Lock Grid Spacing Ratio", &_settings.lockGridSpacingRatio);
-	if (ImGui::Checkbox("Show Grid", &_settings.showGrid)) {
-		changed = true;
-	}
+	changed |= ImGui::Checkbox("Show Grid", &_settings.showGrid);
 	ImGui::Spacing();
 	ImGuiColorEditFlags colorFlags =
 		ImGuiColorEditFlags_DisplayRGB |
@@ -184,14 +175,15 @@ void SettingsWindow::renderContent() {
 		ImGuiColorEditFlags_InputRGB;
 	// Grid color
 	ImGui::Text("Grid Color");
-	if (ImGui::ColorPicker3("##GridColor", _settings.gridColor.data(), colorFlags)) {
-		changed = true;
-	}
-
+	changed |= ImGui::ColorPicker3("##GridColor", _settings.gridColor.data(), colorFlags);
 	ImGui::Spacing();
 	ImGui::Separator();
 	ImGui::Spacing();
-
+	ImGui::Text("Frame Rate Limit");
+	changed |= ImGui::SliderInt("##FrameRateLimit", &_settings.frameRateLimit, 0, 480, "%d", sliderFlags);
+	ImGui::Spacing();
+	ImGui::Separator();
+	ImGui::Spacing();
 	// Reset button
 	if (ImGui::Button("Reset to Defaults", ImVec2(-1, 30))) {
 		_settings = RenderSettings();

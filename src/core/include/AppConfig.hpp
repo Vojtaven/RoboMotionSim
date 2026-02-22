@@ -4,12 +4,16 @@
 #include <string>
 #include <array>
 
-#define CONFIG_VERSION "0.6.0"
+// Here to discard configs with old version
+#define CONFIG_VERSION "0.6.3"
+enum class InputType {
+	Keyboard,
+	Controller
+};
 
 struct WindowConfig {
 	Vec2i position = { 0,0 };
 	Vec2i size = { 0,0 };
-	int frameRateLimit = 60;
 	bool resizable = true;
 	bool open = false;
 	bool wasOpenedBefore = false;
@@ -17,19 +21,26 @@ struct WindowConfig {
 
 struct RenderSettings {
 	float scaleFactor = 1.0f;
-	bool lockOnRobotCenterWhileScaling = true;
 	Vec2f gridSpacing = { 50.0f, 50.0f };
 	bool lockGridSpacingRatio = true;
 	bool showGrid = true;
+	bool lockViewOnRobot = false;
 	std::array<float, 3> gridColor = { 80.0f / 255.0f, 80.0f / 255.0f, 80.0f / 255.0f };
+	int frameRateLimit = 60;
+};
+
+struct AppSettings {
+	InputType inputType;
 };
 
 struct AppConfig {
 	std::string appName = "";
 	std::string configVersion = "";
-	WindowConfig mainWindowConfig;
-	WindowConfig settingsWindowConfig;
+	WindowConfig mainWindow;
+	WindowConfig renderSettingsWindow;
+	WindowConfig appSettingsWindow;
 	RenderSettings renderSettings;
+	AppSettings appSettings;
 };
 
 #endif // !APP_CONFIG_HPP

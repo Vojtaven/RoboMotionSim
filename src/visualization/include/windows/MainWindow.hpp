@@ -4,7 +4,7 @@
 #include "Window.hpp"
 #include "RenderEngine.hpp"
 #include <SFML/Graphics.hpp>
-#include "SettingsWindow.hpp"
+#include "RenderSettingsWindow.hpp"
 class MainWindow
 {
 public:
@@ -31,7 +31,7 @@ private:
 	std::unique_ptr<RenderEngine> _renderEngine;
 	std::unique_ptr<sf::View> _mainView;
 	std::unique_ptr<sf::RenderWindow> _window;
-	std::unique_ptr<SettingsWindow> _settingsWindow;
+	std::unique_ptr<RenderSettingsWindow> _settingsWindow;
 
 	// Other windows management
 	void initializeOtherWindows();

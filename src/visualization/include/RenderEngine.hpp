@@ -17,21 +17,21 @@ public:
 	void regenerateGridLines();
 	void resetRobotPosition(sf::Vector2f pos);
 	void setRenderSettings(const RenderSettings& settings);
-	void saveRenderSettings(RenderSettings& settings) const;
 	void updateRobotShape(const RobotConfig& config, bool holdPosition = false);
 	Vec2f getWindowCenter() const;
-	RenderSettings getCurrentRenderSettings() const;
+	const RenderSettings& getCurrentRenderSettings() const;
 private:
 	sf::RenderWindow& _window;
 	std::unique_ptr<RobotShape> _robotShape;
 	sf::VertexArray _gridLines{ sf::PrimitiveType::Lines };
 	std::unique_ptr<sf::View> _view;
-
-	float _scaleFactor = 1.0f;
-	sf::Vector2f _gridSpacing = { 50.0f, 50.0f };
+	RenderSettings _settings;
 	sf::Vector2f _gridDefaultSpacing = { 50.f,50.f };
 	sf::Color _gridColor = { 80,80,80 };
-	bool _showGridLines = true;
+	sf::Vector2f _gridSpacing = { 50.0f, 50.0f };
+	//float _scaleFactor = 1.0f;
+	//bool _showGridLines = true;
+	//bool lockOnRobot = false;
 };
 
 #endif // !RENDER_ENGINE_HPP

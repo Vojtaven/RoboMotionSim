@@ -28,10 +28,10 @@ void ConfigManager::loadDefaultConfigs(const Vec2i screenSize) {
         loadAppConfig(appConfigPath.string());
 		_appConfig.configVersion = CONFIG_VERSION;
 		_appConfig.appName = APP_NAME;
-		_appConfig.mainWindowConfig.position = { screenSize.x / 4, screenSize.y / 4 };
-		_appConfig.mainWindowConfig.size = { screenSize.x / 2, screenSize.y / 2 };
-		_appConfig.mainWindowConfig.open = true;
-		_appConfig.mainWindowConfig.wasOpenedBefore = true;
+		_appConfig.mainWindow.position = { screenSize.x / 4, screenSize.y / 4 };
+		_appConfig.mainWindow.size = { screenSize.x / 2, screenSize.y / 2 };
+		_appConfig.mainWindow.open = true;
+		_appConfig.mainWindow.wasOpenedBefore = true;
 		saveDefaultAppConfig();
     }
 

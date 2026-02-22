@@ -16,22 +16,21 @@ void RenderEngine::update(const RobotState& state) {
 
 Vec2f RenderEngine::getWindowCenter() const {
 	sf::Vector2u size = _window.getSize();
-	float scale = 2.f * _scaleFactor;
+	float scale = 2.f * _settings.scaleFactor;
 	return Vec2f{ size.x / scale , size.y / scale };
 }
 
-
-
 void RenderEngine::updateAfterResize() {
 	sf::Vector2f windowSize = (sf::Vector2f)_window.getSize();
-	_view->setSize(windowSize / _scaleFactor);
+	_view->setSize(windowSize / _settings.scaleFactor);
+	_view->setCenter(windowSize / 2.f );
 	_window.setView(*_view);
 	regenerateGridLines();
 }
 
 void RenderEngine::updateRobotShape(const RobotConfig& config, bool holdPosition) {
 	sf::Vector2f lastPosition = holdPosition ? _robotShape->getPosition() :
-		(sf::Vector2f)_window.getSize() / (2.0f * _scaleFactor);
+		(sf::Vector2f)_window.getSize() / (2.0f * _settings.scaleFactor);
 	_robotShape = std::make_unique<RobotShape>(config);
 	resetRobotPosition(lastPosition);
 }
@@ -42,23 +41,28 @@ void RenderEngine::setRenderSettings(const RenderSettings& settings) {
 		(uint8_t)(settings.gridColor[0] * 255),
 		(uint8_t)(settings.gridColor[1] * 255),
 		(uint8_t)(settings.gridColor[2] * 255));
-
-	bool scaleChanged = (std::abs(settings.scaleFactor - _scaleFactor) > 0.001f);
-	_scaleFactor = settings.scaleFactor;
-	_showGridLines = settings.showGrid;
+	_window.setFramerateLimit(settings.frameRateLimit);
+	bool scaleChanged = (std::abs(settings.scaleFactor - _settings.scaleFactor) > 0.001f);
 
 	sf::Vector2f windowSize = (sf::Vector2f)_window.getSize();
-	_view->setSize(windowSize / _scaleFactor);
+	_view->setSize(windowSize / settings.scaleFactor);
 
-	if (settings.lockOnRobotCenterWhileScaling && scaleChanged)
+	if (settings.lockViewOnRobot && scaleChanged)
 		_view->setCenter(_robotShape->getPosition());
 	_view->setViewport(sf::FloatRect({ 0, 0 }, { 1, 1 }));
 	_window.setView(*_view);
+	_settings = settings;
 	regenerateGridLines();
 }
 
 void RenderEngine::draw() {
-	if (_showGridLines)
+	if (_settings.lockViewOnRobot) {
+		_view->setCenter(_robotShape->getPosition());
+		_window.setView(*_view);
+		regenerateGridLines();
+	}
+
+	if (_settings.showGrid)
 		_window.draw(_gridLines);
 	_window.draw(*_robotShape);
 }
@@ -101,17 +105,6 @@ void RenderEngine::resetRobotPosition(sf::Vector2f pos) {
 	regenerateGridLines();
 }
 
-
-void RenderEngine::saveRenderSettings(RenderSettings& settings) const {
-	settings.gridSpacing = FromSFMLVector(_gridSpacing);
-	settings.gridColor[0] = _gridColor.r / 255.0f;
-	settings.gridColor[1] = _gridColor.g / 255.0f;
-	settings.gridColor[2] = _gridColor.b / 255.0f;
-	settings.scaleFactor = _scaleFactor;
-}
-
-RenderSettings RenderEngine::getCurrentRenderSettings() const {
-	RenderSettings settings;
-	saveRenderSettings(settings);
-	return settings;
+const RenderSettings& RenderEngine::getCurrentRenderSettings() const {
+	return _settings;
 }

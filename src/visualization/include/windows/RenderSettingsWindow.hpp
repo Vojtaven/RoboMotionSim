@@ -7,12 +7,12 @@
 #include "AppConfig.hpp"
 #include "Window.hpp"
 
-class SettingsWindow{
+class RenderSettingsWindow{
 public:
 	using OnSettingsChanged = std::function<void(const RenderSettings&)>;
 
-	SettingsWindow(const AppConfig& config);
-	~SettingsWindow();
+	RenderSettingsWindow(const AppConfig& config);
+	~RenderSettingsWindow();
 
 	void open(const RenderSettings& settings);
 	void open();

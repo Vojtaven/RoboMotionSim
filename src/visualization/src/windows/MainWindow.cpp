@@ -5,7 +5,7 @@
 #include <imgui-SFML.h>
 
 MainWindow::MainWindow(const AppConfig& config)
-    : _appConfig(config), _windowConfig(_appConfig.mainWindowConfig)
+    : _appConfig(config), _windowConfig(_appConfig.mainWindow)
 {}
 
 void MainWindow::open(const RobotConfig& robotConfig)
@@ -18,7 +18,6 @@ void MainWindow::open(const RobotConfig& robotConfig)
 
 	_window->setPosition(ToSFMLVector2i(_windowConfig.position));
 	_window->setView(*_mainView);
-	_window->setFramerateLimit(_windowConfig.frameRateLimit);
 	initImGui();
 	_renderEngine = std::make_unique<RenderEngine>(*_window, _appConfig.renderSettings);
 	setRobotConfig(robotConfig);
@@ -139,7 +138,6 @@ void MainWindow::draw() {
 }
 
 void MainWindow::saveWindowConfig(WindowConfig& config) const {
-	config.frameRateLimit = _windowConfig.frameRateLimit;
 	config.position = FromSFMLVector(_window->getPosition());
 	config.size = FromSFMLVector(_window->getSize());
 	config.open = true;
@@ -185,14 +183,14 @@ void MainWindow::update(float dt,const RobotState& robotState ) {
 
 
 void MainWindow::saveConfig() {
-	_appConfig.mainWindowConfig = _windowConfig;
-	_appConfig.settingsWindowConfig = _settingsWindow->getSavedConfig();
-	_renderEngine->saveRenderSettings(_appConfig.renderSettings);
+	_appConfig.mainWindow = _windowConfig;
+	_appConfig.renderSettingsWindow = _settingsWindow->getSavedConfig();
+	_appConfig.renderSettings = _renderEngine->getCurrentRenderSettings();
 }
 
 // Other Windows management
 void MainWindow::initializeOtherWindows() {
-	_settingsWindow = std::make_unique<SettingsWindow>(_appConfig);
+	_settingsWindow = std::make_unique<RenderSettingsWindow>(_appConfig);
 	_settingsWindow->setOnSettingsChanged([this](const RenderSettings& newSettings) {
 		_renderEngine->setRenderSettings(newSettings);
 		});
