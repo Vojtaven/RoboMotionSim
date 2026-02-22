@@ -18,4 +18,6 @@ static inline Vec2i FromSFMLVector(const sf::Vector2u vec) { return { (int)vec.x
 static inline sf::Angle ToSFMLAngle(const float angle) { return sf::radians(angle); }
 
 static inline float FromSFMLAngle(const sf::Angle angle) { return angle.asRadians(); }
+static inline sf::Vector2f MultiplyVectors(const sf::Vector2f a, const sf::Vector2f b) { return { a.x * b.x, a.y * b.y }; }	
+
 #endif // !SFMLHELPER_HPP

@@ -2,9 +2,18 @@
 
 
 void CompositeShape::draw(sf::RenderTarget& target, sf::RenderStates states) const {
-	states.transform *= getTransform();
-	for (auto& drawable : _drawables)
-		target.draw(*drawable, states);
+    states.transform *= getTransform();
+    for (auto& drawable : _drawables)
+        target.draw(*drawable, states);
+
+    // Convert FloatRect to a drawable RectangleShape
+    sf::RectangleShape boundsRect;
+    boundsRect.setPosition(_bounds.position);
+    boundsRect.setSize(_bounds.size);
+    boundsRect.setFillColor(sf::Color::Transparent); // or any color you want
+	boundsRect.setOutlineColor(sf::Color::Red);
+	boundsRect.setOutlineThickness(1.f);
+    target.draw(boundsRect, states);
 }
 
 void CompositeShape::drawBoundingBox(sf::RenderTarget& target, sf::RenderStates states) const {
@@ -48,12 +57,11 @@ void CompositeShape::updateBounds() {
 		else {
 			float minX = std::min(total.position.x, b.position.x);
 			float minY = std::min(total.position.y, b.position.y);
-			total.position = { minX,minY };
+			float maxX = std::max(total.position.x + total.size.x, b.position.x + b.size.x);
+			float maxY = std::max(total.position.y + total.size.y, b.position.y + b.size.y);
 
-			float maxWidth = std::max(total.position.x + total.size.x, b.position.x + b.size.x) - total.position.x;
-			float maxHeight = std::max(total.position.y + total.size.y, b.position.y + b.size.y) - total.position.y;
-
-			total.size = { maxWidth,maxHeight };
+			total.position = { minX, minY };
+			total.size = { maxX - minX, maxY - minY };
 		}
 	}
 

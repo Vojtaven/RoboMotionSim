@@ -1,29 +1,47 @@
 #include "windows/SettingsWindow.hpp"
 #include <imgui.h>
 #include <imgui-SFML.h>
+#include <algorithm>
 #include <cstdint>
-
-SettingsWindow::SettingsWindow() = default;
+#include "SFMLHelper.hpp"
+SettingsWindow::SettingsWindow(const AppConfig& config) {
+	_windowConfig = config.settingsWindowConfig;
+	_settings = config.renderSettings;
+	_gridSpacingRatio = (_settings.gridSpacing.x != 0.0f) ? _settings.gridSpacing.y / _settings.gridSpacing.x : 1.0f;
+	if (_windowConfig.open) {
+		open();
+	}
+}
 
 SettingsWindow::~SettingsWindow() {
 	close();
 }
 
-void SettingsWindow::open(const VisualizationSettings& currentSettings, sf::RenderWindow& callerWindow) {
-	if (_isOpen) {
+void SettingsWindow::open(const RenderSettings& settings) {
+	_settings = settings;
+	_gridSpacingRatio = (_settings.gridSpacing.x != 0.0f) ? _settings.gridSpacing.y / _settings.gridSpacing.x : 1.0f;
+	open();
+}
+
+void SettingsWindow::open() {
+	if (isOpen()) {
 		_window->requestFocus();
 		return;
 	}
 
-	_settings = currentSettings;
+	if (!_windowConfig.wasOpenedBefore) {
+		firstTimeSetup();
+	}
+
+
 	_pendingClose = false;
-	_callerWindow = &callerWindow;
 
 	_window = std::make_unique<sf::RenderWindow>(
-		sf::VideoMode({ 420, 600 }),
+		sf::VideoMode({ (uint32_t)_windowConfig.size.x, (uint32_t)_windowConfig.size.y }),
 		"Settings",
 		sf::Style::Titlebar | sf::Style::Close| sf::Style::Resize);
-	_window->setFramerateLimit(60);
+	_window->setFramerateLimit(_windowConfig.frameRateLimit);
+	_window->setPosition({ _windowConfig.position.x, _windowConfig.position.y });
 
 	if (!ImGui::SFML::Init(*_window)) {
 		_window.reset();
@@ -32,35 +50,43 @@ void SettingsWindow::open(const VisualizationSettings& currentSettings, sf::Rend
 
 	ImGuiIO& io = ImGui::GetIO();
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-
-	// Restore caller's context — Init() switches the active context internally
-	ImGui::SFML::SetCurrentWindow(callerWindow);
-
-	_deltaClock.restart();
+	_windowConfig.open = true;
 	_isOpen = true;
 }
 
-void SettingsWindow::close() {
-	if (!_isOpen) return;
+void SettingsWindow::firstTimeSetup() {
+	auto screenSize = sf::VideoMode::getDesktopMode().size;
+
+	_windowConfig.size = { 420, 600 };
+	_windowConfig.position = { ((int)screenSize.x - _windowConfig.size.x) / 2, ((int)screenSize.y - _windowConfig.size.y) / 2 };
+	_windowConfig.frameRateLimit = 60;
+	_windowConfig.resizable = true;
+	_windowConfig.open = false;
+	_windowConfig.wasOpenedBefore = true;
+}
+
+// Close the settings window. 
+// If closeFromRoot is true, it indicates that the close action was initiated from the main window,
+// so we should not set open to false in the config to allow reopening the settings window without issues.
+void SettingsWindow::close(bool closeFromRoot) {
+	if (!isOpen()) return;
 
 	ImGui::SFML::SetCurrentWindow(*_window);
 	ImGui::SFML::Shutdown(*_window);
+	saveConfig();
+	_windowConfig.open = closeFromRoot;
 	_window->close();
 	_window.reset();
-	_isOpen = false;
 	_pendingClose = false;
-
-	// Restore caller's context so the main window isn't left with a dangling context
-	if (_callerWindow)
-		ImGui::SFML::SetCurrentWindow(*_callerWindow);
+	_isOpen = false;
 }
 
 bool SettingsWindow::isOpen() const {
 	return _isOpen;
 }
 
-void SettingsWindow::update() {
-	if (!_isOpen) return;
+void SettingsWindow::update(sf::Time dt) {
+	if (!isOpen()) return;
 
 	// Switch to settings window context
 	ImGui::SFML::SetCurrentWindow(*_window);
@@ -79,16 +105,25 @@ void SettingsWindow::update() {
 		return;
 	}
 
-	// Now start the ImGui frame
-	ImGui::SFML::Update(*_window, _deltaClock.restart());
+	ImGui::SFML::Update(*_window, dt);
 
-	// Render ImGui content
 	renderContent();
+}
 
-	// Draw
+void SettingsWindow::draw() {
+	if(!isOpen()) return;
+
+	ImGui::SFML::SetCurrentWindow(*_window);
 	_window->clear(sf::Color(30, 30, 30));
 	ImGui::SFML::Render(*_window);
 	_window->display();
+}
+
+void SettingsWindow::saveConfig() {
+	_windowConfig.frameRateLimit = _windowConfig.frameRateLimit;
+	_windowConfig.position = FromSFMLVector(_window->getPosition());
+	_windowConfig.size = FromSFMLVector( _window->getSize());
+	_windowConfig.resizable = true;
 }
 
 void SettingsWindow::renderContent() {
@@ -116,14 +151,32 @@ void SettingsWindow::renderContent() {
 		changed = true;
 	}
 
+	ImGui::Checkbox("Lock on Robot Center While Scaling", &_settings.lockOnRobotCenterWhileScaling);
+
 	ImGui::Spacing();
 
 	// Grid spacing
 	ImGui::Text("Grid Spacing (mm)");
-	if (ImGui::SliderFloat2("##GridSpacing", _settings.gridSpacing, 10.0f, 200.0f, "%.1f", sliderFlags)) {
+	bool xChanged = ImGui::SliderFloat("X##GridSpacingX", &_settings.gridSpacing.x, 10.0f, 200.0f, "%.1f", sliderFlags);
+	bool yChanged = ImGui::SliderFloat("Y##GridSpacingY", &_settings.gridSpacing.y, 10.0f, 200.0f, "%.1f", sliderFlags);
+	if (xChanged || yChanged) {
+		if (_settings.lockGridSpacingRatio) {
+			if (xChanged && _settings.gridSpacing.x > 0.0f) {
+				_settings.gridSpacing.y = std::clamp(_settings.gridSpacing.x * _gridSpacingRatio, 10.0f, 200.0f);
+			} else if (yChanged && _gridSpacingRatio > 0.0f) {
+				_settings.gridSpacing.x = std::clamp(_settings.gridSpacing.y / _gridSpacingRatio, 10.0f, 200.0f);
+			}
+		} else if (_settings.gridSpacing.x > 0.0f) {
+			_gridSpacingRatio = _settings.gridSpacing.y / _settings.gridSpacing.x;
+		}
 		changed = true;
 	}
 
+	ImGui::Spacing();
+	ImGui::Checkbox("Lock Grid Spacing Ratio", &_settings.lockGridSpacingRatio);
+	if (ImGui::Checkbox("Show Grid", &_settings.showGrid)) {
+		changed = true;
+	}
 	ImGui::Spacing();
 	ImGuiColorEditFlags colorFlags =
 		ImGuiColorEditFlags_DisplayRGB |
@@ -131,7 +184,7 @@ void SettingsWindow::renderContent() {
 		ImGuiColorEditFlags_InputRGB;
 	// Grid color
 	ImGui::Text("Grid Color");
-	if (ImGui::ColorPicker3("##GridColor", _settings.gridColor, colorFlags)) {
+	if (ImGui::ColorPicker3("##GridColor", _settings.gridColor.data(), colorFlags)) {
 		changed = true;
 	}
 
@@ -141,12 +194,8 @@ void SettingsWindow::renderContent() {
 
 	// Reset button
 	if (ImGui::Button("Reset to Defaults", ImVec2(-1, 30))) {
-		_settings.scaleFactor = 1.0f;
-		_settings.gridSpacing[0] = 50.0f;
-		_settings.gridSpacing[1] = 50.0f;
-		_settings.gridColor[0] = 80.0f / 255.0f;
-		_settings.gridColor[1] = 80.0f / 255.0f;
-		_settings.gridColor[2] = 80.0f / 255.0f;
+		_settings = RenderSettings();
+		_gridSpacingRatio = 1.0f;
 		changed = true;
 	}
 

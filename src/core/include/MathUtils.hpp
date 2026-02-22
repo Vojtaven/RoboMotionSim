@@ -5,14 +5,16 @@
 
 template<typename T>
 struct Vec2 {
-    T x = 0.0f;
-    T y = 0.0f;
+    T x = 0;
+    T y = 0;
 
     // Basic vector math (Operator Overloading)
     Vec2 operator+(const Vec2& other) const { return { x + other.x, y + other.y }; }
     Vec2 operator-(const Vec2& other) const { return { x - other.x, y - other.y }; }
-    Vec2 operator*(float scalar) const { return { x * scalar, y * scalar }; }
+    Vec2 operator*(float scalar) const { return { x * (T)scalar, y * (T)scalar }; }
     Vec2 operator*(int scalar) const { return { x * (T)scalar, y * (T)scalar }; }
+    Vec2 operator/(float scalar) const { return { x / (T)scalar, y / (T)scalar }; }
+    Vec2 operator/(int scalar) const { return { x / (T)scalar, y / (T)scalar }; }
     Vec2& operator+=(const Vec2& other) {
         x += other.x;
         y += other.y;
@@ -20,6 +22,7 @@ struct Vec2 {
     }
     // Helper for distances/physics
     float length() const { return std::sqrt(x * x + y * y); }
+    float* data() { return &x; }
 };
 
 struct Vec2i : public Vec2<int> {};

@@ -11,14 +11,14 @@ class RobotShape : public CompositeShape {
 public:
 	RobotShape(const RobotConfig& config, bool drawCenter = false, bool showSpeed = false);
 	RobotShape(const RobotConfig* config, bool drawCenter = false, bool showSpeed = false) : RobotShape(*config, drawCenter, showSpeed) {}
-	void ShowSpeedEnable() { _showSpeed = true; }
-	void ShowSpeedDisable() { _showSpeed = false; }
-	void Update(const RobotState& state);
+	void showSpeedEnable() { _showSpeed = true; }
+	void showSpeedDisable() { _showSpeed = false; }
+	void update(const RobotState& state);
 	void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 private:
-	void AddWheel(const RobotParts::Wheel& wheel);
-	void AddWheelVector(const RobotParts::Wheel& wheel);
-	void UpdateDirectionVectors(const RobotState& state);
+	void addWheel(const RobotParts::Wheel& wheel);
+	void addWheelVector(const RobotParts::Wheel& wheel);
+	void updateDirectionVectors(const RobotState& state);
 	bool _showSpeed;
 	bool _drawCenter;
 	int _numberOfWheels = 0;

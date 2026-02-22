@@ -67,7 +67,7 @@ void AppEngine::run() {
 		std::chrono::duration<float> delta = now - last;
 		physicsEngine->update(delta.count(), *robotState, robotConfig);
 		last = now;
-		vizEngine->update(*robotState);
+		vizEngine->update(delta.count(), *robotState);
 		vizEngine->draw();
 	}
 	auto& appConfig = vizEngine->getSavedAppConfig();

@@ -19,14 +19,19 @@ void ConfigManager::loadDefaultConfigs(const Vec2i screenSize) {
 	const std::filesystem::path appConfigPath = _systemConfigDir / "app_config.json";
     try {
 		loadAppConfig(appConfigPath.string());
+        if (_appConfig.configVersion != CONFIG_VERSION) {
+            throw std::runtime_error("App version mismatch");
+        }
     }
     catch(...){
 		createDefaultConfigs(appConfigPath, (const char*)DEFAULT_APP_CONFIG, DEFAULT_APP_CONFIG_SIZE);
         loadAppConfig(appConfigPath.string());
-		_appConfig.appVersion = APP_VERSION;
+		_appConfig.configVersion = CONFIG_VERSION;
 		_appConfig.appName = APP_NAME;
-		_appConfig.MainWindowConfig.position = { screenSize.x / 4, screenSize.y / 4 };
-		_appConfig.MainWindowConfig.size = { screenSize.x / 2, screenSize.y / 2 };
+		_appConfig.mainWindowConfig.position = { screenSize.x / 4, screenSize.y / 4 };
+		_appConfig.mainWindowConfig.size = { screenSize.x / 2, screenSize.y / 2 };
+		_appConfig.mainWindowConfig.open = true;
+		_appConfig.mainWindowConfig.wasOpenedBefore = true;
 		saveDefaultAppConfig();
     }
 

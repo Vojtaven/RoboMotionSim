@@ -1,5 +1,6 @@
-#include "WheelVectors.hpp"
+#include "shapes/WheelVectors.hpp"
 #include "RobotState.hpp"
+
 WheelVectors::WheelVectors(const RobotParts::Wheel& wheel,
 	sf::Color forwardColor, sf::Color rollerColor, sf::Color directionColor,
 	float thickness, sf::Vector2f headSize)

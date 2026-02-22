@@ -4,37 +4,36 @@
 #include <SFML/Graphics.hpp>
 #include <memory>
 #include <functional>
+#include "AppConfig.hpp"
+#include "Window.hpp"
 
-struct VisualizationSettings {
-	float scaleFactor = 1.0f;
-	float gridSpacing[2] = { 50.0f, 50.0f };
-	float gridColor[3] = { 80.0f / 255.0f, 80.0f / 255.0f, 80.0f / 255.0f };
-};
-
-class SettingsWindow {
+class SettingsWindow{
 public:
-	using OnSettingsChanged = std::function<void(const VisualizationSettings&)>;
+	using OnSettingsChanged = std::function<void(const RenderSettings&)>;
 
-	SettingsWindow();
+	SettingsWindow(const AppConfig& config);
 	~SettingsWindow();
 
-	void open(const VisualizationSettings& currentSettings, sf::RenderWindow& callerWindow);
-	void close();
-	void update();
+	void open(const RenderSettings& settings);
+	void open();
+	void close(bool closeFromRoot = false);
+	void update(sf::Time dt);
+	void draw();	
 	bool isOpen() const;
-
+	const WindowConfig& getSavedConfig() const { return _windowConfig; }
 	void setOnSettingsChanged(OnSettingsChanged callback) { _onSettingsChanged = std::move(callback); }
 
 private:
-	void renderContent();
-
+	void firstTimeSetup();
+	void saveConfig();
 	std::unique_ptr<sf::RenderWindow> _window;
-	sf::RenderWindow* _callerWindow = nullptr;
-	sf::Clock _deltaClock;
-	VisualizationSettings _settings;
+	void renderContent();
+	WindowConfig _windowConfig;
+	RenderSettings _settings;
 	OnSettingsChanged _onSettingsChanged;
-	bool _isOpen = false;
 	bool _pendingClose = false;
+	bool _isOpen = false;
+	float _gridSpacingRatio = 1.0f;
 };
 
 #endif // !SETTINGS_WINDOW_HPP

@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.24)
 set(APP_NAME "RoboMotionSim")
-set(APP_VERSION "0.5.0")
+set(APP_VERSION "0.6.0")
 
 project(${APP_NAME} VERSION 1.0.0 LANGUAGES CXX)
 

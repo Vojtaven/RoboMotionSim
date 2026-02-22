@@ -4,6 +4,7 @@
 #include <memory>
 #include "shapes/WheelVectors.hpp"
 #include "SFMLHelper.hpp"
+
 std::unique_ptr<sf::ConvexShape> makeRobotBase(const std::vector<sf::Vector2f>& points) {
 	if (points.size() < 3) {
 		// Too few points for a polygon
@@ -84,9 +85,17 @@ RobotShape::RobotShape(const RobotConfig& config, bool drawCenter, bool showSpee
 	_frontVector = frontVec.get();
 
 	for (const auto& wheel : config.GetRobotWheels())
-		AddWheel(wheel);
+		addWheel(wheel);
 
 	add(std::move(frontVec));
+
+	sf::Vector2f centroid{ 0.f, 0.f };
+	for (const auto& pt : _wheelMountingPoints)
+		centroid += pt;
+
+	if(!_wheelMountingPoints.empty())
+		centroid /= static_cast<float>(_wheelMountingPoints.size());
+	setOrigin(centroid);
 }
 
 void RobotShape::draw(sf::RenderTarget& target, sf::RenderStates states) const {
@@ -94,7 +103,7 @@ void RobotShape::draw(sf::RenderTarget& target, sf::RenderStates states) const {
 	states.transform *= getTransform();
 }
 
-void RobotShape::Update(const RobotState& state) {
+void RobotShape::update(const RobotState& state) {
 	setPosition(ToSFMLVector2f(state.position));
 	setRotation(ToSFMLAngle(state.chassisAngle));
 	_frontVector->setRotation(state.frontAngle);
@@ -103,10 +112,10 @@ void RobotShape::Update(const RobotState& state) {
 		_speedOfWheels[i]->update(state.wheels[i]);
 	}
 	
-	UpdateDirectionVectors(state);
+	updateDirectionVectors(state);
 }
 
-void RobotShape::UpdateDirectionVectors(const RobotState& state) {
+void RobotShape::updateDirectionVectors(const RobotState& state) {
 	// If the number of direction vectors changed, rebuild them
 	if (_directionVectors.size() != state.directionVectors.size()) {
 		_directionVectors.clear();
@@ -136,7 +145,7 @@ void RobotShape::UpdateDirectionVectors(const RobotState& state) {
 	}
 }
 
-void RobotShape::AddWheel(const RobotParts::Wheel& wheel) {
+void RobotShape::addWheel(const RobotParts::Wheel& wheel) {
 	auto wheelShape = std::make_unique<sf::RectangleShape>();
 	wheelShape->setSize({ wheel.diameter,wheel.diameter / 2.f });
 	wheelShape->setOrigin({ wheel.diameter / 2.f,wheel.diameter / 4.f });
@@ -145,10 +154,10 @@ void RobotShape::AddWheel(const RobotParts::Wheel& wheel) {
 	add(std::move(wheelShape));
 	_wheelMountingPoints.push_back({ wheel.x_position,wheel.y_position });
 
-	AddWheelVector(wheel);
+	addWheelVector(wheel);
 }
 
-void RobotShape::AddWheelVector(const RobotParts::Wheel& wheel) {
+void RobotShape::addWheelVector(const RobotParts::Wheel& wheel) {
 	//Vector of speed for this wheel
 	auto wheelVectors = std::make_unique<WheelVectors>(
 		wheel,
