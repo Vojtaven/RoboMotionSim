@@ -157,8 +157,8 @@ void SettingsWindow::renderContent() {
 
 	// Grid spacing
 	ImGui::Text("Grid Spacing (mm)");
-	bool xChanged = ImGui::SliderFloat("X##GridSpacingX", &_settings.gridSpacing.x, 10.0f, 200.0f, "%.1f", sliderFlags);
-	bool yChanged = ImGui::SliderFloat("Y##GridSpacingY", &_settings.gridSpacing.y, 10.0f, 200.0f, "%.1f", sliderFlags);
+	bool xChanged = ImGui::SliderFloat("X##GridSpacingX", &_settings.gridSpacing.x, 10.0f, 200.0f, "%.f", sliderFlags);
+	bool yChanged = ImGui::SliderFloat("Y##GridSpacingY", &_settings.gridSpacing.y, 10.0f, 200.0f, "%.f", sliderFlags);
 	if (xChanged || yChanged) {
 		if (_settings.lockGridSpacingRatio) {
 			if (xChanged && _settings.gridSpacing.x > 0.0f) {

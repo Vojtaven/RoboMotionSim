@@ -18,7 +18,7 @@ void from_json(const nlohmann::json& j, Vec2<T>& v)
 }
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(WindowConfig, position, size, frameRateLimit, resizable, open, wasOpenedBefore)
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(RenderSettings, scaleFactor, gridSpacing, gridColor, gridLineThickness, lockGridSpacingRatio, showGrid, lockOnRobotCenterWhileScaling)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(RenderSettings, scaleFactor, gridSpacing, gridColor, lockGridSpacingRatio, showGrid, lockOnRobotCenterWhileScaling)
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(AppConfig, appName, configVersion, mainWindowConfig, settingsWindowConfig, renderSettings)
 
 #endif // !CONFIG_JSON_SERIALIZATION_HPP

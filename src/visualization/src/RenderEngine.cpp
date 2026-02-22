@@ -45,62 +45,53 @@ void RenderEngine::setRenderSettings(const RenderSettings& settings) {
 
 	bool scaleChanged = (std::abs(settings.scaleFactor - _scaleFactor) > 0.001f);
 	_scaleFactor = settings.scaleFactor;
-	_gridLineThickness = settings.gridLineThickness;
 	_showGridLines = settings.showGrid;
 
 	sf::Vector2f windowSize = (sf::Vector2f)_window.getSize();
 	_view->setSize(windowSize / _scaleFactor);
 
-	if(settings.lockOnRobotCenterWhileScaling && scaleChanged)
+	if (settings.lockOnRobotCenterWhileScaling && scaleChanged)
 		_view->setCenter(_robotShape->getPosition());
+	_view->setViewport(sf::FloatRect({ 0, 0 }, { 1, 1 }));
 	_window.setView(*_view);
 	regenerateGridLines();
 }
 
-void RenderEngine:: draw() {
-	if(	_showGridLines)
-		_window.draw(*_gridLines);
+void RenderEngine::draw() {
+	if (_showGridLines)
+		_window.draw(_gridLines);
 	_window.draw(*_robotShape);
 }
 
 void RenderEngine::regenerateGridLines() {
-
-	// TODO PREKOPAT TOHLE
-	_gridLines = std::make_unique<CompositeShape>();
+	_gridLines = sf::VertexArray(sf::PrimitiveType::Lines);
 
 	sf::Vector2f viewSize = _view->getSize();
-	float worldLineThickness = _gridLineThickness / _scaleFactor;
+	sf::Vector2f viewCenter = _view->getCenter();
+	float left = viewCenter.x - (viewSize.x / 2.0f);
+	float top = viewCenter.y - (viewSize.y / 2.0f);
+	float right = left + viewSize.x;
+	float bottom = top + viewSize.y;
 
 	sf::Vector2f robotPos = _robotShape->getPosition();
-	_gridLines->setPosition({
-		std::round(robotPos.x / _gridSpacing.x) * _gridSpacing.x,
-		std::round(robotPos.y / _gridSpacing.y) * _gridSpacing.y
-	});
+	sf::Vector2f anchor = {
+		std::round(robotPos.x / _gridDefaultSpacing.x) * _gridDefaultSpacing.x,
+		std::round(robotPos.y / _gridDefaultSpacing.y) * _gridDefaultSpacing.y
+	};
 
-	int halfX = static_cast<int>(viewSize.x / (2.f * _gridSpacing.x)) + 2;
-	int halfY = static_cast<int>(viewSize.y / (2.f * _gridSpacing.y)) + 2;
-	float totalHeight = (2 * halfY) * _gridSpacing.y;
-	float totalWidth  = (2 * halfX) * _gridSpacing.x;
+	float startX = anchor.x - std::ceil((anchor.x - left) / _gridSpacing.x) * _gridSpacing.x;
+	float startY = anchor.y - std::ceil((anchor.y - top) / _gridSpacing.y) * _gridSpacing.y;
 
-	for (int i = -halfX; i <= halfX; ++i) {
-		auto line = std::make_unique<sf::RectangleShape>(
-			sf::Vector2f(worldLineThickness, totalHeight));
-		line->setPosition({ _gridSpacing.x * i, -totalHeight / 2.f });
-		line->setFillColor(_gridColor);
-		line->setOutlineColor(_gridColor);
-		_gridLines->add(std::move(line));
+	for (float x = startX; x <= right; x += _gridSpacing.x) {
+		_gridLines.append({ { x, top },    _gridColor });
+		_gridLines.append({ { x, bottom }, _gridColor });
 	}
 
-	for (int i = -halfY; i <= halfY; ++i) {
-		auto line = std::make_unique<sf::RectangleShape>(
-			sf::Vector2f(totalWidth, worldLineThickness));
-		line->setPosition({ -totalWidth / 2.f, _gridSpacing.y * i });
-		line->setFillColor(_gridColor);
-		line->setOutlineColor(_gridColor);
-		_gridLines->add(std::move(line));
+	for (float y = startY; y <= bottom; y += _gridSpacing.y) {
+		_gridLines.append({ { left,  y }, _gridColor });
+		_gridLines.append({ { right, y }, _gridColor });
 	}
 }
-
 
 void RenderEngine::resetRobotPosition(sf::Vector2f pos) {
 	_robotShape->setPosition(pos);
@@ -111,13 +102,12 @@ void RenderEngine::resetRobotPosition(sf::Vector2f pos) {
 }
 
 
-void RenderEngine::saveRenderSettings(RenderSettings& settings) const{
+void RenderEngine::saveRenderSettings(RenderSettings& settings) const {
 	settings.gridSpacing = FromSFMLVector(_gridSpacing);
 	settings.gridColor[0] = _gridColor.r / 255.0f;
 	settings.gridColor[1] = _gridColor.g / 255.0f;
 	settings.gridColor[2] = _gridColor.b / 255.0f;
 	settings.scaleFactor = _scaleFactor;
-	settings.gridLineThickness = _gridLineThickness;
 }
 
 RenderSettings RenderEngine::getCurrentRenderSettings() const {

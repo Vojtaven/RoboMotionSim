@@ -24,13 +24,13 @@ public:
 private:
 	sf::RenderWindow& _window;
 	std::unique_ptr<RobotShape> _robotShape;
-	std::unique_ptr<CompositeShape> _gridLines;
+	sf::VertexArray _gridLines{ sf::PrimitiveType::Lines };
 	std::unique_ptr<sf::View> _view;
 
 	float _scaleFactor = 1.0f;
 	sf::Vector2f _gridSpacing = { 50.0f, 50.0f };
+	sf::Vector2f _gridDefaultSpacing = { 50.f,50.f };
 	sf::Color _gridColor = { 80,80,80 };
-	float _gridLineThickness = 1.0f;
 	bool _showGridLines = true;
 };
 
