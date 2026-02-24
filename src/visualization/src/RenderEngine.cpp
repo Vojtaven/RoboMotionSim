@@ -23,7 +23,7 @@ Vec2f RenderEngine::getWindowCenter() const {
 void RenderEngine::updateAfterResize() {
 	sf::Vector2f windowSize = (sf::Vector2f)_window.getSize();
 	_view->setSize(windowSize / _settings.scaleFactor);
-	_view->setCenter(windowSize / 2.f );
+	_view->setCenter(windowSize / 2.f);
 	_window.setView(*_view);
 	regenerateGridLines();
 }
@@ -72,28 +72,30 @@ void RenderEngine::regenerateGridLines() {
 
 	sf::Vector2f viewSize = _view->getSize();
 	sf::Vector2f viewCenter = _view->getCenter();
-	float left = viewCenter.x - (viewSize.x / 2.0f);
-	float top = viewCenter.y - (viewSize.y / 2.0f);
-	float right = left + viewSize.x;
-	float bottom = top + viewSize.y;
 
-	std::cout << "View bounds: left=" << left << ", top=" << top << ", right=" << right << ", bottom=" << bottom << std::endl;
+	//So we dont draw outside the view
+	float left = viewCenter.x - viewSize.x / 2.f;
+	float right = viewCenter.x + viewSize.x / 2.f;
+	float top = viewCenter.y - viewSize.y / 2.f;
+	float bottom = viewCenter.y + viewSize.y / 2.f;
 
-	sf::Vector2f robotPos = _robotShape->getPosition();
-	sf::Vector2f anchor = {
-		std::round(robotPos.x / _gridDefaultSpacing.x) * _gridDefaultSpacing.x,
-		std::round(robotPos.y / _gridDefaultSpacing.y) * _gridDefaultSpacing.y
-	};
 
-	float startX = anchor.x - std::ceil((anchor.x - left) / _gridSpacing.x) * _gridSpacing.x;
-	float startY = anchor.y - std::ceil((anchor.y - top) / _gridSpacing.y) * _gridSpacing.y;
+	if (_settings.autoGridSpacing) {
+		int niceSpacing = SnapGridToNiceValues();
+		_gridSpacing = { niceSpacing, niceSpacing };
+	}
 
-	for (float x = left; x <= viewSize.x; x += _gridSpacing.x) {
+	float startY = std::floor(top / _gridSpacing.y) * _gridSpacing.y;
+	float startX = std::floor(left / _gridSpacing.x) * _gridSpacing.x;
+
+	for (float x = startX; x <= right; x += _gridSpacing.x)
+	{
 		_gridLines.append({ { x, top },    _gridColor });
 		_gridLines.append({ { x, bottom }, _gridColor });
 	}
 
-	for (float y = top; y <= viewSize.x; y += _gridSpacing.y) {
+	for (float y = startY; y <= bottom; y += _gridSpacing.y)
+	{
 		_gridLines.append({ { left,  y }, _gridColor });
 		_gridLines.append({ { right, y }, _gridColor });
 	}
@@ -109,4 +111,36 @@ void RenderEngine::resetRobotPosition(sf::Vector2f pos) {
 
 const RenderSettings& RenderEngine::getCurrentRenderSettings() const {
 	return _settings;
+}
+
+
+int RenderEngine::SnapGridToNiceValues()
+{
+	double raw = _DefaultGridSpacing / _settings.scaleFactor;
+	if (raw <= 0.0)
+		return _DefaultGridSpacing;
+
+	int exponent = static_cast<int>(std::floor(std::log10(raw)));
+	double base = std::pow(10.0, exponent);
+	double normalized = raw / base;
+
+	double candidates[] = { 1.0, 2, 5.0, 10.0 };
+
+	double closest = candidates[0];
+	double minDiff = std::abs(normalized - closest);
+
+	for (int i = 1; i < 4; ++i)
+	{
+		double diff = std::abs(normalized - candidates[i]);
+		if (diff < minDiff)
+		{
+			minDiff = diff;
+			closest = candidates[i];
+		}
+	}
+
+	if (closest == 10.0)
+		return 1.0 * std::pow(10.0, exponent + 1);
+
+	return closest * base;
 }

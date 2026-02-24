@@ -21,17 +21,15 @@ public:
 	Vec2f getWindowCenter() const;
 	const RenderSettings& getCurrentRenderSettings() const;
 private:
+	int SnapGridToNiceValues();
 	sf::RenderWindow& _window;
 	std::unique_ptr<RobotShape> _robotShape;
 	sf::VertexArray _gridLines{ sf::PrimitiveType::Lines };
 	std::unique_ptr<sf::View> _view;
 	RenderSettings _settings;
-	sf::Vector2i _gridDefaultSpacing = { 200,200 };
+	const int _DefaultGridSpacing = 200; // 200 mm at 1x scale 
 	sf::Color _gridColor = { 80,80,80 };
 	sf::Vector2i _gridSpacing = { 50, 50 };
-	//float _scaleFactor = 1.0f;
-	//bool _showGridLines = true;
-	//bool lockOnRobot = false;
 };
 
 #endif // !RENDER_ENGINE_HPP

@@ -161,35 +161,40 @@ void RenderSettingsWindow::renderContent() {
 		return value;
 	};
 
-	bool xChanged = ImGui::SliderInt("X##GridSpacingX", &_settings.gridSpacing.x, 10, 200, "%d", sliderFlags);
-	bool yChanged = ImGui::SliderInt("Y##GridSpacingY", &_settings.gridSpacing.y, 10, 200, "%d", sliderFlags);
+	changed |= ImGui::Checkbox("Auto Grid Spacing", &_settings.autoGridSpacing);
+	if (!_settings.autoGridSpacing) {
+		bool xChanged = ImGui::SliderInt("X##GridSpacingX", &_settings.gridSpacing.x, 10, 2000, "%d", sliderFlags);
+		bool yChanged = ImGui::SliderInt("Y##GridSpacingY", &_settings.gridSpacing.y, 10, 2000, "%d", sliderFlags);
 
-	if (xChanged) {
-		_settings.gridSpacing.x = clampToStep(_settings.gridSpacing.x, 5, 10, 200);
-	}
-	if (yChanged) {
-		_settings.gridSpacing.y = clampToStep(_settings.gridSpacing.y, 5, 10, 200);
-	}
-
-	if (xChanged || yChanged) {
-		if (_settings.lockGridSpacingRatio) {
-			if (xChanged && _settings.gridSpacing.x > 0) {
-				_settings.gridSpacing.y = clampToStep(
-					static_cast<int>(std::clamp(_settings.gridSpacing.x * _gridSpacingRatio, 10.0f, 200.0f)),
-					5, 10, 200);
-			} else if (yChanged && _gridSpacingRatio > 0) {
-				_settings.gridSpacing.x = clampToStep(
-					static_cast<int>(std::clamp(_settings.gridSpacing.y / _gridSpacingRatio, 10.0f, 200.0f)),
-					5, 10, 200);
-			}
-		} else if (_settings.gridSpacing.x > 0.0f) {
-			_gridSpacingRatio = static_cast<float>(_settings.gridSpacing.y) / static_cast<float>(_settings.gridSpacing.x);
+		if (xChanged) {
+			_settings.gridSpacing.x = clampToStep(_settings.gridSpacing.x, 5, 10, 2000);
 		}
-		changed = true;
-	}
+		if (yChanged) {
+			_settings.gridSpacing.y = clampToStep(_settings.gridSpacing.y, 5, 10, 2000);
+		}
 
-	ImGui::Spacing();
-	ImGui::Checkbox("Lock Grid Spacing Ratio", &_settings.lockGridSpacingRatio);
+		if (xChanged || yChanged) {
+			if (_settings.lockGridSpacingRatio) {
+				if (xChanged && _settings.gridSpacing.x > 0) {
+					_settings.gridSpacing.y = clampToStep(
+						static_cast<int>(std::clamp(_settings.gridSpacing.x * _gridSpacingRatio, 10.0f, 2000.0f)),
+						5, 10, 2000);
+				}
+				else if (yChanged && _gridSpacingRatio > 0) {
+					_settings.gridSpacing.x = clampToStep(
+						static_cast<int>(std::clamp(_settings.gridSpacing.y / _gridSpacingRatio, 10.0f, 2000.0f)),
+						5, 10, 2000);
+				}
+			}
+			else if (_settings.gridSpacing.x > 0.0f) {
+				_gridSpacingRatio = static_cast<float>(_settings.gridSpacing.y) / static_cast<float>(_settings.gridSpacing.x);
+			}
+			changed = true;
+		}
+
+		ImGui::Spacing();
+		ImGui::Checkbox("Lock Grid Spacing Ratio", &_settings.lockGridSpacingRatio);
+	}
 	changed |= ImGui::Checkbox("Show Grid", &_settings.showGrid);
 	ImGui::Spacing();
 	ImGuiColorEditFlags colorFlags =
