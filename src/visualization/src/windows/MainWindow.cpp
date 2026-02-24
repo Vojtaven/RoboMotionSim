@@ -22,6 +22,7 @@ void MainWindow::open(const RobotConfig& robotConfig)
 	_renderEngine = std::make_unique<RenderEngine>(*_window, _appConfig.renderSettings);
 	setRobotConfig(robotConfig);
 	initializeOtherWindows();
+	_window->requestFocus();
 }
 
 void MainWindow::close() {

@@ -150,17 +150,40 @@ void RenderSettingsWindow::renderContent() {
 
 	// Grid spacing
 	ImGui::Text("Grid Spacing (mm)");
-	bool xChanged = ImGui::SliderFloat("X##GridSpacingX", &_settings.gridSpacing.x, 10.0f, 200.0f, "%.f", sliderFlags);
-	bool yChanged = ImGui::SliderFloat("Y##GridSpacingY", &_settings.gridSpacing.y, 10.0f, 200.0f, "%.f", sliderFlags);
+	// Clamp grid spacing to steps of 5
+	auto clampToStep = [](int value, int step, int min, int max) {
+		value = std::clamp(value, min, max);
+		int remainder = value % step;
+		if (remainder != 0) {
+			value = value - remainder + (remainder >= step / 2 ? step : 0);
+			value = std::clamp(value,min, max);
+		}
+		return value;
+	};
+
+	bool xChanged = ImGui::SliderInt("X##GridSpacingX", &_settings.gridSpacing.x, 10, 200, "%d", sliderFlags);
+	bool yChanged = ImGui::SliderInt("Y##GridSpacingY", &_settings.gridSpacing.y, 10, 200, "%d", sliderFlags);
+
+	if (xChanged) {
+		_settings.gridSpacing.x = clampToStep(_settings.gridSpacing.x, 5, 10, 200);
+	}
+	if (yChanged) {
+		_settings.gridSpacing.y = clampToStep(_settings.gridSpacing.y, 5, 10, 200);
+	}
+
 	if (xChanged || yChanged) {
 		if (_settings.lockGridSpacingRatio) {
-			if (xChanged && _settings.gridSpacing.x > 0.0f) {
-				_settings.gridSpacing.y = std::clamp(_settings.gridSpacing.x * _gridSpacingRatio, 10.0f, 200.0f);
-			} else if (yChanged && _gridSpacingRatio > 0.0f) {
-				_settings.gridSpacing.x = std::clamp(_settings.gridSpacing.y / _gridSpacingRatio, 10.0f, 200.0f);
+			if (xChanged && _settings.gridSpacing.x > 0) {
+				_settings.gridSpacing.y = clampToStep(
+					static_cast<int>(std::clamp(_settings.gridSpacing.x * _gridSpacingRatio, 10.0f, 200.0f)),
+					5, 10, 200);
+			} else if (yChanged && _gridSpacingRatio > 0) {
+				_settings.gridSpacing.x = clampToStep(
+					static_cast<int>(std::clamp(_settings.gridSpacing.y / _gridSpacingRatio, 10.0f, 200.0f)),
+					5, 10, 200);
 			}
 		} else if (_settings.gridSpacing.x > 0.0f) {
-			_gridSpacingRatio = _settings.gridSpacing.y / _settings.gridSpacing.x;
+			_gridSpacingRatio = static_cast<float>(_settings.gridSpacing.y) / static_cast<float>(_settings.gridSpacing.x);
 		}
 		changed = true;
 	}

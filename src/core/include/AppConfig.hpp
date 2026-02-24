@@ -21,7 +21,7 @@ struct WindowConfig {
 
 struct RenderSettings {
 	float scaleFactor = 1.0f;
-	Vec2f gridSpacing = { 50.0f, 50.0f };
+	Vec2i gridSpacing = { 50, 50 };
 	bool lockGridSpacingRatio = true;
 	bool showGrid = true;
 	bool lockViewOnRobot = false;

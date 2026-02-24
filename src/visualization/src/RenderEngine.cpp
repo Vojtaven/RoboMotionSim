@@ -1,6 +1,6 @@
 #include "RenderEngine.hpp"
 #include <cmath>
-
+#include <iostream>
 RenderEngine::RenderEngine(sf::RenderWindow& window, const RenderSettings& settings) :
 	_window(window),
 	_robotShape(std::make_unique<RobotShape>(RobotConfig()))
@@ -36,7 +36,7 @@ void RenderEngine::updateRobotShape(const RobotConfig& config, bool holdPosition
 }
 
 void RenderEngine::setRenderSettings(const RenderSettings& settings) {
-	_gridSpacing = ToSFMLVector2f(settings.gridSpacing);
+	_gridSpacing = ToSFMLVector2i(settings.gridSpacing);
 	_gridColor = sf::Color(
 		(uint8_t)(settings.gridColor[0] * 255),
 		(uint8_t)(settings.gridColor[1] * 255),
@@ -77,6 +77,8 @@ void RenderEngine::regenerateGridLines() {
 	float right = left + viewSize.x;
 	float bottom = top + viewSize.y;
 
+	std::cout << "View bounds: left=" << left << ", top=" << top << ", right=" << right << ", bottom=" << bottom << std::endl;
+
 	sf::Vector2f robotPos = _robotShape->getPosition();
 	sf::Vector2f anchor = {
 		std::round(robotPos.x / _gridDefaultSpacing.x) * _gridDefaultSpacing.x,
@@ -86,12 +88,12 @@ void RenderEngine::regenerateGridLines() {
 	float startX = anchor.x - std::ceil((anchor.x - left) / _gridSpacing.x) * _gridSpacing.x;
 	float startY = anchor.y - std::ceil((anchor.y - top) / _gridSpacing.y) * _gridSpacing.y;
 
-	for (float x = startX; x <= right; x += _gridSpacing.x) {
+	for (float x = left; x <= viewSize.x; x += _gridSpacing.x) {
 		_gridLines.append({ { x, top },    _gridColor });
 		_gridLines.append({ { x, bottom }, _gridColor });
 	}
 
-	for (float y = startY; y <= bottom; y += _gridSpacing.y) {
+	for (float y = top; y <= viewSize.x; y += _gridSpacing.y) {
 		_gridLines.append({ { left,  y }, _gridColor });
 		_gridLines.append({ { right, y }, _gridColor });
 	}

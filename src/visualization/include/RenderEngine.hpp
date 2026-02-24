@@ -26,9 +26,9 @@ private:
 	sf::VertexArray _gridLines{ sf::PrimitiveType::Lines };
 	std::unique_ptr<sf::View> _view;
 	RenderSettings _settings;
-	sf::Vector2f _gridDefaultSpacing = { 50.f,50.f };
+	sf::Vector2i _gridDefaultSpacing = { 200,200 };
 	sf::Color _gridColor = { 80,80,80 };
-	sf::Vector2f _gridSpacing = { 50.0f, 50.0f };
+	sf::Vector2i _gridSpacing = { 50, 50 };
 	//float _scaleFactor = 1.0f;
 	//bool _showGridLines = true;
 	//bool lockOnRobot = false;
