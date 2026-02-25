@@ -10,16 +10,16 @@ MainWindow::MainWindow(const AppConfig& config)
 
 void MainWindow::open(const RobotConfig& robotConfig)
 {
-	_mainView = std::make_unique<sf::View>(sf::FloatRect({ 0.f, 0.f }, ToSFMLVector2f(_windowConfig.size)));
+	//_mainView = std::make_unique<sf::View>(sf::FloatRect({ 0.f, 0.f }, ToSFMLVector2f(_windowConfig.size)));
 	_window = std::make_unique<sf::RenderWindow>(
 		sf::VideoMode(ToSFMLVector2u(_windowConfig.size)),
 		_appConfig.appName,
 		_windowConfig.resizable ? sf::Style::Default : sf::Style::Titlebar | sf::Style::Close);
 
 	_window->setPosition(ToSFMLVector2i(_windowConfig.position));
-	_window->setView(*_mainView);
+	//_window->setView(*_mainView);
 	initImGui();
-	_renderEngine = std::make_unique<RenderEngine>(*_window, _appConfig.renderSettings);
+	_renderEngine = std::make_unique<RenderEngine>(*_window, _appConfig.renderSettings, _appConfig.fontPath);
 	setRobotConfig(robotConfig);
 	initializeOtherWindows();
 	_window->requestFocus();
@@ -110,7 +110,9 @@ void MainWindow::initImGui() {
 
 	ImGuiIO& io = ImGui::GetIO();
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-
+	if (!io.Fonts->AddFontFromFileTTF( _appConfig.fontPath.c_str(), 16) || !ImGui::SFML::UpdateFontTexture()) {
+		throw std::runtime_error("Failed to load font for settings window: " + _appConfig.fontPath);
+	}
 	// Configure ImGui style
 	ImGuiStyle& style = ImGui::GetStyle();
 	style.WindowRounding = 6.0f;
@@ -166,8 +168,6 @@ void MainWindow::update(float dt,const RobotState& robotState ) {
 		{
 			float newWidth = static_cast<float>(resize->size.x);
 			float newHeight = static_cast<float>(resize->size.y);
-			_mainView->setSize({ newWidth, newHeight });
-			_mainView->setCenter({ newWidth / 2.f, newHeight / 2.f });
 			_renderEngine->updateAfterResize();
 		}
 

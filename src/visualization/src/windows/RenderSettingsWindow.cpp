@@ -4,7 +4,9 @@
 #include <algorithm>
 #include <cstdint>
 #include "SFMLHelper.hpp"
-RenderSettingsWindow::RenderSettingsWindow(const AppConfig& config) {
+RenderSettingsWindow::RenderSettingsWindow(const AppConfig& config)
+	: _fontPath(config.fontPath)
+{
 	_windowConfig = config.renderSettingsWindow;
 	_settings = config.renderSettings;
 	if (_windowConfig.open) {
@@ -47,6 +49,9 @@ void RenderSettingsWindow::open() {
 
 	ImGuiIO& io = ImGui::GetIO();
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+	if(! io.Fonts->AddFontFromFileTTF(_fontPath.c_str(), 16) || !ImGui::SFML::UpdateFontTexture()) {
+		throw std::runtime_error("Failed to load font for settings window: " + _fontPath);
+	}
 	_windowConfig.open = true;
 	_isOpen = true;
 }

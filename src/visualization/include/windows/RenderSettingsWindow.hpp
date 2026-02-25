@@ -34,6 +34,7 @@ private:
 	bool _pendingClose = false;
 	bool _isOpen = false;
 	int colorTypeIndex = 0; // 0 for grid color, 1 for subgrid color
+	const std::string& _fontPath;
 };
 
 #endif // !SETTINGS_WINDOW_HPP

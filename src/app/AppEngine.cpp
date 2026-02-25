@@ -25,7 +25,7 @@ AppEngine::AppEngine()
 	vizEngine = std::make_unique<VisualizationEngine>(appConfig,robotConfig);
 
 	robotState = std::make_unique<RobotState>(robotConfig.getWheelCount());
-	robotState->position = vizEngine->getWindowCenter();
+	robotState->position = { 0,0 };
 	robotState->frontAngle = DegreesToRadians(-90);
 
 	DirectionVector centerPoint;

@@ -14,6 +14,13 @@ int main() {
 	}
 }
 
+/*NEXT TODO
+FIX text
+Fix Initialization of robot shape
+
+
+*/
+
 
 /* TODO list
 * Add proper input handling 

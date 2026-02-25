@@ -1,13 +1,20 @@
 #include "RenderEngine.hpp"
 #include <cmath>
+#include "AppConfig.hpp"
+#include "SFML/System.hpp"
 #include <iostream>
-RenderEngine::RenderEngine(sf::RenderWindow& window, const RenderSettings& settings) :
+RenderEngine::RenderEngine(sf::RenderWindow& window, const RenderSettings& settings, const std::string& fontPath) :
 	_window(window),
 	_robotShape(std::make_unique<RobotShape>(RobotConfig()))
 {
+	_robotShape->setPosition({ 0,0 });
 	_view = std::make_unique<sf::View>(sf::FloatRect({ 0.f, 0.f }, (sf::Vector2f)_window.getSize()));
+	_view->setCenter({ 0,0 });
 	_window.setView(*_view);
 	setRenderSettings(settings);
+	if(!_font.openFromFile(fontPath)) {
+		throw std::runtime_error("Failed to load font at: " + fontPath);
+	}
 }
 
 void RenderEngine::update(const RobotState& state) {
@@ -23,7 +30,7 @@ Vec2f RenderEngine::getWindowCenter() const {
 void RenderEngine::updateAfterResize() {
 	sf::Vector2f windowSize = (sf::Vector2f)_window.getSize();
 	_view->setSize(windowSize / _settings.scaleFactor);
-	_view->setCenter(windowSize / 2.f);
+	_view->setCenter({0,0});
 	_window.setView(*_view);
 	regenerateGridLines();
 }
@@ -53,7 +60,7 @@ void RenderEngine::setRenderSettings(const RenderSettings& settings) {
 
 	if (settings.lockViewOnRobot && scaleChanged)
 		_view->setCenter(_robotShape->getPosition());
-	_view->setViewport(sf::FloatRect({ 0, 0 }, { 1, 1 }));
+	//_view->setViewport(sf::FloatRect({ 0, 0 }, { 1, 1 }));
 	_window.setView(*_view);
 	_settings = settings;
 	regenerateGridLines();
@@ -66,13 +73,17 @@ void RenderEngine::draw() {
 		regenerateGridLines();
 	}
 
-	if (_settings.showGrid)
+	if (_settings.showGrid) {
 		_window.draw(_gridLines);
+		for (auto& text : _gridText) {
+			_window.draw(text);
+		}
+	}
 	_window.draw(*_robotShape);
 }
 
 
-void AddGridLines(sf::VertexArray& gridLines, const sf::Color gridColor, float startX, float startY, float spacing, float left, float right, float top, float bottom) {
+void AddGridLines(sf::VertexArray& gridLines, const sf::Color& gridColor, float startX, float startY, float spacing, float left, float right, float top, float bottom) {
 	for (float x = startX; x <= right; x += spacing)
 	{
 		gridLines.append({ { x, top },    gridColor });
@@ -84,6 +95,31 @@ void AddGridLines(sf::VertexArray& gridLines, const sf::Color gridColor, float s
 		gridLines.append({ { left,  y }, gridColor });
 		gridLines.append({ { right, y }, gridColor });
 	}
+}
+
+sf::Text CreateGridText(const sf::Color& gridColor, float value, float x, float y, const sf::Font& font) {
+	sf::Text text(font,
+		value == (int)value ? std::to_string((int)value) :
+		std::to_string(value), 16);
+	text.setFillColor(gridColor);
+	auto bounds = text.getLocalBounds();
+	text.setOrigin({ bounds.size.x / 2.f, bounds.size.y / 2.f });
+	text.setPosition({ x, y });
+	return text;
+}
+
+std::vector<sf::Text> AddGridText(const sf::Color& gridColor, const sf::Font& font, float startX, float startY, float spacing, float left, float right, float top, float bottom) {
+	std::vector<sf::Text> gridText;
+	for (float x = startX; x <= right; x += spacing)
+	{
+		gridText.push_back(CreateGridText(gridColor, x, x, top, font));
+	}
+
+	for (float y = startY; y <= bottom; y += spacing)
+	{
+		gridText.push_back(CreateGridText(gridColor, y, left, y, font));
+	}
+	return gridText;
 }
 
 void RenderEngine::regenerateGridLines() {
@@ -110,6 +146,7 @@ void RenderEngine::regenerateGridLines() {
 
 	AddGridLines(_gridLines, _subGridColor, startX, startY, subdivisionSpacing, left, right, top, bottom);
 	AddGridLines(_gridLines, _gridColor, startX, startY, spacing, left, right, top, bottom);
+	_gridText = AddGridText(_gridColor,_font, startX, startY, spacing, left, right, top, bottom);
 }
 
 
