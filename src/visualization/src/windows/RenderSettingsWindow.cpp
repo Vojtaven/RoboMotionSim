@@ -7,7 +7,6 @@
 RenderSettingsWindow::RenderSettingsWindow(const AppConfig& config) {
 	_windowConfig = config.renderSettingsWindow;
 	_settings = config.renderSettings;
-	_gridSpacingRatio = (_settings.gridSpacing.x != 0.0f) ? _settings.gridSpacing.y / _settings.gridSpacing.x : 1.0f;
 	if (_windowConfig.open) {
 		open();
 	}
@@ -19,7 +18,6 @@ RenderSettingsWindow::~RenderSettingsWindow() {
 
 void RenderSettingsWindow::open(const RenderSettings& settings) {
 	_settings = settings;
-	_gridSpacingRatio = (_settings.gridSpacing.x != 0.0f) ? _settings.gridSpacing.y / _settings.gridSpacing.x : 1.0f;
 	open();
 }
 
@@ -147,63 +145,30 @@ void RenderSettingsWindow::renderContent() {
 	changed |= ImGui::SliderFloat("##Scale", &_settings.scaleFactor, 0.1f, 5.0f, "%.2f", sliderFlags);
 	changed |= ImGui::Checkbox("Lock on view on robot", &_settings.lockViewOnRobot);
 	ImGui::Spacing();
+	ImGui::Separator();
+	ImGui::Spacing();
 
-	// Grid spacing
 	ImGui::Text("Grid Spacing (mm)");
-	// Clamp grid spacing to steps of 5
-	auto clampToStep = [](int value, int step, int min, int max) {
-		value = std::clamp(value, min, max);
-		int remainder = value % step;
-		if (remainder != 0) {
-			value = value - remainder + (remainder >= step / 2 ? step : 0);
-			value = std::clamp(value,min, max);
-		}
-		return value;
-	};
-
 	changed |= ImGui::Checkbox("Auto Grid Spacing", &_settings.autoGridSpacing);
 	if (!_settings.autoGridSpacing) {
-		bool xChanged = ImGui::SliderInt("X##GridSpacingX", &_settings.gridSpacing.x, 10, 2000, "%d", sliderFlags);
-		bool yChanged = ImGui::SliderInt("Y##GridSpacingY", &_settings.gridSpacing.y, 10, 2000, "%d", sliderFlags);
-
-		if (xChanged) {
-			_settings.gridSpacing.x = clampToStep(_settings.gridSpacing.x, 5, 10, 2000);
-		}
-		if (yChanged) {
-			_settings.gridSpacing.y = clampToStep(_settings.gridSpacing.y, 5, 10, 2000);
-		}
-
-		if (xChanged || yChanged) {
-			if (_settings.lockGridSpacingRatio) {
-				if (xChanged && _settings.gridSpacing.x > 0) {
-					_settings.gridSpacing.y = clampToStep(
-						static_cast<int>(std::clamp(_settings.gridSpacing.x * _gridSpacingRatio, 10.0f, 2000.0f)),
-						5, 10, 2000);
-				}
-				else if (yChanged && _gridSpacingRatio > 0) {
-					_settings.gridSpacing.x = clampToStep(
-						static_cast<int>(std::clamp(_settings.gridSpacing.y / _gridSpacingRatio, 10.0f, 2000.0f)),
-						5, 10, 2000);
-				}
-			}
-			else if (_settings.gridSpacing.x > 0.0f) {
-				_gridSpacingRatio = static_cast<float>(_settings.gridSpacing.y) / static_cast<float>(_settings.gridSpacing.x);
-			}
-			changed = true;
-		}
-
-		ImGui::Spacing();
-		ImGui::Checkbox("Lock Grid Spacing Ratio", &_settings.lockGridSpacingRatio);
+		changed |= ImGui::SliderInt("##GridSpacing", &_settings.gridSpacing, 10, 2000, "%d", sliderFlags);
 	}
 	changed |= ImGui::Checkbox("Show Grid", &_settings.showGrid);
+	changed |= ImGui::SliderInt("##GridSubdivision", &_settings.gridSubdivisions, 0, 10, "%d", sliderFlags);
 	ImGui::Spacing();
+	ImGui::Separator();
+	ImGui::Spacing();
+
 	ImGuiColorEditFlags colorFlags =
 		ImGuiColorEditFlags_DisplayRGB |
 		ImGuiColorEditFlags_PickerHueWheel |
 		ImGuiColorEditFlags_InputRGB;
-	// Grid color
-	ImGui::Text("Grid Color");
-	changed |= ImGui::ColorPicker3("##GridColor", _settings.gridColor.data(), colorFlags);
+
+	const char* colorTypeItems[] = { "Grid color", "SubGrid color" };
+	ImGui::Combo("##ColorSelecterType", &colorTypeIndex, colorTypeItems, IM_ARRAYSIZE(colorTypeItems));
+	auto dataToUse = colorTypeIndex == 0 ? _settings.gridColor.data() : _settings.subGridColor.data();
+
+	changed |= ImGui::ColorPicker3("##GridColor", dataToUse, colorFlags);
 	ImGui::Spacing();
 	ImGui::Separator();
 	ImGui::Spacing();
@@ -215,7 +180,6 @@ void RenderSettingsWindow::renderContent() {
 	// Reset button
 	if (ImGui::Button("Reset to Defaults", ImVec2(-1, 30))) {
 		_settings = RenderSettings();
-		_gridSpacingRatio = 1.0f;
 		changed = true;
 	}
 

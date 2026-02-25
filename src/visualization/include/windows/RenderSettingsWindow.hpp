@@ -33,7 +33,7 @@ private:
 	OnSettingsChanged _onSettingsChanged;
 	bool _pendingClose = false;
 	bool _isOpen = false;
-	float _gridSpacingRatio = 1.0f;
+	int colorTypeIndex = 0; // 0 for grid color, 1 for subgrid color
 };
 
 #endif // !SETTINGS_WINDOW_HPP

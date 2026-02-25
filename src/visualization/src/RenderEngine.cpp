@@ -36,11 +36,15 @@ void RenderEngine::updateRobotShape(const RobotConfig& config, bool holdPosition
 }
 
 void RenderEngine::setRenderSettings(const RenderSettings& settings) {
-	_gridSpacing = ToSFMLVector2i(settings.gridSpacing);
 	_gridColor = sf::Color(
 		(uint8_t)(settings.gridColor[0] * 255),
 		(uint8_t)(settings.gridColor[1] * 255),
 		(uint8_t)(settings.gridColor[2] * 255));
+	_subGridColor = sf::Color(
+		(uint8_t)(settings.subGridColor[0] * 255),
+		(uint8_t)(settings.subGridColor[1] * 255),
+		(uint8_t)(settings.subGridColor[2] * 255));
+
 	_window.setFramerateLimit(settings.frameRateLimit);
 	bool scaleChanged = (std::abs(settings.scaleFactor - _settings.scaleFactor) > 0.001f);
 
@@ -67,6 +71,21 @@ void RenderEngine::draw() {
 	_window.draw(*_robotShape);
 }
 
+
+void AddGridLines(sf::VertexArray& gridLines, const sf::Color gridColor, float startX, float startY, float spacing, float left, float right, float top, float bottom) {
+	for (float x = startX; x <= right; x += spacing)
+	{
+		gridLines.append({ { x, top },    gridColor });
+		gridLines.append({ { x, bottom }, gridColor });
+	}
+
+	for (float y = startY; y <= bottom; y += spacing)
+	{
+		gridLines.append({ { left,  y }, gridColor });
+		gridLines.append({ { right, y }, gridColor });
+	}
+}
+
 void RenderEngine::regenerateGridLines() {
 	_gridLines = sf::VertexArray(sf::PrimitiveType::Lines);
 
@@ -78,28 +97,21 @@ void RenderEngine::regenerateGridLines() {
 	float right = viewCenter.x + viewSize.x / 2.f;
 	float top = viewCenter.y - viewSize.y / 2.f;
 	float bottom = viewCenter.y + viewSize.y / 2.f;
+	int spacing = _settings.gridSpacing;
 
 
-	if (_settings.autoGridSpacing) {
-		int niceSpacing = SnapGridToNiceValues();
-		_gridSpacing = { niceSpacing, niceSpacing };
-	}
+	if (_settings.autoGridSpacing)
+		spacing = SnapGridToNiceValues();
 
-	float startY = std::floor(top / _gridSpacing.y) * _gridSpacing.y;
-	float startX = std::floor(left / _gridSpacing.x) * _gridSpacing.x;
+	float subdivisionSpacing = spacing / (float)(_settings.gridSubdivisions + 1);
 
-	for (float x = startX; x <= right; x += _gridSpacing.x)
-	{
-		_gridLines.append({ { x, top },    _gridColor });
-		_gridLines.append({ { x, bottom }, _gridColor });
-	}
+	float startX = std::floor(left / spacing) * spacing;
+	float startY = std::floor(top / spacing) * spacing;
 
-	for (float y = startY; y <= bottom; y += _gridSpacing.y)
-	{
-		_gridLines.append({ { left,  y }, _gridColor });
-		_gridLines.append({ { right, y }, _gridColor });
-	}
+	AddGridLines(_gridLines, _subGridColor, startX, startY, subdivisionSpacing, left, right, top, bottom);
+	AddGridLines(_gridLines, _gridColor, startX, startY, spacing, left, right, top, bottom);
 }
+
 
 void RenderEngine::resetRobotPosition(sf::Vector2f pos) {
 	_robotShape->setPosition(pos);

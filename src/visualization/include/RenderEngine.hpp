@@ -29,7 +29,7 @@ private:
 	RenderSettings _settings;
 	const int _DefaultGridSpacing = 200; // 200 mm at 1x scale 
 	sf::Color _gridColor = { 80,80,80 };
-	sf::Vector2i _gridSpacing = { 50, 50 };
+	sf::Color _subGridColor = { 40,40,40 };
 };
 
 #endif // !RENDER_ENGINE_HPP

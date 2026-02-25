@@ -5,7 +5,7 @@
 #include <array>
 
 // Here to discard configs with old version
-#define CONFIG_VERSION "0.6.3"
+#define CONFIG_VERSION "0.6.4"
 enum class InputType {
 	Keyboard,
 	Controller
@@ -21,12 +21,14 @@ struct WindowConfig {
 
 struct RenderSettings {
 	float scaleFactor = 1.0f;
-	Vec2i gridSpacing = { 50, 50 };
+	int gridSpacing = 50;
 	bool lockGridSpacingRatio = true;
 	bool showGrid = true;
 	bool autoGridSpacing = true;
 	bool lockViewOnRobot = false;
 	std::array<float, 3> gridColor = { 80.0f / 255.0f, 80.0f / 255.0f, 80.0f / 255.0f };
+	int gridSubdivisions = 0;
+	std::array<float, 3> subGridColor = { 40.0f / 255.0f, 40.0f / 255.0f, 40.0f / 255.0f };
 	int frameRateLimit = 60;
 };
 
