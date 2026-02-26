@@ -19,17 +19,21 @@ struct WindowConfig {
 	bool wasOpenedBefore = false;
 };
 
+struct GridSettings {
+	int spacing = 50;
+	static const int WantedGridSpacing = 200; // Used for auto spacing, the grid will try to keep the spacing close to this value
+	bool autoSpacing = true;
+	std::array<float, 3> color = { 80.0f / 255.0f, 80.0f / 255.0f, 80.0f / 255.0f };
+	int subdivisionsCount = 0;
+	std::array<float, 3> subGridColor = { 40.0f / 255.0f, 40.0f / 255.0f, 40.0f / 255.0f };
+};
+
 struct RenderSettings {
 	float scaleFactor = 1.0f;
-	int gridSpacing = 50;
-	bool lockGridSpacingRatio = true;
 	bool showGrid = true;
-	bool autoGridSpacing = true;
 	bool lockViewOnRobot = false;
-	std::array<float, 3> gridColor = { 80.0f / 255.0f, 80.0f / 255.0f, 80.0f / 255.0f };
-	int gridSubdivisions = 0;
-	std::array<float, 3> subGridColor = { 40.0f / 255.0f, 40.0f / 255.0f, 40.0f / 255.0f };
 	int frameRateLimit = 60;
+	GridSettings gridSettings;
 };
 
 struct AppSettings {

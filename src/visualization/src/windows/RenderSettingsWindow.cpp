@@ -153,13 +153,15 @@ void RenderSettingsWindow::renderContent() {
 	ImGui::Separator();
 	ImGui::Spacing();
 
+	GridSettings& gridSettings = _settings.gridSettings;
+
 	ImGui::Text("Grid Spacing (mm)");
-	changed |= ImGui::Checkbox("Auto Grid Spacing", &_settings.autoGridSpacing);
-	if (!_settings.autoGridSpacing) {
-		changed |= ImGui::SliderInt("##GridSpacing", &_settings.gridSpacing, 10, 2000, "%d", sliderFlags);
+	changed |= ImGui::Checkbox("Auto Grid Spacing", &gridSettings.autoSpacing);
+	if (!gridSettings.autoSpacing) {
+		changed |= ImGui::SliderInt("##GridSpacing", &gridSettings.spacing, 10, 2000, "%d", sliderFlags);
 	}
 	changed |= ImGui::Checkbox("Show Grid", &_settings.showGrid);
-	changed |= ImGui::SliderInt("##GridSubdivision", &_settings.gridSubdivisions, 0, 10, "%d", sliderFlags);
+	changed |= ImGui::SliderInt("##GridSubdivision", &gridSettings.subdivisionsCount, 0, 10, "%d", sliderFlags);
 	ImGui::Spacing();
 	ImGui::Separator();
 	ImGui::Spacing();
@@ -171,7 +173,7 @@ void RenderSettingsWindow::renderContent() {
 
 	const char* colorTypeItems[] = { "Grid color", "SubGrid color" };
 	ImGui::Combo("##ColorSelecterType", &colorTypeIndex, colorTypeItems, IM_ARRAYSIZE(colorTypeItems));
-	auto dataToUse = colorTypeIndex == 0 ? _settings.gridColor.data() : _settings.subGridColor.data();
+	auto dataToUse = colorTypeIndex == 0 ? gridSettings.color.data() : gridSettings.subGridColor.data();
 
 	changed |= ImGui::ColorPicker3("##GridColor", dataToUse, colorFlags);
 	ImGui::Spacing();

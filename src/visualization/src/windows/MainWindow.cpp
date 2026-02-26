@@ -5,8 +5,9 @@
 #include <imgui-SFML.h>
 
 MainWindow::MainWindow(const AppConfig& config)
-    : _appConfig(config), _windowConfig(_appConfig.mainWindow)
-{}
+	: _appConfig(config), _windowConfig(_appConfig.mainWindow)
+{
+}
 
 void MainWindow::open(const RobotConfig& robotConfig)
 {
@@ -110,7 +111,7 @@ void MainWindow::initImGui() {
 
 	ImGuiIO& io = ImGui::GetIO();
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-	if (!io.Fonts->AddFontFromFileTTF( _appConfig.fontPath.c_str(), 16) || !ImGui::SFML::UpdateFontTexture()) {
+	if (!io.Fonts->AddFontFromFileTTF(_appConfig.fontPath.c_str(), 16) || !ImGui::SFML::UpdateFontTexture()) {
 		throw std::runtime_error("Failed to load font for settings window: " + _appConfig.fontPath);
 	}
 	// Configure ImGui style
@@ -147,7 +148,7 @@ void MainWindow::saveWindowConfig(WindowConfig& config) const {
 	config.resizable = true;
 }
 
-void MainWindow::update(float dt,const RobotState& robotState ) {
+void MainWindow::update(float dt, const RobotState& robotState) {
 	sf::Time deltaTime = sf::seconds(dt);
 	_renderEngine->update(robotState);
 	updateAllOtherWindows(deltaTime);
@@ -193,7 +194,8 @@ void MainWindow::saveConfig() {
 void MainWindow::initializeOtherWindows() {
 	_settingsWindow = std::make_unique<RenderSettingsWindow>(_appConfig);
 	_settingsWindow->setOnSettingsChanged([this](const RenderSettings& newSettings) {
-		_renderEngine->setRenderSettings(newSettings);
+		this->_appConfig.renderSettings = newSettings;
+		_renderEngine->updateAfterSettingsChange();
 		});
 }
 

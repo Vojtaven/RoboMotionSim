@@ -2,7 +2,7 @@
 #define MAIN_WINDOW_HPP
 
 #include "Window.hpp"
-#include "RenderEngine.hpp"
+#include "rendering/RenderEngine.hpp"
 #include <SFML/Graphics.hpp>
 #include "RenderSettingsWindow.hpp"
 class MainWindow
