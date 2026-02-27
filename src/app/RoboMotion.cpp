@@ -15,7 +15,7 @@ int main() {
 }
 
 /*NEXT TODO
-FIX text
+FIX text Alolignment 
 Fix Initialization of robot shape
 
 

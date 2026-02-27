@@ -7,20 +7,22 @@
 class Grid
 {
 public:
-	Grid(const GridSettings& settings, const float& scale, const sf::View& view);
+	Grid(const GridSettings& settings, const float& scale, const sf::Font& font, const sf::View& view);
 	void updateAfterSettingsChange(const sf::View& view);
 	void regenerate(const sf::View& view);
 	void draw(sf::RenderTarget& target) const;
+	void mapText(const sf::RenderTarget& target, const sf::View& view);
+	void drawText(sf::RenderTarget& target) const;
 	void setFont(const sf::Font& font) { _font = &font; }
 private: 	
-	void addGridLines(float startX, float startY, const sf::Color& color, const float spacing);
-	void addGridLines(float startX, float startY) {
-		addGridLines(startX, startY, _gridColor, _spacing);
+	void addGridText(unsigned int textSize);
+	void addGridLines(const sf::Color& color, const float spacing);
+	void addGridLines() {
+		addGridLines(_gridColor, _spacing);
 	}
-	void addSubGridLines(float startX, float startY) {
-		addGridLines(startX, startY, _subGridColor, _subdivisionSpacing);
+	void addSubGridLines() {
+		addGridLines(_subGridColor, _subdivisionSpacing);
 	}
-	void addGridText();
 	int snapGridToNiceValues() const;
 	void updateGridBounds(const sf::View& view);
 	sf::VertexArray _lines;
@@ -36,6 +38,7 @@ private:
 		float top;
 		float bottom;
 	};
+	Vec2f startPos;
 	const sf::Font* _font;
 	GridBounds _bounds;
 };

@@ -7,8 +7,7 @@ RenderEngine::RenderEngine(sf::RenderWindow& window,const RenderSettings& settin
 	_settings(settings),
 	_window(window),
 	_view(std::make_unique<sf::View>(sf::FloatRect({ 0.f, 0.f }, (sf::Vector2f)_window.getSize()))),
-	_robotShape(std::make_unique<RobotShape>(RobotConfig())),
-	_grid(std::make_unique<Grid>(settings.gridSettings, settings.scaleFactor, *_view))
+	_robotShape(std::make_unique<RobotShape>(RobotConfig()))
 {
 	_robotShape->setPosition({ 0,0 });
 	_view->setCenter({ 0,0 });
@@ -17,7 +16,7 @@ RenderEngine::RenderEngine(sf::RenderWindow& window,const RenderSettings& settin
 	if(!_font.openFromFile(fontPath)) {
 		throw std::runtime_error("Failed to load font at: " + fontPath);
 	}
-	_grid->setFont(_font);
+	_grid = std::make_unique<Grid>(settings.gridSettings, settings.scaleFactor, _font, *_view);
 	updateAfterSettingsChange();
 }
 
@@ -61,12 +60,16 @@ void RenderEngine::updateAfterSettingsChange() {
 void RenderEngine::draw() {
 	if (_settings.lockViewOnRobot) {
 		_view->setCenter(_robotShape->getPosition());
-		_window.setView(*_view);
 		regenerateGridLines();
 	}
 
+	_window.setView(*_view);
+
 	if (_settings.showGrid) {
 		_grid->draw(_window);
+		_window.setView(_window.getDefaultView());
+		_grid->drawText(_window);
+		_window.setView(*_view);
 	}
 	_window.draw(*_robotShape);
 }
@@ -77,6 +80,11 @@ void RenderEngine::resetRobotPosition(sf::Vector2f pos) {
 	_view->setCenter(pos);
 	_window.setView(*_view);
 	regenerateGridLines();
+}
+
+void RenderEngine::regenerateGridLines() { 
+	_grid->regenerate(*_view);
+	_grid->mapText(_window, *_view);
 }
 
 const RenderSettings& RenderEngine::getCurrentRenderSettings() const {

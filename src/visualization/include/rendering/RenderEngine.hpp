@@ -15,7 +15,7 @@ public:
 	void update(const RobotState& state);
 	void updateAfterResize();
 	void draw();
-	void regenerateGridLines() {_grid->regenerate(*_view);}
+	void regenerateGridLines();
 	void resetRobotPosition(sf::Vector2f pos);
 	void updateAfterSettingsChange();
 	void updateRobotShape(const RobotConfig& config, bool holdPosition = true);

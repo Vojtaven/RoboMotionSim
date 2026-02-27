@@ -1,7 +1,7 @@
 #include "rendering/Grid.hpp"
 
 
-Grid::Grid(const GridSettings& settings, const float& scale, const sf::View& view) : _settings(settings), _scale(scale) {
+Grid::Grid(const GridSettings& settings, const float& scale, const sf::Font& font, const sf::View& view) : _settings(settings), _scale(scale), _font(&font) {
 	updateAfterSettingsChange(view);
 }
 void Grid::updateAfterSettingsChange(const sf::View& view) {
@@ -20,29 +20,42 @@ void Grid::regenerate(const sf::View& view) {
 	updateGridBounds(view);
 	_spacing = _settings.autoSpacing ? snapGridToNiceValues() : _settings.spacing;
 
-	float startX = std::floor(_bounds.left / _spacing) * _spacing;
-	float startY = std::floor(_bounds.top / _spacing) * _spacing;
+	startPos.x = std::floor(_bounds.left / _spacing) * _spacing;
+	startPos.y = std::floor(_bounds.top / _spacing) * _spacing;
 
 
 	if (_settings.subdivisionsCount > 0) {
 		_subdivisionSpacing = _spacing / (float)(_settings.subdivisionsCount + 1);
-		addSubGridLines(startX, startY);
+		addSubGridLines();
 	}
-	addGridLines(startX, startY);
-
-	//TODO add text
+	addGridLines();
+	addGridText(_settings.DefaultFontSize);
 }
+
+void Grid::mapText(const sf::RenderTarget& target, const sf::View& view) {
+	for (auto& label : _text) {
+		auto pixelPos = target.mapCoordsToPixel(label.getPosition(), view);
+		label.setPosition(pixelPos);
+	}
+}
+
 void Grid::draw(sf::RenderTarget& target) const {
 	target.draw(_lines);
 }
-void Grid::addGridLines(float startX, float startY, const sf::Color& color, const float spacing) {
-	for (float x = startX; x <= _bounds.right; x += spacing)
+void Grid::drawText(sf::RenderTarget& target) const {
+	for (const auto& label : _text) {
+		target.draw(label);
+	}
+}
+
+void Grid::addGridLines(const sf::Color& color, const float spacing) {
+	for (float x = startPos.x; x <= _bounds.right; x += spacing)
 	{
 		_lines.append({ { x, _bounds.top },    color });
 		_lines.append({ { x, _bounds.bottom }, color });
 	}
 
-	for (float y = startY; y <= _bounds.bottom; y += spacing)
+	for (float y = startPos.y; y <= _bounds.bottom; y += spacing)
 	{
 		_lines.append({ { _bounds.left,  y }, color });
 		_lines.append({ { _bounds.right, y }, color });
@@ -50,7 +63,20 @@ void Grid::addGridLines(float startX, float startY, const sf::Color& color, cons
 
 }
 
-void Grid::addGridText() {}
+void Grid::addGridText(unsigned int textSize) {
+	_text.clear();
+	for (float x = startPos.y; x <= _bounds.right; x += _spacing)
+	{
+		_text.push_back(TextLabel(*_font, x, textSize, _gridColor, sf::Color::Transparent));
+		_text.back().setPosition(x, _bounds.top, AnchorPoint::TopCenter);
+	}
+
+	for (float y = startPos.x; y <= _bounds.bottom; y += _spacing)
+	{
+		_text.push_back(TextLabel(*_font, y, textSize, _gridColor, sf::Color::Transparent));
+		_text.back().setPosition(_bounds.left, y, AnchorPoint::BottomLeft);
+	}
+}
 
 int Grid::snapGridToNiceValues() const {
 	double raw = _settings.WantedGridSpacing / _scale;

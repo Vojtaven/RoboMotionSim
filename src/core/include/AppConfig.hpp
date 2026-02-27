@@ -22,6 +22,7 @@ struct WindowConfig {
 struct GridSettings {
 	int spacing = 50;
 	static const int WantedGridSpacing = 200; // Used for auto spacing, the grid will try to keep the spacing close to this value
+	static const unsigned int DefaultFontSize = 40;
 	bool autoSpacing = true;
 	std::array<float, 3> color = { 80.0f / 255.0f, 80.0f / 255.0f, 80.0f / 255.0f };
 	int subdivisionsCount = 0;
