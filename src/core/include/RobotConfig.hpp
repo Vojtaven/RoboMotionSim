@@ -65,7 +65,7 @@ public:
 	int getWheelCount() const { return static_cast<int>(_axels.size()); }
 private:
 	std::vector<RobotParts::DriveAxle_t> _axels;
-	RobotDriveType _DriveType;
+	RobotDriveType _DriveType ;
 	// Things used in simulator only
 	// TODO
 	// 1) Add chassis

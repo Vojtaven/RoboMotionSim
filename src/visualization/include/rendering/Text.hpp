@@ -64,7 +64,7 @@ public:
 
     void setPosition(float x, float y, AnchorPoint anchor)
     {
-        const sf::Vector2f size = _background.getLocalBounds().size;
+        const sf::Vector2f size = _background.getSize();
         sf::Vector2f offset(0.f, 0.f);
 
         switch (anchor) {
@@ -97,8 +97,13 @@ public:
                 break;
         }
 
-        _text.setPosition({x - offset.x + _padding, y - offset.y + _padding});
         _background.setPosition({x - offset.x, y - offset.y});
+        const float textHeight = _text.getLocalBounds().size.y;
+        sf::Vector2f textOffset(
+            _background.getPosition().x + _padding,
+			_background.getPosition().y - textHeight / 2.f - _padding
+        );
+        _text.setPosition(textOffset);
     }
 
     void setNumber(float number, int precision = 2)

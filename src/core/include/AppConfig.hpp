@@ -44,7 +44,7 @@ struct AppSettings {
 struct AppConfig {
 	std::string appName = "";
 	std::string configVersion = "";
-	std::string fontPath = "D:/Vojta/Skola/RobotMotionSim/src/assets/font/ProggyClean.ttf";
+	std::string fontPath = "C:/Vojta/Skola/robomotionsim/src/assets/font/ProggyClean.ttf";
 	WindowConfig mainWindow;
 	WindowConfig renderSettingsWindow;
 	WindowConfig appSettingsWindow;

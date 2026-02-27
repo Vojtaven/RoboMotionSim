@@ -7,14 +7,15 @@
 class Grid
 {
 public:
-	Grid(const GridSettings& settings, const float& scale, const sf::Font& font, const sf::View& view);
-	void updateAfterSettingsChange(const sf::View& view);
-	void regenerate(const sf::View& view);
+	Grid(const GridSettings& settings, const float& scale, const sf::Font& font, const sf::View& worldView);
+	void updateAfterSettingsChange();
+	void regenerate();
 	void draw(sf::RenderTarget& target) const;
-	void mapText(const sf::RenderTarget& target, const sf::View& view);
-	void drawText(sf::RenderTarget& target) const;
+	void drawText(sf::RenderTarget& target);
+	void remapNeeded() { _remapText = true; }
 	void setFont(const sf::Font& font) { _font = &font; }
 private: 	
+	void mapText(const sf::RenderTarget& target);
 	void addGridText(unsigned int textSize);
 	void addGridLines(const sf::Color& color, const float spacing);
 	void addGridLines() {
@@ -24,9 +25,10 @@ private:
 		addGridLines(_subGridColor, _subdivisionSpacing);
 	}
 	int snapGridToNiceValues() const;
-	void updateGridBounds(const sf::View& view);
+	void updateGridBounds();
 	sf::VertexArray _lines;
 	std::vector<TextLabel> _text;
+	bool _remapText = true;
 	sf::Color _gridColor;
 	sf::Color _subGridColor;
 	const GridSettings& _settings;
@@ -41,6 +43,7 @@ private:
 	Vec2f startPos;
 	const sf::Font* _font;
 	GridBounds _bounds;
+	const sf::View& _worldView;
 };
 
 #endif // !GRID_HPP

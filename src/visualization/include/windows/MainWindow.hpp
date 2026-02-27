@@ -29,7 +29,6 @@ private:
 	WindowConfig& _windowConfig;
 	AppConfig _appConfig;
 	std::unique_ptr<RenderEngine> _renderEngine;
-	std::unique_ptr<sf::View> _mainView;
 	std::unique_ptr<sf::RenderWindow> _window;
 	std::unique_ptr<RenderSettingsWindow> _settingsWindow;
 

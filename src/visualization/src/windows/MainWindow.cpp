@@ -11,14 +11,12 @@ MainWindow::MainWindow(const AppConfig& config)
 
 void MainWindow::open(const RobotConfig& robotConfig)
 {
-	//_mainView = std::make_unique<sf::View>(sf::FloatRect({ 0.f, 0.f }, ToSFMLVector2f(_windowConfig.size)));
 	_window = std::make_unique<sf::RenderWindow>(
 		sf::VideoMode(ToSFMLVector2u(_windowConfig.size)),
 		_appConfig.appName,
 		_windowConfig.resizable ? sf::Style::Default : sf::Style::Titlebar | sf::Style::Close);
 
 	_window->setPosition(ToSFMLVector2i(_windowConfig.position));
-	//_window->setView(*_mainView);
 	initImGui();
 	_renderEngine = std::make_unique<RenderEngine>(*_window, _appConfig.renderSettings, _appConfig.fontPath);
 	setRobotConfig(robotConfig);
@@ -89,8 +87,13 @@ void MainWindow::renderImGuiMenu() {
 	}
 
 	if (_showFps) {
+		// Calculate position for bottom-right corner
+		ImVec2 windowSize = ImGui::GetIO().DisplaySize;
 		const float fpsWindowPadding = 10.0f;
-		ImGui::SetNextWindowPos(ImVec2(fpsWindowPadding, fpsWindowPadding));
+		ImVec2 fpsWindowSize(0, 0); // Will be set after first frame
+		// Set a dummy size to avoid flicker on first frame
+		ImGui::SetNextWindowSize(ImVec2(100, 30), ImGuiCond_Always);
+		ImGui::SetNextWindowPos(ImVec2(windowSize.x - 110.0f, windowSize.y - 40.0f), ImGuiCond_Always);
 		ImGui::SetNextWindowBgAlpha(0.6f);
 		ImGui::Begin("##FPS", nullptr,
 			ImGuiWindowFlags_NoTitleBar |
@@ -99,7 +102,9 @@ void MainWindow::renderImGuiMenu() {
 			ImGuiWindowFlags_NoScrollbar |
 			ImGuiWindowFlags_NoSavedSettings |
 			ImGuiWindowFlags_AlwaysAutoResize);
+		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 0, 0, 1.0f));
 		ImGui::Text("FPS: %.0f", ImGui::GetIO().Framerate);
+		ImGui::PopStyleColor();
 		ImGui::End();
 	}
 }
@@ -167,8 +172,6 @@ void MainWindow::update(float dt, const RobotState& robotState) {
 
 		if (auto resize = event->getIf<sf::Event::Resized>())
 		{
-			float newWidth = static_cast<float>(resize->size.x);
-			float newHeight = static_cast<float>(resize->size.y);
 			_renderEngine->updateAfterResize();
 		}
 

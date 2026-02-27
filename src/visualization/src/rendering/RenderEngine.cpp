@@ -6,17 +6,18 @@
 RenderEngine::RenderEngine(sf::RenderWindow& window,const RenderSettings& settings, const std::string& fontPath) :
 	_settings(settings),
 	_window(window),
-	_view(std::make_unique<sf::View>(sf::FloatRect({ 0.f, 0.f }, (sf::Vector2f)_window.getSize()))),
+	_worldView(std::make_unique<sf::View>(sf::FloatRect({ 0.f, 0.f }, (sf::Vector2f)_window.getSize()))),
+	_uiView(std::make_unique<sf::View>(sf::FloatRect({ 0.f, 0.f }, (sf::Vector2f)_window.getSize()))),
 	_robotShape(std::make_unique<RobotShape>(RobotConfig()))
 {
 	_robotShape->setPosition({ 0,0 });
-	_view->setCenter({ 0,0 });
-	_window.setView(*_view);
+	_worldView->setCenter({ 0,0 });
+	_window.setView(*_worldView);
 
 	if(!_font.openFromFile(fontPath)) {
 		throw std::runtime_error("Failed to load font at: " + fontPath);
 	}
-	_grid = std::make_unique<Grid>(settings.gridSettings, settings.scaleFactor, _font, *_view);
+	_grid = std::make_unique<Grid>(settings.gridSettings, settings.scaleFactor, _font, *_worldView);
 	updateAfterSettingsChange();
 }
 
@@ -32,9 +33,11 @@ Vec2f RenderEngine::getWindowCenter() const {
 
 void RenderEngine::updateAfterResize() {
 	sf::Vector2f windowSize = (sf::Vector2f)_window.getSize();
-	_view->setSize(windowSize / _settings.scaleFactor);
-	_view->setCenter({0,0});
-	_window.setView(*_view);
+	_uiView->setSize(windowSize);
+	_uiView->setCenter(windowSize / 2.f);
+	_worldView->setSize(windowSize / _settings.scaleFactor);
+	_worldView->setCenter({0,0});
+	_window.setView(*_worldView);
 	regenerateGridLines();
 }
 
@@ -47,29 +50,25 @@ void RenderEngine::updateRobotShape(const RobotConfig& config, bool holdPosition
 
 void RenderEngine::updateAfterSettingsChange() {
 	_window.setFramerateLimit(_settings.frameRateLimit);
-	bool scaleChanged = (std::abs(_settings.scaleFactor - _settings.scaleFactor) > 0.001f);
-
 	sf::Vector2f windowSize = (sf::Vector2f)_window.getSize();
-	_view->setSize(windowSize / _settings.scaleFactor);
-	if (_settings.lockViewOnRobot && scaleChanged)
-		_view->setCenter(_robotShape->getPosition());
-	_window.setView(*_view);
-	_grid->updateAfterSettingsChange(*_view);
+	_worldView->setSize(windowSize / _settings.scaleFactor);
+	_window.setView(*_worldView);
+	_grid->updateAfterSettingsChange();
 }
 
 void RenderEngine::draw() {
 	if (_settings.lockViewOnRobot) {
-		_view->setCenter(_robotShape->getPosition());
+		_worldView->setCenter(_robotShape->getPosition());
 		regenerateGridLines();
 	}
 
-	_window.setView(*_view);
+	_window.setView(*_worldView);
 
 	if (_settings.showGrid) {
 		_grid->draw(_window);
-		_window.setView(_window.getDefaultView());
+		_window.setView(*_uiView);
 		_grid->drawText(_window);
-		_window.setView(*_view);
+		_window.setView(*_worldView);
 	}
 	_window.draw(*_robotShape);
 }
@@ -77,14 +76,13 @@ void RenderEngine::draw() {
 void RenderEngine::resetRobotPosition(sf::Vector2f pos) {
 	_robotShape->setPosition(pos);
 	_robotShape->setRotation(sf::degrees(0));
-	_view->setCenter(pos);
-	_window.setView(*_view);
+	_worldView->setCenter(pos);
+	_window.setView(*_worldView);
 	regenerateGridLines();
 }
 
 void RenderEngine::regenerateGridLines() { 
-	_grid->regenerate(*_view);
-	_grid->mapText(_window, *_view);
+	_grid->regenerate();
 }
 
 const RenderSettings& RenderEngine::getCurrentRenderSettings() const {

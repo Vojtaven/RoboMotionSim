@@ -25,7 +25,8 @@ private:
 	const RenderSettings& _settings;
 	sf::Font _font;
 	sf::RenderWindow& _window;
-	std::unique_ptr<sf::View> _view;
+	std::unique_ptr<sf::View> _worldView;
+	std::unique_ptr<sf::View> _uiView;
 	std::unique_ptr<RobotShape> _robotShape;
 	std::unique_ptr<Grid> _grid;
 };
