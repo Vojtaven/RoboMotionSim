@@ -44,6 +44,8 @@ private:
 	const sf::Font* _font;
 	GridBounds _bounds;
 	const sf::View& _worldView;
+	const sf::Color _textBackgroundColor = sf::Color(0, 0, 0);
+	const sf::Color _backgroundColor = sf::Color(0, 0, 0);
 };
 
 #endif // !GRID_HPP

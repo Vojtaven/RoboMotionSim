@@ -1,20 +1,23 @@
 #include "rendering/Grid.hpp"
+#include "SFMLHelper.hpp"
 
-
-Grid::Grid(const GridSettings& settings, const float& scale, const sf::Font& font, const sf::View& view) : _settings(settings), _scale(scale), _font(&font), _worldView(view) {
+Grid::Grid(const GridSettings& settings, const float& scale, const sf::Font& font, const sf::View& view)
+	: _settings(settings),
+	_scale(scale),
+	_font(&font),
+	_worldView(view),
+	_backgroundColor(ToSFMLColor(_settings.backgroundColor)),
+	_textBackgroundColor(ToSFMLColor(_backgroundColor, _settings.textBackgroundOpacity))
+{
 	updateAfterSettingsChange();
 }
+
 void Grid::updateAfterSettingsChange() {
-	_gridColor = sf::Color(
-		(uint8_t)(_settings.color[0] * 255),
-		(uint8_t)(_settings.color[1] * 255),
-		(uint8_t)(_settings.color[2] * 255));
-	_subGridColor = sf::Color(
-		(uint8_t)(_settings.subGridColor[0] * 255),
-		(uint8_t)(_settings.subGridColor[1] * 255),
-		(uint8_t)(_settings.subGridColor[2] * 255));
+	_gridColor = ToSFMLColor(_settings.color);
+	_subGridColor = ToSFMLColor(_settings.subGridColor);
 	regenerate();
 }
+
 void Grid::regenerate() {
 	_lines = sf::VertexArray(sf::PrimitiveType::Lines);
 	updateGridBounds();
@@ -34,14 +37,14 @@ void Grid::regenerate() {
 
 void Grid::mapText(const sf::RenderTarget& target) {
 	for (auto& label : _text) {
-		auto pixelPos = target.mapCoordsToPixel(label.getPosition(), _worldView);
-		label.setPosition(pixelPos);
+		label.mapToPixels(target, _worldView);
 	}
 }
 
 void Grid::draw(sf::RenderTarget& target) const {
 	target.draw(_lines);
 }
+
 void Grid::drawText(sf::RenderTarget& target) {
 	if (_remapText) {
 		mapText(target);
@@ -69,16 +72,18 @@ void Grid::addGridLines(const sf::Color& color, const float spacing) {
 
 void Grid::addGridText(unsigned int textSize) {
 	_text.clear();
+	TextLabelFactory factory(*_font, textSize, _gridColor, sf::Color(0, 0, 0, 150));
+	//sf::Color(0, 0, 0, 100)
 	for (float x = startPos.x; x <= _bounds.right; x += _spacing)
 	{
-		_text.push_back(TextLabel(*_font, x, textSize, _gridColor, sf::Color::Yellow));
-		_text.back().setPosition(x, _bounds.top, AnchorPoint::TopCenter);
+		_text.push_back(factory.createNumberLabel(x, AnchorPoint::TopCenter));
+		_text.back().setPosition(x, _bounds.top);
 	}
 
 	for (float y = startPos.y; y <= _bounds.bottom; y += _spacing)
 	{
-		_text.push_back(TextLabel(*_font, y, textSize, _gridColor, sf::Color::Yellow));
-		_text.back().setPosition(_bounds.left, y, AnchorPoint::CenterLeft);
+		_text.push_back(factory.createNumberLabel(y, AnchorPoint::CenterLeft));
+		_text.back().setPosition(_bounds.left, y);
 	}
 	_remapText = true;
 }
@@ -112,6 +117,7 @@ int Grid::snapGridToNiceValues() const {
 
 	return closest * base;
 }
+
 void Grid::updateGridBounds() {
 	sf::Vector2f viewSize = _worldView.getSize();
 	sf::Vector2f viewCenter = _worldView.getCenter();

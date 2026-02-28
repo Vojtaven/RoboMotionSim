@@ -27,6 +27,8 @@ struct GridSettings {
 	std::array<float, 3> color = { 80.0f / 255.0f, 80.0f / 255.0f, 80.0f / 255.0f };
 	int subdivisionsCount = 0;
 	std::array<float, 3> subGridColor = { 40.0f / 255.0f, 40.0f / 255.0f, 40.0f / 255.0f };
+	std::array<float, 3> backgroundColor = { 0.0f, 0.0f, 0.0f };
+	float textBackgroundOpacity = 0.7f;
 };
 
 struct RenderSettings {
