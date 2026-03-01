@@ -19,24 +19,33 @@ struct WindowConfig {
 	bool wasOpenedBefore = false;
 };
 
+struct TrailSettings {
+	std::array<float, 4> trailColor = { 1,1,0.45f,0.5f };
+	int trailMaxLenght = 100;
+	float trailPointSize = 10;
+	float pointSpawnInteral = 0.25f; // Time in seconds between spawning trail points
+};
+
 struct GridSettings {
 	int spacing = 50;
-	static const int WantedGridSpacing = 200; // Used for auto spacing, the grid will try to keep the spacing close to this value
-	static const unsigned int DefaultFontSize = 40;
+	int WantedGridSpacing = 200; // Used for auto spacing, the grid will try to keep the spacing close to this value
+	unsigned int DefaultFontSize = 40;
 	bool autoSpacing = true;
-	std::array<float, 3> color = { 80.0f / 255.0f, 80.0f / 255.0f, 80.0f / 255.0f };
+	std::array<float, 4> color = { 80.0f / 255.0f, 80.0f / 255.0f, 80.0f / 255.0f, 1 };
 	int subdivisionsCount = 0;
-	std::array<float, 3> subGridColor = { 40.0f / 255.0f, 40.0f / 255.0f, 40.0f / 255.0f };
-	std::array<float, 3> backgroundColor = { 0.0f, 0.0f, 0.0f };
+	std::array<float, 4> subGridColor = { 40.0f / 255.0f, 40.0f / 255.0f, 40.0f / 255.0f ,1 };
+	std::array<float, 4> backgroundColor = { 0.0f, 0.0f, 0.0f ,1 };
 	float textBackgroundOpacity = 0.7f;
 };
 
 struct RenderSettings {
 	float scaleFactor = 1.0f;
+	bool showTrail = true;
 	bool showGrid = true;
 	bool lockViewOnRobot = false;
 	int frameRateLimit = 60;
 	GridSettings gridSettings;
+	TrailSettings trailSettings;
 };
 
 struct AppSettings {

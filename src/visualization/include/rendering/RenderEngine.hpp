@@ -8,11 +8,12 @@
 #include "RobotState.hpp"
 #include "AppConfig.hpp"
 #include "Grid.hpp"
+#include "RobotTrail.hpp"
 class RenderEngine
 {
 public:
 	RenderEngine(sf::RenderWindow& window,const RenderSettings& settings, const std::string& fontPath);
-	void update(const RobotState& state);
+	void update(const RobotState& state, const float dt);
 	void updateAfterResize();
 	void draw();
 	void regenerateGridLines();
@@ -21,6 +22,7 @@ public:
 	void updateRobotShape(const RobotConfig& config, bool holdPosition = true);
 	Vec2f getWindowCenter() const;
 	const RenderSettings& getCurrentRenderSettings() const;
+	void clearRobotTrail() { _trail->clearTrail(); }
 private:
 	const RenderSettings& _settings;
 	sf::Font _font;
@@ -28,6 +30,7 @@ private:
 	std::unique_ptr<sf::View> _worldView;
 	std::unique_ptr<sf::View> _uiView;
 	std::unique_ptr<RobotShape> _robotShape;
+	std::unique_ptr<RobotTrail> _trail;
 	std::unique_ptr<Grid> _grid;
 };
 

@@ -3,26 +3,28 @@
 #include "AppConfig.hpp"
 #include "SFML/System.hpp"
 #include <iostream>
-RenderEngine::RenderEngine(sf::RenderWindow& window,const RenderSettings& settings, const std::string& fontPath) :
+RenderEngine::RenderEngine(sf::RenderWindow& window, const RenderSettings& settings, const std::string& fontPath) :
 	_settings(settings),
 	_window(window),
 	_worldView(std::make_unique<sf::View>(sf::FloatRect({ 0.f, 0.f }, (sf::Vector2f)_window.getSize()))),
 	_uiView(std::make_unique<sf::View>(sf::FloatRect({ 0.f, 0.f }, (sf::Vector2f)_window.getSize()))),
-	_robotShape(std::make_unique<RobotShape>(RobotConfig()))
+	_robotShape(std::make_unique<RobotShape>(RobotConfig())),
+	_trail(std::make_unique<RobotTrail>(settings.trailSettings))
 {
 	_robotShape->setPosition({ 0,0 });
 	_worldView->setCenter({ 0,0 });
 	_window.setView(*_worldView);
 
-	if(!_font.openFromFile(fontPath)) {
+	if (!_font.openFromFile(fontPath)) {
 		throw std::runtime_error("Failed to load font at: " + fontPath);
 	}
 	_grid = std::make_unique<Grid>(settings.gridSettings, settings.scaleFactor, _font, *_worldView);
 	updateAfterSettingsChange();
 }
 
-void RenderEngine::update(const RobotState& state) {
+void RenderEngine::update(const RobotState& state, const float dt) {
 	_robotShape->update(state);
+	_trail->addTrailPoint(ToSFMLVector2f(state.position),dt);
 }
 
 Vec2f RenderEngine::getWindowCenter() const {
@@ -36,7 +38,7 @@ void RenderEngine::updateAfterResize() {
 	_uiView->setSize(windowSize);
 	_uiView->setCenter(windowSize / 2.f);
 	_worldView->setSize(windowSize / _settings.scaleFactor);
-	_worldView->setCenter({0,0});
+	_worldView->setCenter({ 0,0 });
 	_window.setView(*_worldView);
 	regenerateGridLines();
 }
@@ -53,6 +55,7 @@ void RenderEngine::updateAfterSettingsChange() {
 	sf::Vector2f windowSize = (sf::Vector2f)_window.getSize();
 	_worldView->setSize(windowSize / _settings.scaleFactor);
 	_window.setView(*_worldView);
+	_trail->updateAfterSettingsChange();
 	_grid->updateAfterSettingsChange();
 }
 
@@ -70,6 +73,10 @@ void RenderEngine::draw() {
 		_grid->drawText(_window);
 		_window.setView(*_worldView);
 	}
+	if (_settings.showTrail) {
+		_trail->draw(_window);
+	}
+
 	_window.draw(*_robotShape);
 }
 
@@ -81,7 +88,7 @@ void RenderEngine::resetRobotPosition(sf::Vector2f pos) {
 	regenerateGridLines();
 }
 
-void RenderEngine::regenerateGridLines() { 
+void RenderEngine::regenerateGridLines() {
 	_grid->regenerate();
 }
 

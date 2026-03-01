@@ -153,9 +153,9 @@ void MainWindow::saveWindowConfig(WindowConfig& config) const {
 	config.resizable = true;
 }
 
-void MainWindow::update(float dt, const RobotState& robotState) {
+void MainWindow::update(const float dt, const RobotState& robotState) {
 	sf::Time deltaTime = sf::seconds(dt);
-	_renderEngine->update(robotState);
+	_renderEngine->update(robotState,dt);
 	updateAllOtherWindows(deltaTime);
 
 	ImGui::SFML::SetCurrentWindow(*_window);
@@ -199,6 +199,9 @@ void MainWindow::initializeOtherWindows() {
 	_settingsWindow->setOnSettingsChanged([this](const RenderSettings& newSettings) {
 		this->_appConfig.renderSettings = newSettings;
 		_renderEngine->updateAfterSettingsChange();
+		});
+	_settingsWindow->setClearRobotTrail([this]() {
+		_renderEngine->clearRobotTrail();
 		});
 }
 

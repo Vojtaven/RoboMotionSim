@@ -22,7 +22,7 @@ public:
 	bool isOpen() const;
 	const WindowConfig& getSavedConfig() const { return _windowConfig; }
 	void setOnSettingsChanged(OnSettingsChanged callback) { _onSettingsChanged = std::move(callback); }
-
+	void setClearRobotTrail(std::function<void()> clearTrailCallback) { _clearRobotTrail = std::move(clearTrailCallback); }
 private:
 	void firstTimeSetup();
 	void saveConfig();
@@ -30,6 +30,7 @@ private:
 	void renderContent();
 	WindowConfig _windowConfig;
 	RenderSettings _settings;
+	std::function<void()> _clearRobotTrail;
 	OnSettingsChanged _onSettingsChanged;
 	bool _pendingClose = false;
 	bool _isOpen = false;

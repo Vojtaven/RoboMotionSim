@@ -39,7 +39,7 @@ void RenderSettingsWindow::open() {
 	_window = std::make_unique<sf::RenderWindow>(
 		sf::VideoMode({ (uint32_t)_windowConfig.size.x, (uint32_t)_windowConfig.size.y }),
 		"Settings",
-		sf::Style::Titlebar | sf::Style::Close| sf::Style::Resize);
+		sf::Style::Titlebar | sf::Style::Close | sf::Style::Resize);
 	_window->setPosition({ _windowConfig.position.x, _windowConfig.position.y });
 
 	if (!ImGui::SFML::Init(*_window)) {
@@ -49,7 +49,7 @@ void RenderSettingsWindow::open() {
 
 	ImGuiIO& io = ImGui::GetIO();
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-	if(! io.Fonts->AddFontFromFileTTF(_fontPath.c_str(), 16) || !ImGui::SFML::UpdateFontTexture()) {
+	if (!io.Fonts->AddFontFromFileTTF(_fontPath.c_str(), 16) || !ImGui::SFML::UpdateFontTexture()) {
 		throw std::runtime_error("Failed to load font for settings window: " + _fontPath);
 	}
 	_windowConfig.open = true;
@@ -112,7 +112,7 @@ void RenderSettingsWindow::update(sf::Time dt) {
 }
 
 void RenderSettingsWindow::draw() {
-	if(!isOpen()) return;
+	if (!isOpen()) return;
 
 	ImGui::SFML::SetCurrentWindow(*_window);
 	_window->clear(sf::Color(30, 30, 30));
@@ -122,7 +122,7 @@ void RenderSettingsWindow::draw() {
 
 void RenderSettingsWindow::saveConfig() {
 	_windowConfig.position = FromSFMLVector(_window->getPosition());
-	_windowConfig.size = FromSFMLVector( _window->getSize());
+	_windowConfig.size = FromSFMLVector(_window->getSize());
 	_windowConfig.resizable = true;
 }
 
@@ -171,11 +171,34 @@ void RenderSettingsWindow::renderContent() {
 		ImGuiColorEditFlags_PickerHueWheel |
 		ImGuiColorEditFlags_InputRGB;
 
-	const char* colorTypeItems[] = { "Grid color", "SubGrid color" };
+	const char* colorTypeItems[] = { "Grid color", "SubGrid color", "TrailColor" };
 	ImGui::Combo("##ColorSelecterType", &colorTypeIndex, colorTypeItems, IM_ARRAYSIZE(colorTypeItems));
-	auto dataToUse = colorTypeIndex == 0 ? gridSettings.color.data() : gridSettings.subGridColor.data();
+	float* dataToUse = nullptr;
+	switch (colorTypeIndex)
+	{
+	case 0:
+		dataToUse = gridSettings.color.data();
+		break;
+	case 1:
+		dataToUse = gridSettings.subGridColor.data();
+		break;
+	case 2:
+		dataToUse = _settings.trailSettings.trailColor.data();
+		break;
+	}
 
-	changed |= ImGui::ColorPicker3("##GridColor", dataToUse, colorFlags);
+
+	changed |= ImGui::ColorPicker4("##ColorPicker", dataToUse, colorFlags);
+	ImGui::Spacing();
+	ImGui::Separator();
+	ImGui::Spacing();
+	changed |= ImGui::InputFloat("Trail Point Size", &_settings.trailSettings.trailPointSize, 1.0f, 100.0f, "%.2f");
+	changed |= ImGui::InputFloat("Trail spawn interval", &_settings.trailSettings.pointSpawnInteral, 0.1f, 5.0f, "%.2f");
+	changed |= ImGui::InputInt("Trail max length", &_settings.trailSettings.trailMaxLenght);
+	changed |= ImGui::Checkbox("Show Trail", &_settings.showTrail);
+	if (ImGui::Button("Reset Trail", ImVec2(-1, 30))) {
+		_clearRobotTrail();
+	}
 	ImGui::Spacing();
 	ImGui::Separator();
 	ImGui::Spacing();

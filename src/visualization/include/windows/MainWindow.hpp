@@ -12,7 +12,7 @@ public:
 	void open(const RobotConfig& robotConfig);
 	void setRobotConfig(const RobotConfig& config, bool holdPosition = true) { _renderEngine->updateRobotShape(config, holdPosition); }
 	void close();
-	void update(float dt, const RobotState& robotState);
+	void update(const float dt, const RobotState& robotState);
 	AppConfig& getSavedAppConfig() { return _appConfig; }
 	void saveConfig();
 	void draw();
