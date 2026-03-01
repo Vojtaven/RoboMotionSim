@@ -5,7 +5,7 @@
 #include <array>
 
 // Here to discard configs with old version
-#define CONFIG_VERSION "0.6.4"
+#define CONFIG_VERSION "0.6.5"
 enum class InputType {
 	Keyboard,
 	Controller
@@ -55,7 +55,6 @@ struct AppSettings {
 struct AppConfig {
 	std::string appName = "";
 	std::string configVersion = "";
-	std::string fontPath = "C:/Vojta/Skola/robomotionsim/src/assets/font/ProggyClean.ttf";
 	WindowConfig mainWindow;
 	WindowConfig renderSettingsWindow;
 	WindowConfig appSettingsWindow;

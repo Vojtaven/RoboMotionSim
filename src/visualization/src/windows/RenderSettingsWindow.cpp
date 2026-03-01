@@ -4,8 +4,8 @@
 #include <algorithm>
 #include <cstdint>
 #include "SFMLHelper.hpp"
+#include "embeddedFont.h"
 RenderSettingsWindow::RenderSettingsWindow(const AppConfig& config)
-	: _fontPath(config.fontPath)
 {
 	_windowConfig = config.renderSettingsWindow;
 	_settings = config.renderSettings;
@@ -49,8 +49,13 @@ void RenderSettingsWindow::open() {
 
 	ImGuiIO& io = ImGui::GetIO();
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-	if (!io.Fonts->AddFontFromFileTTF(_fontPath.c_str(), 16) || !ImGui::SFML::UpdateFontTexture()) {
-		throw std::runtime_error("Failed to load font for settings window: " + _fontPath);
+
+
+	ImFontConfig config;
+	config.FontDataOwnedByAtlas = false;
+	ImFont* font = io.Fonts->AddFontFromMemoryTTF((void*)DEFAULT_FONT, DEFAULT_FONT_SIZE, 18.0f, &config);
+	if (!font || !ImGui::SFML::UpdateFontTexture()) {
+		throw std::runtime_error("Failed to load font for settings window");
 	}
 	_windowConfig.open = true;
 	_isOpen = true;
@@ -72,10 +77,10 @@ void RenderSettingsWindow::firstTimeSetup() {
 void RenderSettingsWindow::close(bool closeFromRoot) {
 	if (!isOpen()) return;
 
-	ImGui::SFML::SetCurrentWindow(*_window);
-	ImGui::SFML::Shutdown(*_window);
 	saveConfig();
 	_windowConfig.open = closeFromRoot;
+	ImGui::SFML::SetCurrentWindow(*_window);
+	ImGui::SFML::Shutdown(*_window);
 	_window->close();
 	_window.reset();
 	_pendingClose = false;
@@ -195,6 +200,7 @@ void RenderSettingsWindow::renderContent() {
 	changed |= ImGui::InputFloat("Trail Point Size", &_settings.trailSettings.trailPointSize, 1.0f, 100.0f, "%.2f");
 	changed |= ImGui::InputFloat("Trail spawn interval", &_settings.trailSettings.pointSpawnInteral, 0.1f, 5.0f, "%.2f");
 	changed |= ImGui::InputInt("Trail max length", &_settings.trailSettings.trailMaxLenght);
+	_settings.trailSettings.trailMaxLenght = std::clamp(_settings.trailSettings.trailMaxLenght, 0, 10000);
 	changed |= ImGui::Checkbox("Show Trail", &_settings.showTrail);
 	if (ImGui::Button("Reset Trail", ImVec2(-1, 30))) {
 		_clearRobotTrail();

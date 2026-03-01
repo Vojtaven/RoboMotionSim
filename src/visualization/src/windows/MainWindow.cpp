@@ -3,7 +3,7 @@
 #include "SFMLHelper.hpp"
 #include <imgui.h>
 #include <imgui-SFML.h>
-
+#include "embeddedFont.h"
 MainWindow::MainWindow(const AppConfig& config)
 	: _appConfig(config), _windowConfig(_appConfig.mainWindow)
 {
@@ -18,7 +18,7 @@ void MainWindow::open(const RobotConfig& robotConfig)
 
 	_window->setPosition(ToSFMLVector2i(_windowConfig.position));
 	initImGui();
-	_renderEngine = std::make_unique<RenderEngine>(*_window, _appConfig.renderSettings, _appConfig.fontPath);
+	_renderEngine = std::make_unique<RenderEngine>(*_window, _appConfig.renderSettings);
 	setRobotConfig(robotConfig);
 	initializeOtherWindows();
 	_window->requestFocus();
@@ -26,10 +26,10 @@ void MainWindow::open(const RobotConfig& robotConfig)
 
 void MainWindow::close() {
 	closeOtherWindows();
-	ImGui::SFML::SetCurrentWindow(*_window);
-	ImGui::SFML::Shutdown(*_window);
 	saveWindowConfig(_windowConfig);
 	saveConfig();
+	ImGui::SFML::SetCurrentWindow(*_window);
+	ImGui::SFML::Shutdown(*_window);
 	_window->close();
 	_window.reset();
 	_isOpen = false;
@@ -116,8 +116,13 @@ void MainWindow::initImGui() {
 
 	ImGuiIO& io = ImGui::GetIO();
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-	if (!io.Fonts->AddFontFromFileTTF(_appConfig.fontPath.c_str(), 16) || !ImGui::SFML::UpdateFontTexture()) {
-		throw std::runtime_error("Failed to load font for settings window: " + _appConfig.fontPath);
+	ImFontConfig config;
+	config.FontDataOwnedByAtlas = false;
+
+	ImFont* font = io.Fonts->AddFontFromMemoryTTF((void*)DEFAULT_FONT, DEFAULT_FONT_SIZE, 18.0f, &config);
+
+	if (!font || !ImGui::SFML::UpdateFontTexture()) {
+		throw std::runtime_error("Failed to load font for main window");
 	}
 	// Configure ImGui style
 	ImGuiStyle& style = ImGui::GetStyle();
@@ -155,7 +160,7 @@ void MainWindow::saveWindowConfig(WindowConfig& config) const {
 
 void MainWindow::update(const float dt, const RobotState& robotState) {
 	sf::Time deltaTime = sf::seconds(dt);
-	_renderEngine->update(robotState,dt);
+	_renderEngine->update(robotState, dt);
 	updateAllOtherWindows(deltaTime);
 
 	ImGui::SFML::SetCurrentWindow(*_window);

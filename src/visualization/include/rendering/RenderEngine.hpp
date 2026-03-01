@@ -12,7 +12,7 @@
 class RenderEngine
 {
 public:
-	RenderEngine(sf::RenderWindow& window,const RenderSettings& settings, const std::string& fontPath);
+	RenderEngine(sf::RenderWindow& window,const RenderSettings& settings);
 	void update(const RobotState& state, const float dt);
 	void updateAfterResize();
 	void draw();

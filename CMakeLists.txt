@@ -148,7 +148,7 @@ set_target_properties(exprtk PROPERTIES FOLDER "Dependencies/ExprTk")
 # Create executable
 # ============================================================================
 add_executable(${PROJECT_NAME} ${project_sources})
-add_subdirectory(src/libraryIntegration)
+add_subdirectory(src/configManager)
 add_subdirectory(src/visualization)
 add_subdirectory(src/physicsEngine)
 add_subdirectory(src/core)
@@ -163,7 +163,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
     ImGui-SFML::ImGui-SFML
     imgui
     asio
-    libraryIntegration
+    configManager
     visualization
     physicsEngine
     core

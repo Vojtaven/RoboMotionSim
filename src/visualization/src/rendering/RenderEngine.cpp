@@ -1,9 +1,10 @@
 #include "rendering/RenderEngine.hpp"
 #include <cmath>
 #include "AppConfig.hpp"
+#include "embeddedFont.h"
 #include "SFML/System.hpp"
 #include <iostream>
-RenderEngine::RenderEngine(sf::RenderWindow& window, const RenderSettings& settings, const std::string& fontPath) :
+RenderEngine::RenderEngine(sf::RenderWindow& window, const RenderSettings& settings) :
 	_settings(settings),
 	_window(window),
 	_worldView(std::make_unique<sf::View>(sf::FloatRect({ 0.f, 0.f }, (sf::Vector2f)_window.getSize()))),
@@ -15,8 +16,8 @@ RenderEngine::RenderEngine(sf::RenderWindow& window, const RenderSettings& setti
 	_worldView->setCenter({ 0,0 });
 	_window.setView(*_worldView);
 
-	if (!_font.openFromFile(fontPath)) {
-		throw std::runtime_error("Failed to load font at: " + fontPath);
+	if (!_font.openFromMemory(DEFAULT_FONT, DEFAULT_FONT_SIZE)) {
+		throw std::runtime_error("Failed to load font from memory");
 	}
 	_grid = std::make_unique<Grid>(settings.gridSettings, settings.scaleFactor, _font, *_worldView);
 	updateAfterSettingsChange();

@@ -34,8 +34,7 @@ private:
 	OnSettingsChanged _onSettingsChanged;
 	bool _pendingClose = false;
 	bool _isOpen = false;
-	int colorTypeIndex = 0; // 0 for grid color, 1 for subgrid color
-	const std::string& _fontPath;
+	int colorTypeIndex = 0; // 0 for grid color, 1 for subgrid color, 2 for trail color
 };
 
 #endif // !SETTINGS_WINDOW_HPP
