@@ -4,6 +4,7 @@
 #include <imgui.h>
 #include <imgui-SFML.h>
 #include "embeddedFont.h"
+#include "windows/WindowHelper.hpp"
 MainWindow::MainWindow(const AppConfig& config)
 	: _appConfig(config), _windowConfig(_appConfig.mainWindow)
 {
@@ -116,14 +117,8 @@ void MainWindow::initImGui() {
 
 	ImGuiIO& io = ImGui::GetIO();
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-	ImFontConfig config;
-	config.FontDataOwnedByAtlas = false;
-
-	ImFont* font = io.Fonts->AddFontFromMemoryTTF((void*)DEFAULT_FONT, DEFAULT_FONT_SIZE, 18.0f, &config);
-
-	if (!font || !ImGui::SFML::UpdateFontTexture()) {
-		throw std::runtime_error("Failed to load font for main window");
-	}
+	io.IniFilename = nullptr; // Disable automatic .ini saving/loading
+	WindowHelper::SetScaledFont(io, DEFAULT_FONT_DATA, DEFAULT_FONT_DATA_SIZE, _windowConfig.defaultFontSize);
 	// Configure ImGui style
 	ImGuiStyle& style = ImGui::GetStyle();
 	style.WindowRounding = 6.0f;

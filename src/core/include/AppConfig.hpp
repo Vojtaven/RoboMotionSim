@@ -14,6 +14,7 @@ enum class InputType {
 struct WindowConfig {
 	Vec2i position = { 0,0 };
 	Vec2i size = { 0,0 };
+	int defaultFontSize = 12;
 	bool resizable = true;
 	bool open = false;
 	bool wasOpenedBefore = false;
@@ -29,7 +30,7 @@ struct TrailSettings {
 struct GridSettings {
 	int spacing = 50;
 	int WantedGridSpacing = 200; // Used for auto spacing, the grid will try to keep the spacing close to this value
-	unsigned int DefaultFontSize = 40;
+	unsigned int DefaultFontSize = 25;
 	bool autoSpacing = true;
 	std::array<float, 4> color = { 80.0f / 255.0f, 80.0f / 255.0f, 80.0f / 255.0f, 1 };
 	int subdivisionsCount = 0;

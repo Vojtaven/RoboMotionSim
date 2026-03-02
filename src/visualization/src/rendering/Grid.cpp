@@ -1,13 +1,14 @@
 #include "rendering/Grid.hpp"
 #include "SFMLHelper.hpp"
-
+#include "windows/WindowHelper.hpp"
 Grid::Grid(const GridSettings& settings, const float& scale, const sf::Font& font, const sf::View& view)
 	: _settings(settings),
 	_scale(scale),
 	_font(&font),
 	_worldView(view),
 	_backgroundColor(ToSFMLColor(_settings.backgroundColor)),
-	_textBackgroundColor(ToSFMLColor(_backgroundColor, _settings.textBackgroundOpacity))
+	_textBackgroundColor(ToSFMLColor(_backgroundColor, _settings.textBackgroundOpacity)),
+	_DPIScale(WindowHelper::getDpiScale())
 {
 	updateAfterSettingsChange();
 }
@@ -32,7 +33,7 @@ void Grid::regenerate() {
 		addSubGridLines();
 	}
 	addGridLines();
-	addGridText(_settings.DefaultFontSize);
+	addGridText((unsigned int)(_settings.DefaultFontSize * _DPIScale));
 }
 
 void Grid::mapText(const sf::RenderTarget& target) {

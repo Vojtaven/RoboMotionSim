@@ -37,7 +37,7 @@ void ConfigManager::loadDefaultConfigs(const Vec2i screenSize) {
 		loadRobotConfig((_systemConfigDir / "robot_config.ini").string());
     }
     catch (...){
-        createDefaultConfigs(robotConfigPath, (const char*)DEFAULT_ROBOT_CONFIG, DEFAULT_ROBOT_CONFIG_SIZE);
+        createDefaultConfigs(robotConfigPath, (const char*)DEFAULT_ROBOT_CONFIG_DATA, DEFAULT_ROBOT_CONFIG_DATA_SIZE);
         loadRobotConfig(robotConfigPath.string());
 	}
 

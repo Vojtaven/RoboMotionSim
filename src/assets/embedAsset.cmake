@@ -12,9 +12,9 @@ file(WRITE "${OUTPUT_FILE}"
 "#pragma once
 #include <cstddef>
 
-inline constexpr size_t ${ASSET_NAME}_SIZE = ${array_size};
+inline constexpr size_t ${ASSET_NAME}_DATA_SIZE = ${array_size};
 
-inline constexpr unsigned char ${ASSET_NAME}[${ASSET_NAME}_SIZE] = {
+inline constexpr unsigned char ${ASSET_NAME}_DATA[${ASSET_NAME}_DATA_SIZE] = {
     ${array_content}
 };
 ")

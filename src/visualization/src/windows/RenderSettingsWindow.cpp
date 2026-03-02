@@ -5,6 +5,7 @@
 #include <cstdint>
 #include "SFMLHelper.hpp"
 #include "embeddedFont.h"
+#include "windows/WindowHelper.hpp"
 RenderSettingsWindow::RenderSettingsWindow(const AppConfig& config)
 {
 	_windowConfig = config.renderSettingsWindow;
@@ -49,14 +50,7 @@ void RenderSettingsWindow::open() {
 
 	ImGuiIO& io = ImGui::GetIO();
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-
-
-	ImFontConfig config;
-	config.FontDataOwnedByAtlas = false;
-	ImFont* font = io.Fonts->AddFontFromMemoryTTF((void*)DEFAULT_FONT, DEFAULT_FONT_SIZE, 18.0f, &config);
-	if (!font || !ImGui::SFML::UpdateFontTexture()) {
-		throw std::runtime_error("Failed to load font for settings window");
-	}
+	WindowHelper::SetScaledFont(io, DEFAULT_FONT_DATA, DEFAULT_FONT_DATA_SIZE, _windowConfig.defaultFontSize);
 	_windowConfig.open = true;
 	_isOpen = true;
 }

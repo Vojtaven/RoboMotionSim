@@ -15,10 +15,7 @@ int main() {
 }
 
 /*NEXT TODO
-FIX text Alolignment 
 Fix Initialization of robot shape
-
-
 */
 
 
@@ -29,7 +26,14 @@ Fix Initialization of robot shape
 * Robot settigns
 * App settings 
 * Program input
-* Serial intpu* 
+* Serial input
+*/
+
+
+/* Some not Inportant TODOs
+One imgui context
+Grid rerendering optimization
+
 */
 
 

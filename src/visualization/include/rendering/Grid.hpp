@@ -46,6 +46,7 @@ private:
 	const sf::View& _worldView;
 	const sf::Color _textBackgroundColor = sf::Color(0, 0, 0);
 	const sf::Color _backgroundColor = sf::Color(0, 0, 0);
+	const float _DPIScale;
 };
 
 #endif // !GRID_HPP
