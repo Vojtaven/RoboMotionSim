@@ -5,7 +5,9 @@
 #include "ConfigManager.hpp"
 #include "PhysicsEngine.hpp"
 #include "RobotState.hpp"
+#include "InputManager.hpp"
 #include <memory>
+
 class AppEngine {
 public:
 	AppEngine();
@@ -16,6 +18,7 @@ private:
 	std::unique_ptr < VisualizationEngine> vizEngine;
 	std::unique_ptr < PhysicsEngine> physicsEngine;
 	std::unique_ptr<RobotState> robotState;
+	std::unique_ptr<InputManager> inputManager;
 };
 
 #endif // !APP_ENGINE_HPP

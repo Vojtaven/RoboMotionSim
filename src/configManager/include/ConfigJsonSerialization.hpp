@@ -17,11 +17,13 @@ void from_json(const nlohmann::json& j, Vec2<T>& v)
 	j.at("y").get_to(v.y);
 }
 
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(AppSettings, inputType)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(KeyboardMapping, upKey, downKey, leftKey, rightKey, chassisRotateLeftKey, chassisRotateRightKey, frontRotateLeftKey, frontRotateRightKey)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(ControllerMapping, controllerId, moveXAxis, moveYAxis, chassisRotateAxis, frontRotateLeftButton, frontRotateRightButton, deadzone)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(InputSettings, inputType, controllerMapping, keyboardMapping, maxSpeed,maxRotationSpeed, registerInputWithoutFocus)
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(TrailSettings, trailPointSize, trailColor, trailMaxLenght)
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(GridSettings, spacing, autoSpacing, color, subdivisionsCount, subGridColor, backgroundColor, textBackgroundOpacity)
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(WindowConfig, position, size, resizable, open, wasOpenedBefore)
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(RenderSettings, scaleFactor, showGrid, showTrail, lockViewOnRobot, frameRateLimit, gridSettings, trailSettings)
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(AppConfig, appName, configVersion, mainWindow, renderSettingsWindow, appSettingsWindow, renderSettings, appSettings)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(AppConfig, appName, configVersion, mainWindow, renderSettingsWindow, appSettingsWindow, renderSettings, inputSettings)
 
 #endif // !CONFIG_JSON_SERIALIZATION_HPP

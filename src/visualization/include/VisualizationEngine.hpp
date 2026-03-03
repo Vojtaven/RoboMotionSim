@@ -16,6 +16,7 @@ public:
 	sf::Window& getMainWindow()	{ return _mainWindow->getWindow(); }
 	AppConfig& getSavedAppConfig() { return _mainWindow->getSavedAppConfig(); }
 	bool isWindowOpen() const { return _mainWindow->isOpen(); }
+	bool hasFocus() const { return _mainWindow->getWindow().hasFocus(); }
 	// Returns in normal units
 	Vec2f getWindowCenter() const { return _mainWindow->getRenderWindowCenter(); }
 private:

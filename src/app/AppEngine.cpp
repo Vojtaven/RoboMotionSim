@@ -21,7 +21,7 @@ AppEngine::AppEngine()
 
 	configManager = std::make_unique<ConfigManager>(Vec2i{ screenWidth,screenHeight });
 	auto& robotConfig = configManager->getConstRobotConfig();
-	auto& appConfig = configManager->getConstAppConfig();
+	auto& appConfig = configManager->getAppConfig();
 	vizEngine = std::make_unique<VisualizationEngine>(appConfig,robotConfig);
 
 	robotState = std::make_unique<RobotState>(robotConfig.getWheelCount());
@@ -31,38 +31,15 @@ AppEngine::AppEngine()
 	DirectionVector centerPoint;
 	centerPoint.position = Vec2f{ 0.0f, 0.0f };
 	robotState->directionVectors.push_back(centerPoint);
+	inputManager = std::make_unique<InputManager>(appConfig.inputSettings);
 }
 void AppEngine::run() {
-	const float moveStep = 200; // 200mm/s
-	const float rotationStep = DegreesToRadians(60); // 30 degrees/s
 	auto& robotConfig = configManager->getConstRobotConfig();
 	auto last = Clock::now();
+	
 
 	while (vizEngine->isWindowOpen()) {
-		Vec2f speed{ 0,0 };
-		float rotationSpeed = 0;
-		float frontRotationSpeed = 0;
-
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::A))
-			speed.y -= moveStep;
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::D))
-			speed.y += moveStep;
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::S))
-			speed.x -= moveStep;
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::W))
-			speed.x += moveStep;
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::Q))
-			rotationSpeed -= rotationStep;
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::E))
-			rotationSpeed += rotationStep;
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::J))
-			frontRotationSpeed -= rotationStep;
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::K))
-			frontRotationSpeed += rotationStep;
-
-		robotState->localVelocity = speed;
-		robotState->angularVelocity = rotationSpeed;
-		robotState->frontAngularVelocity = frontRotationSpeed;
+		inputManager->update(*robotState, vizEngine->hasFocus());
 		auto now = Clock::now();
 		std::chrono::duration<float> delta = now - last;
 		physicsEngine->update(delta.count(), *robotState, robotConfig);

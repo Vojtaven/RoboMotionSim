@@ -152,6 +152,7 @@ add_subdirectory(src/configManager)
 add_subdirectory(src/visualization)
 add_subdirectory(src/physicsEngine)
 add_subdirectory(src/core)
+add_subdirectory(src/inputManager)
 
 # ============================================================================
 # Link libraries
@@ -166,6 +167,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
     configManager
     visualization
     physicsEngine
+    inputManager
     core
 )
 

@@ -5,6 +5,7 @@
 #include <imgui-SFML.h>
 #include "embeddedFont.h"
 #include "windows/WindowHelper.hpp"
+#include <SFML/Window/Joystick.hpp>
 MainWindow::MainWindow(const AppConfig& config)
 	: _appConfig(config), _windowConfig(_appConfig.mainWindow)
 {

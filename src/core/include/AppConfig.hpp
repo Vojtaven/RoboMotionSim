@@ -5,7 +5,7 @@
 #include <array>
 
 // Here to discard configs with old version
-#define CONFIG_VERSION "0.6.5"
+#define CONFIG_VERSION "0.6.6"
 enum class InputType {
 	Keyboard,
 	Controller
@@ -49,8 +49,35 @@ struct RenderSettings {
 	TrailSettings trailSettings;
 };
 
-struct AppSettings {
+struct KeyboardMapping {
+	int upKey = 22;
+	int downKey = 18;
+	int leftKey = 0;
+	int rightKey = 3;
+	int chassisRotateLeftKey = 16;
+	int chassisRotateRightKey = 4;
+	int frontRotateLeftKey =9;
+	int frontRotateRightKey = 10;
+};
+
+struct ControllerMapping {
+	int controllerId = 0;
+	int moveXAxis = 1;
+	int moveYAxis = 0;
+	int chassisRotateAxis = 4;
+	int frontRotateLeftButton = 2;
+	int frontRotateRightButton = 1;
+	int deadzone = 5; // Deadzone for joystick axes, in percentage (0-100)
+};
+
+
+struct InputSettings {
 	InputType inputType;
+	ControllerMapping controllerMapping;
+	KeyboardMapping keyboardMapping;
+	float maxSpeed = 200; // Max speed in mm/s, used to scale input values to real speeds
+	float maxRotationSpeed = 60; // Max rotation speed in degrees/s, used to scale input values to real speeds
+	bool registerInputWithoutFocus = true;
 };
 
 struct AppConfig {
@@ -60,7 +87,7 @@ struct AppConfig {
 	WindowConfig renderSettingsWindow;
 	WindowConfig appSettingsWindow;
 	RenderSettings renderSettings;
-	AppSettings appSettings;
+	InputSettings inputSettings;
 };
 
 #endif // !APP_CONFIG_HPP
