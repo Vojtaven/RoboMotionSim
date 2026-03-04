@@ -14,7 +14,7 @@ enum class InputType {
 struct WindowConfig {
 	Vec2i position = { 0,0 };
 	Vec2i size = { 0,0 };
-	int defaultFontSize = 12;
+	int defaultFontSize = 14;
 	bool resizable = true;
 	bool open = false;
 	bool wasOpenedBefore = false;
@@ -30,7 +30,7 @@ struct TrailSettings {
 struct GridSettings {
 	int spacing = 50;
 	int WantedGridSpacing = 200; // Used for auto spacing, the grid will try to keep the spacing close to this value
-	unsigned int DefaultFontSize = 25;
+	unsigned int DefaultFontSize = 30;
 	bool autoSpacing = true;
 	std::array<float, 4> color = { 80.0f / 255.0f, 80.0f / 255.0f, 80.0f / 255.0f, 1 };
 	int subdivisionsCount = 0;
@@ -72,7 +72,7 @@ struct ControllerMapping {
 
 
 struct InputSettings {
-	InputType inputType;
+	InputType inputType = InputType::Keyboard;
 	ControllerMapping controllerMapping;
 	KeyboardMapping keyboardMapping;
 	float maxSpeed = 200; // Max speed in mm/s, used to scale input values to real speeds

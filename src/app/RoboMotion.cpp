@@ -20,12 +20,12 @@ Fix Initialization of robot shape
 
 
 /* TODO list
-* Add proper input handling 
+* Add proper input handling
 * Controller
 * Robot designer
 * Robot settigns
 * App settings 
-* Program input
+* Program input - Piping
 * Serial input
 */
 

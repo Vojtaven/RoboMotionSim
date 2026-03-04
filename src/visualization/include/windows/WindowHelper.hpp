@@ -43,6 +43,7 @@ public:
         if (!font || !ImGui::SFML::UpdateFontTexture()) {
             throw std::runtime_error("Failed to load font from memory");
         }
+        io.FontDefault = font;
     }
 
 };
