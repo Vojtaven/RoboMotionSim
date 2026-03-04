@@ -1,11 +1,10 @@
-#ifndef SETTINGS_WINDOW_HPP
-#define SETTINGS_WINDOW_HPP
+#ifndef RENDER_SETTINGS_WINDOW_HPP
+#define RENDER_SETTINGS_WINDOW_HPP
 
 #include <SFML/Graphics.hpp>
 #include <memory>
 #include <functional>
 #include "AppConfig.hpp"
-#include "Window.hpp"
 
 class RenderSettingsWindow{
 public:
@@ -37,4 +36,4 @@ private:
 	int colorTypeIndex = 0; // 0 for grid color, 1 for subgrid color, 2 for trail color
 };
 
-#endif // !SETTINGS_WINDOW_HPP
+#endif // !RENDER_SETTINGS_WINDOW_HPP

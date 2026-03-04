@@ -32,6 +32,10 @@ AppEngine::AppEngine()
 	centerPoint.position = Vec2f{ 0.0f, 0.0f };
 	robotState->directionVectors.push_back(centerPoint);
 	inputManager = std::make_unique<InputManager>(appConfig.inputSettings);
+
+	vizEngine->SetOnInputSettingsChanged([this]() {
+		this->inputManager->updateAfterSettingsChange();
+		});
 }
 void AppEngine::run() {
 	auto& robotConfig = configManager->getConstRobotConfig();

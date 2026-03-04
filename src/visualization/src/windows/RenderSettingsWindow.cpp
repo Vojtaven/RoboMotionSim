@@ -136,6 +136,7 @@ void RenderSettingsWindow::renderContent() {
 		ImGuiWindowFlags_NoMove |
 		ImGuiWindowFlags_NoCollapse);
 
+	ImGui::PushItemWidth(-FLT_MIN);
 	ImGui::TextColored(ImVec4(0.4f, 0.8f, 1.0f, 1.0f), "Visualization Settings");
 	ImGui::Separator();
 	ImGui::Spacing();
@@ -185,17 +186,20 @@ void RenderSettingsWindow::renderContent() {
 		dataToUse = _settings.trailSettings.trailColor.data();
 		break;
 	}
-
+	ImGui::Spacing();
 
 	changed |= ImGui::ColorPicker4("##ColorPicker", dataToUse, colorFlags);
 	ImGui::Spacing();
 	ImGui::Separator();
 	ImGui::Spacing();
-	changed |= ImGui::InputFloat("Trail Point Size", &_settings.trailSettings.trailPointSize, 1.0f, 100.0f, "%.2f");
-	changed |= ImGui::InputFloat("Trail spawn interval", &_settings.trailSettings.pointSpawnInteral, 0.1f, 5.0f, "%.2f");
+	changed |= ImGui::InputFloat("Trail Point Size", &_settings.trailSettings.trailPointSize, 0.5f, 2.0f, "%.2f");
+	changed |= ImGui::InputFloat("Trail spawn interval", &_settings.trailSettings.pointSpawnInteral, 0.05f, 0.5f, "%.2f");
 	changed |= ImGui::InputInt("Trail max length", &_settings.trailSettings.trailMaxLenght);
-	_settings.trailSettings.trailMaxLenght = std::clamp(_settings.trailSettings.trailMaxLenght, 0, 10000);
 	changed |= ImGui::Checkbox("Show Trail", &_settings.showTrail);
+
+	_settings.trailSettings.trailPointSize = std::max(_settings.trailSettings.trailPointSize, 0.0f);
+	_settings.trailSettings.pointSpawnInteral = std::max(_settings.trailSettings.pointSpawnInteral, 0.0f);
+	_settings.trailSettings.trailMaxLenght = std::clamp(_settings.trailSettings.trailMaxLenght, 0, 10000);
 	if (ImGui::Button("Reset Trail", ImVec2(-1, 30))) {
 		_clearRobotTrail();
 	}
@@ -217,5 +221,6 @@ void RenderSettingsWindow::renderContent() {
 		_onSettingsChanged(_settings);
 	}
 
+	ImGui::PopItemWidth();
 	ImGui::End();
 }

@@ -12,7 +12,7 @@ void  VisualizationEngine::CreateMainWindow(AppConfig& appConfig) {
 	_mainWindow = std::make_unique<MainWindow>(appConfig);
 }
 
-VisualizationEngine::VisualizationEngine(const AppConfig& appConfig, const RobotConfig& robotConfig)
+VisualizationEngine::VisualizationEngine(AppConfig& appConfig, const RobotConfig& robotConfig)
 {
 	_mainWindow = std::make_unique<MainWindow>(appConfig);
 	_mainWindow->open(robotConfig);

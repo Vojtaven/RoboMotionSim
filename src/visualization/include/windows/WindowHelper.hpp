@@ -4,7 +4,7 @@
 #include <SFML/Graphics.hpp>
 #include <imgui.h>
 #include <imgui-SFML.h>
-
+#include <iostream>
 #ifdef _WIN32
 #include <windows.h> 
 
@@ -36,13 +36,23 @@ public:
 #endif
     }
 
-    static void SetScaledFont(ImGuiIO& io, const void* fontData, const int fontDataSize, const int fontSize) {
+    static void SetScaledFont(ImGuiIO& io,
+        const void* fontData,
+        const int fontDataSize,
+        const float fontSize)
+    {
         ImFontConfig config;
         config.FontDataOwnedByAtlas = false;
-        ImFont* font = io.Fonts->AddFontFromMemoryTTF((void*)fontData, fontDataSize, fontSize * getDpiScale(), &config);
-        if (!font || !ImGui::SFML::UpdateFontTexture()) {
-            throw std::runtime_error("Failed to load font from memory");
-        }
+        config.PixelSnapH = true;
+        ImFont* font = io.Fonts->AddFontFromMemoryTTF(
+            (void*)fontData,
+            fontDataSize,
+            (float)fontSize * getDpiScale(),  // no manual DPI scaling
+            &config
+        );
+
+        if (!font || !ImGui::SFML::UpdateFontTexture())
+            throw std::runtime_error("Failed to load font");
         io.FontDefault = font;
     }
 

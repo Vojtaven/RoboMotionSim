@@ -16,12 +16,13 @@ int main() {
 
 /*NEXT TODO
 Fix Initialization of robot shape
+Proper Input error handling and messages
+Robot stats
+
 */
 
 
 /* TODO list
-* Add proper input handling
-* Controller
 * Robot designer
 * Robot settigns
 * App settings 

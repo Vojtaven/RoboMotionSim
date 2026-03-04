@@ -9,7 +9,7 @@
 
 class VisualizationEngine {
 public:
-	VisualizationEngine(const AppConfig& appConfig, const RobotConfig& robotConfig = RobotConfig());
+	VisualizationEngine(AppConfig& appConfig, const RobotConfig& robotConfig = RobotConfig());
 	void setRobotConfig(const RobotConfig& config, bool holdPosition = false) { _mainWindow->setRobotConfig(config, holdPosition); }
 	void draw() { _mainWindow->draw(); }
 	void update(float dt, const RobotState& state) { _mainWindow->update(dt, state); }
@@ -19,6 +19,7 @@ public:
 	bool hasFocus() const { return _mainWindow->getWindow().hasFocus(); }
 	// Returns in normal units
 	Vec2f getWindowCenter() const { return _mainWindow->getRenderWindowCenter(); }
+	void SetOnInputSettingsChanged(std::function<void()> callback) { _mainWindow->SetOnInputSettingsChanged(std::move(callback)); }
 private:
 	void CreateMainWindow(AppConfig& appConfig);
 	std::unique_ptr<MainWindow> _mainWindow;

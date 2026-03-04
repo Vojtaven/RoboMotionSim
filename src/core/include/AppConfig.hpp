@@ -5,7 +5,7 @@
 #include <array>
 
 // Here to discard configs with old version
-#define CONFIG_VERSION "0.6.6"
+#define CONFIG_VERSION "0.6.7"
 enum class InputType {
 	Keyboard,
 	Controller
@@ -14,7 +14,7 @@ enum class InputType {
 struct WindowConfig {
 	Vec2i position = { 0,0 };
 	Vec2i size = { 0,0 };
-	int defaultFontSize = 14;
+	int defaultFontSize = 13;
 	bool resizable = true;
 	bool open = false;
 	bool wasOpenedBefore = false;
@@ -86,6 +86,7 @@ struct AppConfig {
 	WindowConfig mainWindow;
 	WindowConfig renderSettingsWindow;
 	WindowConfig appSettingsWindow;
+	WindowConfig inputSettingsWindow;
 	RenderSettings renderSettings;
 	InputSettings inputSettings;
 };

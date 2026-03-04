@@ -5,9 +5,11 @@
 #include <imgui-SFML.h>
 #include "embeddedFont.h"
 #include "windows/WindowHelper.hpp"
+#include "windows/RenderSettingsWindow.hpp"
+#include "windows/InputSettingsWindow.hpp"
 #include <SFML/Window/Joystick.hpp>
-MainWindow::MainWindow(const AppConfig& config)
-	: _appConfig(config), _windowConfig(_appConfig.mainWindow)
+MainWindow::MainWindow(AppConfig& config)
+	: _appConfig(config), _windowConfig(config.mainWindow)
 {
 }
 
@@ -25,6 +27,7 @@ void MainWindow::open(const RobotConfig& robotConfig)
 	initializeOtherWindows();
 	_window->requestFocus();
 }
+
 
 void MainWindow::close() {
 	closeOtherWindows();
@@ -73,9 +76,15 @@ void MainWindow::renderImGuiMenu() {
 
 		ImGui::Begin("Menu", &_showMenu, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
 
-		if (ImGui::MenuItem("Settings")) {
-			RenderSettings current = _renderEngine->getCurrentRenderSettings();
+		if (ImGui::MenuItem("Render Settings")) {
+			const RenderSettings& current = _renderEngine->getCurrentRenderSettings();
 			_settingsWindow->open(current);
+			_showMenu = false;
+		}
+
+		if (ImGui::MenuItem("Input Settings")) {
+			const InputSettings& current = _appConfig.inputSettings;
+			_inputSettingsWindow->open(current);
 			_showMenu = false;
 		}
 
@@ -187,15 +196,24 @@ void MainWindow::update(const float dt, const RobotState& robotState) {
 	}
 }
 
+void MainWindow::SetOnInputSettingsChanged(std::function<void()> callback) {
+	_onInputSettingsChanged = std::move(callback);
+	_inputSettingsWindow->setOnSettingsChanged([this](const InputSettings& newSettings) {
+		this->_appConfig.inputSettings = newSettings;
+		_onInputSettingsChanged();
+		});
+}
 
 void MainWindow::saveConfig() {
 	_appConfig.mainWindow = _windowConfig;
 	_appConfig.renderSettingsWindow = _settingsWindow->getSavedConfig();
 	_appConfig.renderSettings = _renderEngine->getCurrentRenderSettings();
+	_appConfig.inputSettingsWindow = _inputSettingsWindow->getSavedConfig();
 }
 
 // Other Windows management
 void MainWindow::initializeOtherWindows() {
+	// === SETTINGS WINDOW ===
 	_settingsWindow = std::make_unique<RenderSettingsWindow>(_appConfig);
 	_settingsWindow->setOnSettingsChanged([this](const RenderSettings& newSettings) {
 		this->_appConfig.renderSettings = newSettings;
@@ -204,16 +222,26 @@ void MainWindow::initializeOtherWindows() {
 	_settingsWindow->setClearRobotTrail([this]() {
 		_renderEngine->clearRobotTrail();
 		});
+
+	// === INPUT SETTINGS WINDOW ===
+	_inputSettingsWindow = std::make_unique<InputSettingsWindow>(_appConfig);
+	_inputSettingsWindow->setOnSettingsChanged([this](const InputSettings& newSettings) {
+		this->_appConfig.inputSettings = newSettings;
+		_onInputSettingsChanged();
+		});
 }
 
 void MainWindow::closeOtherWindows() {
 	_settingsWindow->close(true);
+	_inputSettingsWindow->close(true);
 }
 
 void MainWindow::updateAllOtherWindows(sf::Time dt) {
 	_settingsWindow->update(dt);
+	_inputSettingsWindow->update(dt);
 }
 
 void MainWindow::drawAllOtherWindows() {
 	_settingsWindow->draw();
+	_inputSettingsWindow->draw();
 }
