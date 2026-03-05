@@ -5,27 +5,27 @@
 #include "MathUtils.hpp"
 
 struct WheelState {
-	float speed = 0;
-	float rollerSpeed = 0;
+	float speed = 0; // mm/s
+	float rollerSpeed = 0; // mm/s
 };
 
 struct DirectionVector {
-	float angle = 0;
-	float length = 0;
-	Vec2f position;
+	float angle = 0; // Rad
+	float length = 0; // mm
+	Vec2f position; // mm
 };
 
 struct RobotState {
 	RobotState(int wheelCount) : wheelCount(wheelCount), wheels(wheelCount) {}
 
-	Vec2f position;
-	float chassisAngle = 0;
-	float frontAngle = 0;
+	Vec2f position; //mm
+	float chassisAngle = 0; //Rad
+	float frontAngle = 0; //Rad
 
-	Vec2f localVelocity;
-	Vec2f globalvelocity;
-	float angularVelocity = 0;
-	float frontAngularVelocity = 0;
+	Vec2f localVelocity; // mm/s
+	Vec2f globalvelocity; // mm/s
+	float angularVelocity = 0; //  Rad/s
+	float frontAngularVelocity = 0; //  Rad/s
 
 	int wheelCount;
 	std::vector<WheelState> wheels;

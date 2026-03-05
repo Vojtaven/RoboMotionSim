@@ -11,6 +11,7 @@ public:
 protected:
     sf::RectangleShape* _shaft;
     sf::ConvexShape* _head;
+    sf::Vertex* _baseShaft;
 };
 
 #endif // !ARROW_HPP

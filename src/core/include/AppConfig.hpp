@@ -87,6 +87,7 @@ struct AppConfig {
 	WindowConfig renderSettingsWindow;
 	WindowConfig appSettingsWindow;
 	WindowConfig inputSettingsWindow;
+	WindowConfig robotStatWindow;
 	RenderSettings renderSettings;
 	InputSettings inputSettings;
 };

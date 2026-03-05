@@ -24,6 +24,6 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(TrailSettings, trailPointSize, t
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(GridSettings, spacing, WantedGridSpacing, DefaultFontSize, autoSpacing, color, subdivisionsCount, subGridColor, backgroundColor, textBackgroundOpacity)
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(WindowConfig, position, size, defaultFontSize, resizable, open, wasOpenedBefore)
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(RenderSettings, scaleFactor, showGrid, showTrail, lockViewOnRobot, frameRateLimit, gridSettings, trailSettings)
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(AppConfig, appName, configVersion, mainWindow, inputSettingsWindow, renderSettingsWindow, appSettingsWindow, renderSettings, inputSettings)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(AppConfig, appName, configVersion, mainWindow, inputSettingsWindow, robotStatWindow, renderSettingsWindow, appSettingsWindow, renderSettings, inputSettings)
 
 #endif // !CONFIG_JSON_SERIALIZATION_HPP

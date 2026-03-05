@@ -67,7 +67,7 @@ void InputSettingsWindow::open() {
 
 	_window = std::make_unique<sf::RenderWindow>(
 		sf::VideoMode({ (uint32_t)_windowConfig.size.x, (uint32_t)_windowConfig.size.y }),
-		"Settings",
+		"Input Settings",
 		sf::Style::Titlebar | sf::Style::Close | sf::Style::Resize);
 	_window->setPosition({ _windowConfig.position.x, _windowConfig.position.y });
 

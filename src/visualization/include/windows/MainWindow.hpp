@@ -5,6 +5,7 @@
 #include <SFML/Graphics.hpp>
 #include "RenderSettingsWindow.hpp"
 #include "InputSettingsWindow.hpp"
+#include "RobotStatWindow.hpp"
 class MainWindow
 {
 public:
@@ -34,12 +35,12 @@ private:
 	std::unique_ptr<sf::RenderWindow> _window;
 	std::unique_ptr<RenderSettingsWindow> _settingsWindow;
 	std::unique_ptr<InputSettingsWindow> _inputSettingsWindow;
-
+	std::unique_ptr<RobotStatWindow> _robotStatWindow;	
 	std::function<void()> _onInputSettingsChanged;
 	// Other windows management
 	void initializeOtherWindows();
 	void closeOtherWindows();
-	void updateAllOtherWindows(sf::Time dt);
+	void updateAllOtherWindows(sf::Time dt, const RobotState& robotState);
 	void drawAllOtherWindows();
 };
 

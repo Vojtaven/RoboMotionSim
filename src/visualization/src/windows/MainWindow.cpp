@@ -7,7 +7,7 @@
 #include "windows/WindowHelper.hpp"
 #include "windows/RenderSettingsWindow.hpp"
 #include "windows/InputSettingsWindow.hpp"
-#include <SFML/Window/Joystick.hpp>
+#include "windows/RobotStatWindow.hpp"
 MainWindow::MainWindow(AppConfig& config)
 	: _appConfig(config), _windowConfig(config.mainWindow)
 {
@@ -85,6 +85,11 @@ void MainWindow::renderImGuiMenu() {
 		if (ImGui::MenuItem("Input Settings")) {
 			const InputSettings& current = _appConfig.inputSettings;
 			_inputSettingsWindow->open(current);
+			_showMenu = false;
+		}
+
+		if (ImGui::MenuItem("Robot Stats")) {
+			_robotStatWindow->open();
 			_showMenu = false;
 		}
 
@@ -166,7 +171,7 @@ void MainWindow::saveWindowConfig(WindowConfig& config) const {
 void MainWindow::update(const float dt, const RobotState& robotState) {
 	sf::Time deltaTime = sf::seconds(dt);
 	_renderEngine->update(robotState, dt);
-	updateAllOtherWindows(deltaTime);
+	updateAllOtherWindows(deltaTime, robotState);
 
 	ImGui::SFML::SetCurrentWindow(*_window);
 	ImGui::SFML::Update(*_window, deltaTime);
@@ -209,6 +214,7 @@ void MainWindow::saveConfig() {
 	_appConfig.renderSettingsWindow = _settingsWindow->getSavedConfig();
 	_appConfig.renderSettings = _renderEngine->getCurrentRenderSettings();
 	_appConfig.inputSettingsWindow = _inputSettingsWindow->getSavedConfig();
+	_appConfig.robotStatWindow = _robotStatWindow->getSavedConfig();
 }
 
 // Other Windows management
@@ -229,19 +235,25 @@ void MainWindow::initializeOtherWindows() {
 		this->_appConfig.inputSettings = newSettings;
 		_onInputSettingsChanged();
 		});
+
+	// === ROBOT STATISTICS WINDOW ===
+	_robotStatWindow = std::make_unique<RobotStatWindow>(_appConfig);
 }
 
 void MainWindow::closeOtherWindows() {
 	_settingsWindow->close(true);
 	_inputSettingsWindow->close(true);
+	_robotStatWindow->close(true);
 }
 
-void MainWindow::updateAllOtherWindows(sf::Time dt) {
+void MainWindow::updateAllOtherWindows(sf::Time dt, const RobotState& robotState) {
 	_settingsWindow->update(dt);
 	_inputSettingsWindow->update(dt);
+	_robotStatWindow->update(dt, robotState);
 }
 
 void MainWindow::drawAllOtherWindows() {
 	_settingsWindow->draw();
 	_inputSettingsWindow->draw();
+	_robotStatWindow->draw();
 }

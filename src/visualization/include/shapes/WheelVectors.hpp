@@ -13,7 +13,7 @@ private:
 	bool _directionVectorVisible = true;
 	bool _rollerVectorVisible = true;
 	bool _forwardVectorVisible = true;
-	float _forwardLength = 0, _rollerLenght;
+	float _forwardLength = 0, _rollerLenght = 0;
 	const float _rollerAngle = 0, _wheelAngle = 0;	
 public:
 	WheelVectors(const RobotParts::Wheel& wheel,

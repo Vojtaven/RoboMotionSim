@@ -3,6 +3,8 @@
 Arrow::Arrow(float length, sf::Color color, float thickness,sf::Vector2f headSize) {
 	auto shaft = std::make_unique<sf::RectangleShape>();
 	auto head = std::make_unique<sf::ConvexShape>();
+	auto baseShaft = std::make_unique<sf::Vertex>(sf::Vector2f{ 0,0 }, color);
+
 	shaft->setFillColor(color);
 	shaft->setSize({ length, thickness });
 	shaft->setOrigin({ 0, thickness / 2 });

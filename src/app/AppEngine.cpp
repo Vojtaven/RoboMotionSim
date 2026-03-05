@@ -36,6 +36,7 @@ AppEngine::AppEngine()
 	vizEngine->SetOnInputSettingsChanged([this]() {
 		this->inputManager->updateAfterSettingsChange();
 		});
+
 }
 void AppEngine::run() {
 	auto& robotConfig = configManager->getConstRobotConfig();
