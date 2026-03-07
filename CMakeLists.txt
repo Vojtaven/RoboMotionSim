@@ -20,12 +20,6 @@ add_compile_definitions(
     APP_VERSION="${APP_VERSION}"
 )
 
-# Libraries versions
-set(sfml_tag_version 3.0.2)
-set(imgui_tag_version v1.91.9)
-set(imgui_sfml_tag_version v3.0)
-set(asio_tag_version asio-1-36-0)
-set(nlohmann_json_version v3.12.0)
 # Project Sources
 
 file(GLOB project_sources
@@ -34,8 +28,6 @@ file(GLOB project_sources
 )
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-# Enable FetchContent
-include(FetchContent)
 # Set default build type
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)
@@ -47,102 +39,10 @@ if(WIN32)
 endif()
 
 # ============================================================================
-# Fetch SFML
+# Dependencies
 # ============================================================================
-message(STATUS "Fetching SFML...")
 
-FetchContent_Declare(
-    SFML
-    GIT_REPOSITORY https://github.com/SFML/SFML.git
-    GIT_TAG ${sfml_tag_version}
-)
-set(SFML_BUILD_AUDIO FALSE)
-set(SFML_BUILD_NETWORK FALSE)
-set(SFML_BUILD_GRAPHICS TRUE)
-FetchContent_MakeAvailable(SFML)
-set_target_properties(sfml-main sfml-system sfml-window sfml-graphics PROPERTIES FOLDER "Dependencies/SFML")
-# ============================================================================
-# Fetch ImGui
-# ============================================================================
-message(STATUS "Fetching ImGui...")
-FetchContent_Declare(
-    imgui
-    GIT_REPOSITORY https://github.com/ocornut/imgui.git
-    GIT_TAG ${imgui_tag_version}
-)
-FetchContent_MakeAvailable(imgui)
-
-# Create ImGui library
-add_library(imgui STATIC
-    ${imgui_SOURCE_DIR}/imgui.cpp
-    ${imgui_SOURCE_DIR}/imgui_demo.cpp
-    ${imgui_SOURCE_DIR}/imgui_draw.cpp
-    ${imgui_SOURCE_DIR}/imgui_tables.cpp
-    ${imgui_SOURCE_DIR}/imgui_widgets.cpp
-)
-target_include_directories(imgui PUBLIC ${imgui_SOURCE_DIR})
-set_target_properties(imgui PROPERTIES FOLDER "Dependencies/ImGui")
-# ============================================================================
-# Fetch ImGui-SFML
-# ============================================================================
-message(STATUS "Fetching ImGui-SFML...")
-FetchContent_Declare(
-    imgui-sfml
-    GIT_REPOSITORY https://github.com/SFML/imgui-sfml.git
-    GIT_TAG ${imgui_sfml_tag_version}
-)
-set(IMGUI_DIR ${imgui_SOURCE_DIR})
-set(IMGUI_SFML_FIND_SFML OFF)
-set(IMGUI_SFML_IMGUI_DEMO ON)
-FetchContent_MakeAvailable(imgui-sfml)
-set_target_properties(ImGui-SFML PROPERTIES FOLDER "Dependencies/ImGui-SFML")
-
-# ============================================================================
-# Fetch Nlohmann json
-# ============================================================================
-message(STATUS "Fetching Nlohmann json...")
-FetchContent_Declare(
-    nlohmann_json
-  GIT_REPOSITORY https://github.com/nlohmann/json.git
-  GIT_TAG ${nlohmann_json_version}
-)
-
-FetchContent_MakeAvailable(nlohmann_json)
-set_target_properties(nlohmann_json PROPERTIES FOLDER "Dependencies/Nlohmann_json")
-# ============================================================================
-# Fetch Boost (Asio header-only)
-# ============================================================================
-message(STATUS "Fetching Boost.Asio...")
-FetchContent_Declare(
-    asio
-    GIT_REPOSITORY https://github.com/chriskohlhoff/asio.git
-    GIT_TAG ${asio_tag_version}
-    SOURCE_SUBDIR asio
-)
-FetchContent_MakeAvailable(asio)
-# Create header-only Asio interface library
-add_library(asio INTERFACE)
-target_include_directories(asio INTERFACE ${asio_SOURCE_DIR}/asio/include)
-target_compile_definitions(asio INTERFACE ASIO_STANDALONE)
-
-# Platform-specific definitions for Asio
-if(WIN32)
-    target_compile_definitions(asio INTERFACE _WIN32_WINNT=0x0601)
-endif()
-
-set_target_properties(asio PROPERTIES FOLDER "Dependencies/Asio")
-
-# ============================================================================
-# Integrate ExprTk (Header-Only)
-# ============================================================================
-message(STATUS "Integrating ExprTk...")
-set(EXPRTK_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src/3rdPartyLibs/exprtk") 
-# Create an INTERFACE library to define the include path
-add_library(exprtk INTERFACE IMPORTED)
-target_include_directories(exprtk INTERFACE ${EXPRTK_INCLUDE_DIR})
-set_target_properties(exprtk PROPERTIES INTERFACE_SYSTEM_INCLUDE_DIRECTORIES ${EXPRTK_INCLUDE_DIR})
-add_library(ExprTk::ExprTk ALIAS exprtk)
-set_target_properties(exprtk PROPERTIES FOLDER "Dependencies/ExprTk")
+include (${CMAKE_CURRENT_LIST_DIR}/cmake/dependencies.cmake)
 
 # ============================================================================
 # Create executable
