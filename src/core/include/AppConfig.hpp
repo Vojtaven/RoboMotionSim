@@ -5,7 +5,7 @@
 #include <array>
 
 // Here to discard configs with old version
-#define CONFIG_VERSION "0.6.7"
+#define CONFIG_VERSION "0.6.8"
 enum class InputType {
 	Keyboard = 0,
 	Controller = 1,
@@ -57,7 +57,7 @@ struct KeyboardMapping {
 	int rightKey = 3;
 	int chassisRotateLeftKey = 16;
 	int chassisRotateRightKey = 4;
-	int frontRotateLeftKey =9;
+	int frontRotateLeftKey = 9;
 	int frontRotateRightKey = 10;
 };
 
@@ -72,10 +72,19 @@ struct ControllerMapping {
 };
 
 
+struct IPCMapping {
+	std::string address = "tcp://127.0.0.1";
+	uint16_t command_port = 5555;
+	uint16_t response_port = 5556;
+	uint16_t telemetry_port = 5557;
+	float heartbeatTimeout = 5.0f; // Time in seconds to wait without receiving a heartbeat before considering the connection lost
+};
+
 struct InputSettings {
 	InputType inputType = InputType::Keyboard;
 	ControllerMapping controllerMapping;
 	KeyboardMapping keyboardMapping;
+	IPCMapping ipcMapping;
 	float maxSpeed = 200; // Max speed in mm/s, used to scale input values to real speeds
 	float maxRotationSpeed = 60; // Max rotation speed in degrees/s, used to scale input values to real speeds
 	bool registerInputWithoutFocus = true;

@@ -8,11 +8,12 @@ void PhysicsEngine::update(const float dt, RobotState& state, const RobotConfig&
 	limitMovement(state, config);
 	toGlobalFrame(state);
 	updatePosition(dt, state);
-	toWheelSpeed(state, config);
+	toWheelSpeed(state, config,dt);
 	updateDirectionVectors(state);
 }
 
 void PhysicsEngine::updatePosition(const float dt, RobotState& state) {
+	state.distanceTraveled += state.localVelocity * dt;
 	state.position += state.globalvelocity * dt;
 	state.chassisAngle += state.angularVelocity * dt;
 	state.frontAngle += state.frontAngularVelocity * dt;
@@ -26,7 +27,7 @@ void PhysicsEngine::toGlobalFrame(RobotState& state) {
 	global.y = local.x * std::sin(angle) + local.y * std::cos(angle);
 }
 
-void PhysicsEngine::toWheelSpeed(RobotState& state, const RobotConfig& config) {
+void PhysicsEngine::toWheelSpeed(RobotState& state, const RobotConfig& config, const float dt) {
 	const auto wheels = config.GetRobotWheels();
 	const RobotDriveType driveType = config.GetRobotDriveType();
 	const float chassisCos = std::cos(state.chassisAngle);
@@ -59,6 +60,8 @@ void PhysicsEngine::toWheelSpeed(RobotState& state, const RobotConfig& config) {
 			state.wheels[i].speed = v_long + v_tran * std::tan(wheel.roller_angle);
 			state.wheels[i].rollerSpeed = (driveType == RobotDriveType::DIFFERENTIAL) ? 0 : v_tran / cos_roller;
 		}
+
+		state.wheels[i].distanceTraveled += state.wheels[i].speed * dt;
 		i++;
 	}
 }

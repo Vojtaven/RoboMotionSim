@@ -5,12 +5,12 @@
 #include "KeyboardInput.hpp"
 #include "JoystickInput.hpp"
 #include "RobotState.hpp"
-#include "IPCInput.hpp"
+#include "IPC/IPCInput.hpp"
 
 class InputManager {
 public :
 	InputManager(const InputSettings& inputSettings);
-	void update(RobotState& state, bool hasFocus) const;
+	void update(RobotState& state, bool hasFocus, const float dt) const;
 	void updateAfterSettingsChange();
 private:
 	const InputSettings& _inputSettings;

@@ -11,7 +11,7 @@ InputManager::InputManager(const InputSettings& inputSettings)
 {
 	updateAfterSettingsChange();
 }
-void InputManager::update(RobotState& state, bool hasFocus) const{
+void InputManager::update(RobotState& state, bool hasFocus, const float dt) const{
 	state.localVelocity = { 0,0 };
 	state.angularVelocity = 0;
 	state.frontAngularVelocity = 0;
@@ -30,7 +30,7 @@ void InputManager::update(RobotState& state, bool hasFocus) const{
 		break;
 
 	case InputType::IPC:
-		_ipcInput->update(state, _inputSettings.maxSpeed, _maxRotationSpeedRadians);
+		_ipcInput->update(state);
 		break;
 	default:
 		throw std::runtime_error("Unsupported input type");
