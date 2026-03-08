@@ -20,6 +20,7 @@ FetchContent_MakeAvailable(SFML)
 
 # Organize targets in IDE
 set_target_properties(
+    sfml-main
     sfml-system
     sfml-window
     sfml-graphics

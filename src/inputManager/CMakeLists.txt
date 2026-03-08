@@ -17,6 +17,7 @@ target_link_libraries(${MODULE_NAME} PUBLIC
     sfml-window
 	asio
     core
+    cppzmq-static
 )
  
 target_include_directories(${MODULE_NAME} PUBLIC 

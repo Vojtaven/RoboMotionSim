@@ -6,7 +6,8 @@
 InputManager::InputManager(const InputSettings& inputSettings)
 	: _inputSettings(inputSettings),
 	_keyboardInput(std::make_unique<KeyboardInput>(_inputSettings.keyboardMapping)),
-	_joystickInput(std::make_unique<JoystickInput>(_inputSettings.controllerMapping))
+	_joystickInput(std::make_unique<JoystickInput>(_inputSettings.controllerMapping)),
+	_ipcInput(std::make_unique<IPCInput>())
 {
 	updateAfterSettingsChange();
 }
@@ -28,6 +29,9 @@ void InputManager::update(RobotState& state, bool hasFocus) const{
 		_joystickInput->update(state, _inputSettings.maxSpeed, _maxRotationSpeedRadians);
 		break;
 
+	case InputType::IPC:
+		_ipcInput->update(state, _inputSettings.maxSpeed, _maxRotationSpeedRadians);
+		break;
 	default:
 		throw std::runtime_error("Unsupported input type");
 	}
@@ -35,5 +39,6 @@ void InputManager::update(RobotState& state, bool hasFocus) const{
 void InputManager::updateAfterSettingsChange() {
 	_keyboardInput->updateAfterSettingsChange();
 	_joystickInput->updateAfterSettingsChange();
+	_ipcInput->updateAfterSettingsChange();
 	_maxRotationSpeedRadians = DegreesToRadians(_inputSettings.maxRotationSpeed);
 }

@@ -81,14 +81,12 @@ void MainWindow::renderImGuiMenu() {
 			_settingsWindow->open(current);
 			_showMenu = false;
 		}
-
-		if (ImGui::MenuItem("Input Settings")) {
+		else if (ImGui::MenuItem("Input Settings")) {
 			const InputSettings& current = _appConfig.inputSettings;
 			_inputSettingsWindow->open(current);
 			_showMenu = false;
 		}
-
-		if (ImGui::MenuItem("Robot Stats")) {
+		else if (ImGui::MenuItem("Robot Stats")) {
 			_robotStatWindow->open();
 			_showMenu = false;
 		}

@@ -7,8 +7,9 @@
 // Here to discard configs with old version
 #define CONFIG_VERSION "0.6.7"
 enum class InputType {
-	Keyboard,
-	Controller
+	Keyboard = 0,
+	Controller = 1,
+	IPC = 2
 };
 
 struct WindowConfig {

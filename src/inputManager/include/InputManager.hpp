@@ -5,6 +5,7 @@
 #include "KeyboardInput.hpp"
 #include "JoystickInput.hpp"
 #include "RobotState.hpp"
+#include "IPCInput.hpp"
 
 class InputManager {
 public :
@@ -16,6 +17,7 @@ private:
 	float _maxRotationSpeedRadians;
 	std::unique_ptr<KeyboardInput> _keyboardInput;
 	std::unique_ptr<JoystickInput> _joystickInput;
+	std::unique_ptr<IPCInput> _ipcInput;
 };
 
 #endif // !INPUT_MANAGER_HPP

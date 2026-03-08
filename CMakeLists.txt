@@ -64,6 +64,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
     ImGui-SFML::ImGui-SFML
     imgui
     asio
+    cppzmq-static
     configManager
     visualization
     physicsEngine

@@ -38,7 +38,7 @@ private:
 	OnSettingsChanged _onSettingsChanged;
 	bool _pendingClose = false;
 	bool _isOpen = false;
-	int _inputTypeIndex = 0; // 0 for keyboard, 1 for controller
+	int _inputTypeIndex = 0; // 0 for keyboard, 1 for controller, 2 for IPC
 
 	int* _waitingForKey = nullptr;
 	int* _waitingForButton = nullptr;

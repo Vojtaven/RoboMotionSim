@@ -224,10 +224,10 @@ void InputSettingsWindow::renderContent() {
 	bool changed = false;
 
 	// Input type selector
-	const char* inputTypeItems[] = { "Keyboard", "Controller" };
-	_inputTypeIndex = (_settings.inputType == InputType::Controller) ? 1 : 0;
+	const char* inputTypeItems[] = { "Keyboard", "Controller", "IPC" };
+	_inputTypeIndex = (int)_settings.inputType;
 	if (ImGui::Combo("Input Type", &_inputTypeIndex, inputTypeItems, IM_ARRAYSIZE(inputTypeItems))) {
-		_settings.inputType = (_inputTypeIndex == 1) ? InputType::Controller : InputType::Keyboard;
+		_settings.inputType = (InputType)_inputTypeIndex;
 		_waitingForKey = nullptr;
 		_waitingForButton = nullptr;
 		_waitingForAxis = nullptr;
