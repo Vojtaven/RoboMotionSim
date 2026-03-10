@@ -21,6 +21,17 @@ void IPCInput::update(RobotState& state) {
 
 }
 void IPCInput::updateAfterSettingsChange() {
+	// Close existing sockets before rebinding/reconnecting
+	_telemetry_out.close();
+	_response_out.close();
+	_command_in.close();
+
+	// Recreate sockets
+	_telemetry_out = zmq::socket_t(_context, zmq::socket_type::pub);
+	_response_out = zmq::socket_t(_context, zmq::socket_type::pub);
+	_command_in = zmq::socket_t(_context, zmq::socket_type::sub);
+
+	// Bind/connect to new addresses/ports
 	_telemetry_out.bind(_ipcMapping.address + ":" + std::to_string(_ipcMapping.telemetry_port));
 	_telemetry_out.set(zmq::sockopt::conflate, 1);
 	_response_out.bind(_ipcMapping.address + ":" + std::to_string(_ipcMapping.response_port));
@@ -88,7 +99,7 @@ void IPCInput::SentTelemetry(const RobotState& state) {
 
 	_telemetry_out.send(zmq::buffer(buf), zmq::send_flags::none);
 }
-void IPCInput::SendResponse(MsgType type, uint32_t id, const std::vector<uint8_t>& payload = {}) {
+void IPCInput::SendResponse(MsgType type, uint32_t id, const std::vector<uint8_t>& payload) {
 	std::vector<uint8_t> buf(sizeof(MsgHeader) + payload.size());
 	uint8_t* ptr = buf.data();
 

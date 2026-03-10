@@ -6,9 +6,16 @@
 void PhysicsEngine::update(const float dt, RobotState& state, const RobotConfig& config)
 {
 	limitMovement(state, config);
+
+	if (state.fromWheelSpeeds)
+		calculateLocalVelocityFromWheelSpeed(state, config);
+
 	toGlobalFrame(state);
+
+	if (!state.fromWheelSpeeds)
+		toWheelSpeed(state, config, dt);
+
 	updatePosition(dt, state);
-	toWheelSpeed(state, config,dt);
 	updateDirectionVectors(state);
 }
 
@@ -97,4 +104,77 @@ void PhysicsEngine::updateDirectionVectors(RobotState& state) {
 		dirVec.length = std::hypot(pointVelocity.x, pointVelocity.y);
 		dirVec.angle = std::atan2(pointVelocity.y, pointVelocity.x);
 	}
+}
+
+
+void PhysicsEngine::calculateLocalVelocityFromWheelSpeed(RobotState& state, const RobotConfig& config) {
+	const auto wheels = config.GetRobotWheels();
+
+	// Least-squares: (J^T J) * x = J^T * b, where x = [chassis_vx, chassis_vy, omega]
+	float A[3][3] = {};
+	float rhs[3] = {};
+
+	int i = 0;
+	for (const auto& wheel : wheels) {
+		const float cos_w = std::cos(wheel.wheel_angle);
+		const float sin_w = std::sin(wheel.wheel_angle);
+		const float cos_roller = std::cos(wheel.roller_angle);
+
+		float jvx, jvy;
+		if (std::abs(cos_roller) < 0.001f) {
+			jvx = cos_w;
+			jvy = sin_w;
+		}
+		else {
+			const float tan_r = std::tan(wheel.roller_angle);
+			jvx = cos_w - sin_w * tan_r;
+			jvy = sin_w + cos_w * tan_r;
+		}
+		const float jw = -wheel.y_position * jvx + wheel.x_position * jvy;
+		const float j[3] = { jvx, jvy, jw };
+
+		const float speed = state.wheels[i].speed;
+		for (int r = 0; r < 3; r++) {
+			rhs[r] += j[r] * speed;
+			for (int c = 0; c < 3; c++)
+				A[r][c] += j[r] * j[c];
+		}
+		i++;
+	}
+
+	// Gauss-Jordan elimination with partial pivoting
+	float aug[3][4] = {};
+	for (int r = 0; r < 3; r++) {
+		for (int c = 0; c < 3; c++) aug[r][c] = A[r][c];
+		aug[r][3] = rhs[r];
+	}
+
+	for (int col = 0; col < 3; col++) {
+		int pivot = col;
+		for (int row = col + 1; row < 3; row++)
+			if (std::abs(aug[row][col]) > std::abs(aug[pivot][col]))
+				pivot = row;
+		for (int k = 0; k < 4; k++)
+			std::swap(aug[col][k], aug[pivot][k]);
+
+		if (std::abs(aug[col][col]) < 1e-9f) continue;
+
+		for (int row = 0; row < 3; row++) {
+			if (row == col) continue;
+			const float factor = aug[row][col] / aug[col][col];
+			for (int k = col; k < 4; k++)
+				aug[row][k] -= factor * aug[col][k];
+		}
+	}
+
+	const float chassis_vx = (std::abs(aug[0][0]) > 1e-9f) ? aug[0][3] / aug[0][0] : 0.0f;
+	const float chassis_vy = (std::abs(aug[1][1]) > 1e-9f) ? aug[1][3] / aug[1][1] : 0.0f;
+	const float omega      = (std::abs(aug[2][2]) > 1e-9f) ? aug[2][3] / aug[2][2] : 0.0f;
+
+	// Rotate chassis-frame velocity back to local (front-relative) frame
+	const float cos_front = std::cos(state.frontAngle);
+	const float sin_front = std::sin(state.frontAngle);
+	state.localVelocity.x = chassis_vx * cos_front + chassis_vy * sin_front;
+	state.localVelocity.y = -chassis_vx * sin_front + chassis_vy * cos_front;
+	state.angularVelocity = omega;
 }

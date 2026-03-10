@@ -20,6 +20,9 @@ struct Vec2 {
         y += other.y;
         return *this;
     }
+
+	bool operator==(const Vec2& other) const { return x == other.x && y == other.y; }
+    bool operator!=(const Vec2& other) const { return !(*this == other); }
     // Helper for distances/physics
     float length() const { return std::sqrt(x * x + y * y); }
     float* data() { return &x; }

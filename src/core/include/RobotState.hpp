@@ -27,6 +27,7 @@ struct RobotState {
 	float angularVelocity = 0; //  Rad/s
 	float frontAngularVelocity = 0; //  Rad/s
 
+	bool fromWheelSpeeds = false; // Determines if we calculates robot local speed from wheels speed
 	int wheelCount;
 	std::vector<WheelState> wheels;
 	std::vector<DirectionVector> directionVectors;

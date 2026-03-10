@@ -6,6 +6,7 @@ class PhysicsEngine {
 public:
 	void update(const float dt, RobotState& state,const RobotConfig& config);
 private:
+	void calculateLocalVelocityFromWheelSpeed(RobotState& state, const RobotConfig& config);
 	void updatePosition(const float dt, RobotState& state);
 	void toWheelSpeed(RobotState& state, const RobotConfig& config, const float dt);
 	void toGlobalFrame(RobotState& state);

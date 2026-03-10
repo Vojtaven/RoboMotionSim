@@ -7,7 +7,7 @@ InputManager::InputManager(const InputSettings& inputSettings)
 	: _inputSettings(inputSettings),
 	_keyboardInput(std::make_unique<KeyboardInput>(_inputSettings.keyboardMapping)),
 	_joystickInput(std::make_unique<JoystickInput>(_inputSettings.controllerMapping)),
-	_ipcInput(std::make_unique<IPCInput>())
+	_ipcInput(std::make_unique<IPCInput>(inputSettings.ipcMapping))
 {
 	updateAfterSettingsChange();
 }

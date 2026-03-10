@@ -27,7 +27,11 @@ private:
 	void ClearCommandQueue();
 	void HandleDisconnect(uint32_t id);
 	void DisconnectClient();
-	void SendDisconnectAck(uint32_t id);
+	void SendDisconnectAck(uint32_t id);                                              
+	void SendCommandAck(uint32_t id) { SendResponse(MsgType::CMD_ACK, id); }
+	void SendCommandError(uint32_t id) { SendResponse(MsgType::CMD_ERROR, id); }
+	void SendCommandComplete(uint32_t id) { SendResponse(MsgType::CMD_COMPLETE, id); }
+
 
 	std::chrono::steady_clock clock;
 	std::chrono::steady_clock::time_point _lastHeartbeatReceived;

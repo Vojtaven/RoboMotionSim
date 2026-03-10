@@ -115,7 +115,7 @@ using CommandParams = std::variant<
 
 struct Command
 {
-	uint32_t id = -1;
+	uint32_t id = 0;
 	CommandParams params = {};
 	static Command Create(const MsgHeader& header, const uint8_t* data, const size_t size);
 };
