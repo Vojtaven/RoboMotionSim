@@ -20,16 +20,21 @@ struct Vec2 {
         y += other.y;
         return *this;
     }
+    Vec2& operator-=(const Vec2& other) {
+        x -= other.x;
+        y -= other.y;
+        return *this;
+    }
 
 	bool operator==(const Vec2& other) const { return x == other.x && y == other.y; }
     bool operator!=(const Vec2& other) const { return !(*this == other); }
     // Helper for distances/physics
-    float length() const { return std::sqrt(x * x + y * y); }
+    float length() const { return std::hypot(x, y); }
     float* data() { return &x; }
 };
 
-struct Vec2i : public Vec2<int> {};
-struct Vec2f : public Vec2<float> {};
+using Vec2i = Vec2<int>;
+using Vec2f =  Vec2<float>;
 
 static inline float DegreesToRadians(float degrees) {
     return (float)(degrees * (std::numbers::pi / 180));

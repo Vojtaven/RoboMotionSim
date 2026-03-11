@@ -59,8 +59,8 @@ void IPCInput::HeartBeatCheck() {
 	}
 }
 void IPCInput::HandleCommand(const MsgHeader& header, const uint8_t* data, size_t size) {
-	Command command = Command::Create(header, data, size);
-	_commandQueue.push(command);
+	//Command command = Command::Create(header, data, size);
+	//_commandQueue.push(command);
 }
 
 void IPCInput::SentTelemetry(const RobotState& state) {
@@ -138,7 +138,7 @@ void IPCInput::SendMotorCount(uint32_t id,uint32_t motorCount) {
 void IPCInput::SendHandshakeAck(uint32_t id) {SendResponse(MsgType::HANDSHAKE_ACK, id); }
 void IPCInput::SendHeartbeatAck(uint32_t id) {SendResponse(MsgType::HEARTBEAT_ACK, id); }
 void IPCInput::ClearCommandQueue() {
-	_commandQueue = std::queue<Command>();
+	_commandQueue = std::queue<std::unique_ptr<Command>>();
 }
 void IPCInput::DisconnectClient() {
 	SendResponse(MsgType::DISCONNECT, _outID++);

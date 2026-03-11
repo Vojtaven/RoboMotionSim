@@ -24,6 +24,11 @@ void PhysicsEngine::updatePosition(const float dt, RobotState& state) {
 	state.position += state.globalvelocity * dt;
 	state.chassisAngle += state.angularVelocity * dt;
 	state.frontAngle += state.frontAngularVelocity * dt;
+
+	state.lastDistanceDisplacement = state.localVelocity * dt;
+	for (size_t i = 0; i < state.wheels.size(); i++) {
+		state.wheels[i].lastDistanceDisplacement = state.wheels[i].speed * dt;
+	}
 }
 
 void PhysicsEngine::toGlobalFrame(RobotState& state) {
@@ -106,7 +111,6 @@ void PhysicsEngine::updateDirectionVectors(RobotState& state) {
 	}
 }
 
-
 void PhysicsEngine::calculateLocalVelocityFromWheelSpeed(RobotState& state, const RobotConfig& config) {
 	const auto wheels = config.GetRobotWheels();
 
@@ -169,7 +173,7 @@ void PhysicsEngine::calculateLocalVelocityFromWheelSpeed(RobotState& state, cons
 
 	const float chassis_vx = (std::abs(aug[0][0]) > 1e-9f) ? aug[0][3] / aug[0][0] : 0.0f;
 	const float chassis_vy = (std::abs(aug[1][1]) > 1e-9f) ? aug[1][3] / aug[1][1] : 0.0f;
-	const float omega      = (std::abs(aug[2][2]) > 1e-9f) ? aug[2][3] / aug[2][2] : 0.0f;
+	const float omega = (std::abs(aug[2][2]) > 1e-9f) ? aug[2][3] / aug[2][2] : 0.0f;
 
 	// Rotate chassis-frame velocity back to local (front-relative) frame
 	const float cos_front = std::cos(state.frontAngle);

@@ -37,6 +37,7 @@ enum class CommandType : uint16_t
 	MOVE_BY_TIME = 0x0A, // Parameters: time_s, x_speed, y_speed, rotation_speed, center_x_mm, center_y_mm, rotate_chassis
 	MOVE_BY_DISTANCE = 0x0B, // Parameters: distance_mm, x_speed, y_speed, rotation_speed, center_x_mm, center_y_mm, rotate_chassis
 	MOVE_AT_SPEED = 0x0C,	// Parameters: x_speed, y_speed, rotation_speed, center_x_mm, center_y_mm, rotate_chassis
+	TUR
 };
 
 
@@ -47,13 +48,17 @@ struct MsgHeader
 	uint16_t payload_size;  // bytes following header
 	MsgType  type;          // envelope
 };
-#pragma pack(pop)
 
-#pragma pack(push, 1)
 struct TelemetryOdometry
 {
+	uint64_t timestamp_ms;
 	float distanceTraveledX;
 	float distanceTraveledY;
+	float localVelocityX;
+	float localVelocityY;
+	float frontAngle;
+	float chassisAngle;
+	float chassisAngularVelocity;
 	uint8_t wheelCount;         // how many TelemetryWheelState follow
 };
 

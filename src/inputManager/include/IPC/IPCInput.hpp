@@ -41,8 +41,8 @@ private:
 	uint32_t _outID = 0;
 	bool _handshakeComplete = false;
 	int _motorCount =-1;
-	std::queue<Command> _commandQueue;
-	Command _currentCommand = Command{};
+	std::queue<std::unique_ptr<Command>> _commandQueue;
+	std::unique_ptr<Command> _currentCommand = nullptr;
     zmq::socket_t _telemetry_out;  // high freq, conflate=1
     zmq::socket_t _response_out;  // low freq, no conflate
     zmq::socket_t _command_in;   // commands in

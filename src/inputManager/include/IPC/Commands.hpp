@@ -2,125 +2,237 @@
 #define COMMANDS_HPP
 
 #include <cstdint>
-#include <vector>
-#include <variant>
+#include "CommandParameters.hpp"
 #include "Protocol.hpp"
+#include "RobotState.hpp"
+#include <memory>
 
-struct MoveByDistanceRawParams
+class Command
 {
-	float distance_mm;
-	float x_speed;
-	float y_speed;
-	float rotation_speed;
-	float front_rotation_speed;
-};
+protected:
+	const uint32_t id = 0;
+	Command(uint32_t id) : id(id) {}
+public:
+	virtual ~Command() = default;
 
-struct MoveByTimeRawParams
-{
-	float time;
-	float x_speed;
-	float y_speed;
-	float rotation_speed;
-	float front_rotation_speed;
-};
+	virtual bool updateAndCheckCompletion(const RobotState& state, const float dt) = 0;
+	virtual void execute(RobotState& state) = 0;
+	virtual bool isMoveCompleted() const = 0;
+	virtual void loadParameters(const uint8_t* data, size_t size) = 0;
+	// Returns the ID of the command that completed, or 0 if not completed yet
+	virtual uint32_t getCompletedId() const { return isMoveCompleted() ? id : 0; }
+	static std::unique_ptr<Command> Create(const MsgHeader& header, const uint8_t* data, size_t size);
 
-struct MoveAtSpeedRawParams
-{
-	float x_speed;
-	float y_speed;
-	float rotation_speed;
-	float front_rotation_speed;
-};
-
-struct StopParams
-{};
-
-struct MoveAtSpeedMotorsParams
-{
-	std::vector<float> speeds;
-};
-
-struct RunMotorForTimeParams
-{
-	uint16_t motor_id;
-	float speed;
-	float time_s;
-};
-
-struct RunMotorForDistanceParams
-{
-	uint16_t motor_id;
-	float speed;
-	float distance_mm;
-};
-
-struct StopMotorParams
-{
-	uint16_t motor_id;
-};
-
-struct StartMotorParams
-{
-	uint16_t motor_id;
-	float speed;
-};
-
-struct MoveByTimeParams
-{
-	float time_s;
-	float x_speed;
-	float y_speed;
-	float rotation_speed;
-	float center_x_mm;
-	float center_y_mm;
-	bool rotate_chassis;
-};
-
-struct MoveByDistanceParams
-{
-	float distance_mm;
-	float x_speed;
-	float y_speed;
-	float rotation_speed;
-	float center_x_mm;
-	float center_y_mm;
-	bool rotate_chassis;
-};
-
-struct MoveAtSpeedParams
-{
-	float x_speed;
-	float y_speed;
-	float rotation_speed;
-	float center_x_mm;
-	float center_y_mm;
-	bool rotate_chassis;
-};
-
-using CommandParams = std::variant<
-	MoveByDistanceRawParams,
-	MoveByTimeRawParams,
-	MoveAtSpeedRawParams,
-	StopParams,
-	MoveAtSpeedMotorsParams,
-	RunMotorForTimeParams,
-	RunMotorForDistanceParams,
-	StopMotorParams,
-	StartMotorParams,
-	MoveByTimeParams,
-	MoveByDistanceParams,
-	MoveAtSpeedParams
->;
-
-
-struct Command
-{
-	uint32_t id = 0;
-	CommandParams params = {};
-	static Command Create(const MsgHeader& header, const uint8_t* data, const size_t size);
+	uint32_t getId() const { return id; }
 };
 
 
+class RawMoveCommand : virtual public Command
+{
+protected:
+	Vec2f _speed; // mm/s
+	float _rotationSpeed; // rad/s
+	float _frontRotationSpeed; // rad/s
+public:
+	RawMoveCommand(Vec2f speed, float rotationSpeed, float frontRotationSpeed);
+	void execute(RobotState& state);
+	virtual ~RawMoveCommand() = default;
+};
 
+class RawMotorCommand : virtual public Command
+{
+public:
+	const uint16_t motor_id;
+	const float speed;
+	RawMotorCommand(uint16_t motor_id, float speed);
+	void execute(RobotState& state);
+	virtual ~RawMotorCommand() = default;
+};
+
+
+// ================================================
+// TIME-BASED COMMANDS
+// ================================================
+
+// Command that moves for a specified duration, then stops
+class TimeCommand :virtual public Command
+{
+protected:
+	float timeRemaining; // seconds
+	TimeCommand(uint32_t id, float time) : Command(id), timeRemaining(time) {}
+public:
+
+	bool isMoveCompleted() const override { return timeRemaining <= 0.0f; }
+	bool updateAndCheckCompletion(const RobotState& state, const float dt) override;
+	virtual ~TimeCommand() = default;
+};
+
+class MoveByTimeRaw : public TimeCommand, public RawMoveCommand
+{
+protected:
+	MoveByTimeRaw(uint32_t id, MoveByTimeRawParams params) :
+		TimeCommand(id, params.time_s),
+		RawMoveCommand({ params.x_speed, params.y_speed }, params.rotation_speed, params.front_rotation_speed) {
+	}
+public:
+	static std::unique_ptr<Command> create(uint32_t id, const uint8_t* data, size_t size);
+	~MoveByTimeRaw() = default;
+};
+
+
+class RunMotorForTime : public TimeCommand, public RawMotorCommand
+{
+protected:
+	RunMotorForTime(uint32_t id, RunMotorForTimeParams params) : TimeCommand(id, params.time_s), RawMotorCommand(params.motor_id, params.speed) {}
+public:
+	static std::unique_ptr<Command> create(uint32_t id, const uint8_t* data, size_t size);
+	~RunMotorForTime() = default;
+};
+
+// ================================================
+// DISTANCE-BASED COMMANDS
+// ================================================
+
+// Command that moves until a certain distance is traveled, then stops
+class DistanceCommand :virtual public Command
+{
+protected:
+	float distanceRemaining; // mm
+	DistanceCommand(uint32_t id, float distance) : Command(id), distanceRemaining(distance) {}
+public:
+	bool isMoveCompleted() const override { return distanceRemaining <= 0.0f; }
+	bool updateAndCheckCompletion(const RobotState& state, const float dt) override;
+	virtual ~DistanceCommand() = default;
+};
+
+
+class MoveByDistanceRaw : public DistanceCommand, public RawMoveCommand
+{
+protected:
+	MoveByDistanceRaw(uint32_t id, MoveByDistanceRawParams params) :
+		DistanceCommand(id, params.distance_mm),
+		RawMoveCommand({ params.x_speed, params.y_speed }, params.rotation_speed, params.front_rotation_speed) {
+	}
+public:
+	static std::unique_ptr<Command> create(uint32_t id, const uint8_t* data, size_t size);
+	~MoveByDistanceRaw() = default;
+};
+
+
+// Command that moves until a certain distance is traveled, then stops, but only counts distance traveled by the one motor 
+class RunMotorForDistance : public DistanceCommand, public RawMotorCommand
+{
+protected:
+	RunMotorForDistance(uint32_t id, RunMotorForDistanceParams params) : DistanceCommand(id, params.distance_mm), RawMotorCommand(params.motor_id, params.speed) {}
+public:
+	bool updateAndCheckCompletion(const RobotState& state, const float dt) override;
+	static std::unique_ptr<Command> create(uint32_t id, const uint8_t* data, size_t size);
+	~RunMotorForDistance() = default;
+};
+
+// ================================================
+// SPEED-BASED COMMANDS
+// ================================================
+
+// Command that moves at a specified speed until stopped by another command
+class SpeedCommand :virtual public Command
+{
+protected:
+	SpeedCommand(uint32_t id) : Command(id) {}
+public:
+	// Moving at speed until stopeed by another command 
+	bool isMoveCompleted() const override { return false; }
+	bool updateAndCheckCompletion(const RobotState& state, const float dt) override { return false; }
+	virtual ~SpeedCommand() = default;
+};
+
+class MoveAtSpeedRaw : public SpeedCommand, public RawMoveCommand
+{
+protected:
+	MoveAtSpeedRaw(uint32_t id, MoveAtSpeedRawParams params) :
+		SpeedCommand(id),
+		RawMoveCommand({ params.x_speed, params.y_speed }, params.rotation_speed, params.front_rotation_speed) {
+	}
+public:
+	static std::unique_ptr<Command> create(uint32_t id, const uint8_t* data, size_t size);
+	~MoveAtSpeedRaw() = default;
+};
+
+// Command that moves until a certain distance is traveled, then stops, but only counts distance traveled by the one motor 
+class StartMotorCommand : public SpeedCommand, public RawMotorCommand
+{
+protected:
+	StartMotorCommand(uint32_t id, StartMotorParams params) : SpeedCommand(id), RawMotorCommand(params.motor_id, params.speed) {}
+public:
+	static std::unique_ptr<Command> create(uint32_t id, uint16_t motor_id, float speed);
+	static std::unique_ptr<Command> create(uint32_t id, const uint8_t* data, size_t size);
+	~StartMotorCommand() = default;
+};
+
+
+// ================================================
+// ANGLE-BASED COMMANDS
+// ===============================================
+class AngleCommand :virtual public Command
+{
+private:
+	float targetAngle;
+protected:
+	AngleCommand(uint32_t id, float targetAngle) : Command(id), targetAngle(targetAngle) {}
+public:
+	bool isMoveCompleted() const override { return std::abs(targetAngle) <= 0.001f; }
+	bool updateAndCheckCompletion(const RobotState& state, const float dt) override;
+	virtual ~AngleCommand() = default;
+};
+
+class MoveByAngleRaw : public AngleCommand, public RawMoveCommand
+{
+protected:
+	MoveByAngleRaw(uint32_t id, TurnRelativeRawParams params) :
+		AngleCommand(id, params.angle_deg),
+		RawMoveCommand({ params.x_speed, params.y_speed }, params.rotation_speed, params.front_rotation_speed) {
+	}
+public:
+	static std::unique_ptr<Command> create(uint32_t id, const uint8_t* data, size_t size);
+	~MoveByAngleRaw() = default;
+};
+
+// ================================================
+// COMMAND FACTORY
+// ================================================
+
+static class CommandFactory
+{
+	static MoveAtSpeedRawParams recalculateToRawValues(const MoveAtSpeedParams& params);
+	static MoveByTimeRawParams recalculateToRawValues(const MoveByTimeParams& params);
+	static MoveByDistanceRawParams recalculateToRawValues(const MoveByDistanceParams& params);
+	static TurnRelativeRawParams recalculateToRawValues(const TurnRelativeParams& params);
+public:
+	static std::unique_ptr<Command> createMoveByDistance(uint32_t id, const uint8_t* data, size_t size);
+	static std::unique_ptr<Command> createMoveByTime(uint32_t id, const uint8_t* data, size_t size);
+	static std::unique_ptr<Command> createMoveAtSpeed(uint32_t id, const uint8_t* data, size_t size);
+	static std::unique_ptr<Command> createTurnRelative(uint32_t id, const uint8_t* data, size_t size);
+	static std::unique_ptr<Command> createStartMotor(uint32_t id, const uint8_t* data, size_t size);
+	static std::unique_ptr<Command> createStopMotor(uint32_t id, const uint8_t* data, size_t size);
+};
+
+// ================================================
+// MOTOR COMMANDS WRAPPER
+// ================================================
+
+class MotorCommandWrapper :virtual public Command
+{
+private:
+	std::vector<std::unique_ptr<RawMotorCommand>> motorCommands;
+public:
+	MotorCommandWrapper(int motorCount) : Command(0), motorCommands(motorCount) {}
+	bool isMoveCompleted() const override;
+	bool updateAndCheckCompletion(const RobotState& state, const float dt) override;
+	void addMotorCommand(std::unique_ptr<RawMotorCommand> cmd);
+	void execute(RobotState& state);
+
+	uint32_t getCompletedId() const override;
+	~MotorCommandWrapper() = default;
+};
 
 #endif // !COMMANDS_HPP
