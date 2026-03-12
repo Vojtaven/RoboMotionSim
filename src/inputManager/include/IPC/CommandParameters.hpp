@@ -101,7 +101,7 @@ struct TurnRelativeRawParams
 {
 	using command_parameters_tag = void;
 
-	float angle_deg;      // Relative change in heading
+	float angle_rad;      // Relative change in heading
 	float x_speed;
 	float y_speed;
 	float rotation_speed; // Speed of rotation
@@ -112,7 +112,7 @@ struct TurnRelativeParams
 {
 	using command_parameters_tag = void;
 
-	float angle_deg;      // Relative change in heading
+	float angle_rad;      // Relative change in heading
 	float rotation_speed;
 	float center_x_mm;    // Pivot point offset X
 	float center_y_mm;    // Pivot point offset Y

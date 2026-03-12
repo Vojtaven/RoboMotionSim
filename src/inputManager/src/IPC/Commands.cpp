@@ -4,51 +4,46 @@
 #include <functional>
 #include <memory>
 #include <algorithm>
+#include <exception>
 
-//static const std::unordered_map<CommandType, std::function<T(const uint8_t*, size_t)>> parsers = {
-//	{ CommandType::MOVE_BY_DISTANCE_RAW, ParseParams<MoveByDistanceRawParams> },
-//	{ CommandType::MOVE_BY_TIME_RAW, ParseParams<MoveByTimeRawParams> },
-//	{ CommandType::MOVE_AT_SPEED_RAW, ParseParams<MoveAtSpeedRawParams> },
-//	{ CommandType::STOP, ParseParams<StopParams> },
-//	{ CommandType::RUN_MOTOR_FOR_TIME, ParseParams<RunMotorForTimeParams> },
-//	{ CommandType::RUN_MOTOR_FOR_DISTANCE, ParseParams<RunMotorForDistanceParams> },
-//	{ CommandType::STOP_MOTOR, ParseParams<StopMotorParams> },
-//	{ CommandType::START_MOTOR, ParseParams<StartMotorParams> },
-//	{ CommandType::MOVE_BY_TIME, ParseParams<MoveByTimeParams> },
-//	{ CommandType::MOVE_BY_DISTANCE, ParseParams<MoveByDistanceParams> },
-//	{ CommandType::MOVE_AT_SPEED, ParseParams<MoveAtSpeedParams> }
-//};
-//
-//std::unique_ptr<Command> Command::Create(const MsgHeader& header, const uint8_t* data, size_t size) {
-//	if (size < sizeof(CommandType))
-//		throw std::exception("Invalid command payload: too small for CommandType");
-//
-//	CommandType type;
-//	std::memcpy(&type, data, sizeof(CommandType));
-//	data += sizeof(CommandType);
-//	size -= sizeof(CommandType);
-//
-//	if (type == CommandType::MOVE_AT_SPEED_MOTORS) {
-//		if (size < sizeof(uint16_t))
-//			throw std::exception("Invalid command payload: too small for motor count");
-//		uint16_t motor_count;
-//		std::memcpy(&motor_count, data, sizeof(uint16_t));
-//		data += sizeof(uint16_t);
-//		size -= sizeof(uint16_t);
-//		if (size != motor_count * sizeof(float))
-//			throw std::exception("Invalid command payload: size does not match motor count for MoveAtSpeedMotorsParams");
-//		std::vector<float> speeds(motor_count);
-//		std::memcpy(speeds.data(), data, motor_count * sizeof(float));
-//		command.params = MoveAtSpeedMotorsParams{ speeds };
-//	}
-//	else {
-//		auto it = parsers.find(type);
-//		if (it == parsers.end())
-//			throw std::exception("Invalid command payload: unknown CommandType");
-//		command.params = it->second(data, size);
-//	}
-//	return command;
-//}
+//Priority commads
+// Stop
+// Stop motor
+
+static const std::unordered_map<CommandType, std::function<std::unique_ptr<Command>(uint32_t id, const uint8_t*, size_t)>> parsers = {
+	{ CommandType::MOVE_BY_DISTANCE_RAW, MoveByDistanceRaw::create},
+	{ CommandType::MOVE_BY_TIME_RAW, MoveByTimeRaw::create },
+	{ CommandType::MOVE_AT_SPEED_RAW, MoveAtSpeedRaw::create },
+	{ CommandType::MOVE_BY_ANGLE_RAW, MoveByAngleRaw::create},
+	{ CommandType::RUN_MOTOR_FOR_TIME, RunMotorForTime::create },
+	{ CommandType::RUN_MOTOR_FOR_DISTANCE, RunMotorForDistance::create},
+	{ CommandType::MOVE_AT_SPEED_MOTORS, MultipleMotorCommand::create},
+	{ CommandType::START_MOTOR, StartMotorCommand::create },
+	{ CommandType::MOVE_BY_TIME, CommandFactory::createMoveByTime },
+	{ CommandType::MOVE_BY_DISTANCE, CommandFactory::createMoveByDistance },
+	{ CommandType::MOVE_AT_SPEED, CommandFactory::createMoveAtSpeed},
+	{ CommandType::MOVE_BY_ANGLE, CommandFactory::createTurnRelative}
+};
+
+
+CommandType Command::getCommandType(const uint8_t* data, size_t size)
+{
+	if (size < sizeof(CommandType))
+		throw std::exception("Invalid command payload: too small for CommandType");
+	CommandType type;
+	std::memcpy(&type, data, sizeof(CommandType));
+	data += sizeof(CommandType);
+	size -= sizeof(CommandType);
+	return type;
+}
+
+std::unique_ptr<Command> Command::Create(uint32_t id, CommandType type, const uint8_t* data, size_t size) {
+	auto it = parsers.find(type);
+	if (it == parsers.end())
+		throw std::exception("Invalid command payload: unknown CommandType");
+
+	return it->second(id, data, size);
+}
 
 // ================================================
 // RAW COMMANDS
@@ -123,10 +118,27 @@ std::unique_ptr<Command> StartMotorCommand::create(uint32_t id, const uint8_t* d
 	return std::make_unique<StartMotorCommand>(id, CommandParameters::ParseParams<StartMotorParams>(data, size));
 }
 
-std::unique_ptr<Command> StartMotorCommand::create(uint32_t id, uint16_t motor_id, float speed) {
-	StartMotorParams params{ motor_id, speed };
-	return std::make_unique<StartMotorCommand>(id, params);
+void MultipleMotorCommand::execute(RobotState& state) {
+	for (size_t i = 0; i < _motorSpeeds.size(); i++) {
+		state.wheels[i].speed = _motorSpeeds[i];
+	}
 }
+
+std::unique_ptr<Command> MultipleMotorCommand::create(uint32_t id, const uint8_t* data, size_t size) {
+	if (size < sizeof(uint16_t))
+		throw std::exception("Invalid command payload: too small for motor count");
+	uint16_t motor_count;
+	std::memcpy(&motor_count, data, sizeof(uint16_t));
+	data += sizeof(uint16_t);
+	size -= sizeof(uint16_t);
+	if (size != motor_count * sizeof(float))
+		throw std::exception("Invalid command payload: size does not match motor count for MoveAtSpeedMotorsParams");
+	std::vector<float> speeds(motor_count);
+	std::memcpy(speeds.data(), data, motor_count * sizeof(float));
+
+	return std::make_unique<MultipleMotorCommand>(id, speeds);
+}
+
 
 // ================================================
 // ANGLE-BASED COMMANDS
@@ -143,8 +155,8 @@ bool AngleCommand::updateAndCheckCompletion(const RobotState& state, const float
 
 
 bool MotorCommandWrapper::isMoveCompleted() const {
-	return std::all_of(motorCommands.begin(), motorCommands.end(), [](const std::unique_ptr<RawMotorCommand>& cmd) {
-		return cmd->isMoveCompleted();
+	return std::all_of(motorCommands.begin(), motorCommands.end(), [](const std::unique_ptr<Command>& cmd) {
+		return !cmd || cmd->isMoveCompleted();
 		});
 
 }
@@ -157,8 +169,8 @@ bool MotorCommandWrapper::updateAndCheckCompletion(const RobotState& state, cons
 	}
 	return allCompleted;
 }
-void MotorCommandWrapper::addMotorCommand(std::unique_ptr<RawMotorCommand> cmd) {
-	motorCommands[cmd->motor_id] = std::move(cmd);
+void MotorCommandWrapper::addMotorCommand(uint16_t motor_id, std::unique_ptr<Command> cmd) {
+	motorCommands[motor_id] = std::move(cmd);
 }
 uint32_t MotorCommandWrapper::getCompletedId() const {
 	for (const auto& cmd : motorCommands) {
@@ -177,3 +189,5 @@ void MotorCommandWrapper::execute(RobotState& state) {
 		}
 	}
 }
+
+

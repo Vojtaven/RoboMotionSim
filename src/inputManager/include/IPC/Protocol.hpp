@@ -37,14 +37,15 @@ enum class CommandType : uint16_t
 	MOVE_BY_TIME = 0x0A, // Parameters: time_s, x_speed, y_speed, rotation_speed, center_x_mm, center_y_mm, rotate_chassis
 	MOVE_BY_DISTANCE = 0x0B, // Parameters: distance_mm, x_speed, y_speed, rotation_speed, center_x_mm, center_y_mm, rotate_chassis
 	MOVE_AT_SPEED = 0x0C,	// Parameters: x_speed, y_speed, rotation_speed, center_x_mm, center_y_mm, rotate_chassis
-	TUR
+	MOVE_BY_ANGLE = 0x0D, // Parameters: angle_rad, rotation_speed, center_x_mm, center_y_mm, rotate_chassis
+	MOVE_BY_ANGLE_RAW = 0x0E, // Parameters: angle_rad, x_speed, y_speed, rotation_speed, front_rotation_speed
 };
 
 
 #pragma pack(push, 1)
 struct MsgHeader
 {
-	uint32_t id;            // message id
+	uint32_t id;            // message id must start at 1 and increment for each new message sent by the client, used for ACKs and matching responses to requests
 	uint16_t payload_size;  // bytes following header
 	MsgType  type;          // envelope
 };
