@@ -25,10 +25,11 @@ private:
 	void firstTimeSetup();
 	void saveConfig();
 	void renderContent();
-
 	//Return true if settings were changed and callback will called
+	bool renderCommonSettings();
 	bool renderKeyboardMapping();
 	bool renderControllerMapping();
+	bool renderIPCMapping();
 
 	std::unique_ptr<sf::RenderWindow> _window;
 	WindowConfig _windowConfig;

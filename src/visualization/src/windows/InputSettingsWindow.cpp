@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <cstdint>
 #include <cmath>
+#include <stdexcept>
 #include <string>
 #include <SFML/Window/Keyboard.hpp>
 #include <SFML/Window/Joystick.hpp>
@@ -128,7 +129,8 @@ void InputSettingsWindow::update(sf::Time dt) {
 			if (const auto* keyEvent = event->getIf<sf::Event::KeyPressed>()) {
 				if (keyEvent->code == sf::Keyboard::Key::Escape) {
 					_waitingForKey = nullptr;
-				} else {
+				}
+				else {
 					*_waitingForKey = static_cast<int>(keyEvent->code);
 					_waitingForKey = nullptr;
 					_bindingChanged = true;
@@ -237,32 +239,29 @@ void InputSettingsWindow::renderContent() {
 	ImGui::Separator();
 	ImGui::Spacing();
 
-	// Common settings
-	ImGui::Text("Max Speed (mm/s)");
-	changed |= ImGui::SliderFloat("##MaxSpeed", &_settings.maxSpeed, 1.0f, 2000.0f, "%.1f", sliderFlags);
-	ImGui::Spacing();
-
-	ImGui::Text("Max Rotation Speed (deg/s)");
-	changed |= ImGui::SliderFloat("##MaxRotSpeed", &_settings.maxRotationSpeed, 1.0f, 360.0f, "%.1f", sliderFlags);
-	ImGui::Spacing();
-
-	changed |= ImGui::Checkbox("Register Input Without Focus", &_settings.registerInputWithoutFocus);
-	ImGui::Spacing();
-	ImGui::Separator();
-	ImGui::Spacing();
-
-	// Show keyboard or controller mapping depending on input type
-	if (_inputTypeIndex == 0) {
+	switch (_inputTypeIndex) {
+	case 0:
 		ImGui::TextColored(ImVec4(0.4f, 0.8f, 1.0f, 1.0f), "Keyboard Mapping");
 		ImGui::Separator();
 		ImGui::Spacing();
 		changed |= renderKeyboardMapping();
-	}
-	else {
+		break;
+
+	case 1:
 		ImGui::TextColored(ImVec4(0.4f, 0.8f, 1.0f, 1.0f), "Controller Mapping");
 		ImGui::Separator();
 		ImGui::Spacing();
 		changed |= renderControllerMapping();
+		break;
+
+	case 2:
+		ImGui::TextColored(ImVec4(0.4f, 0.8f, 1.0f, 1.0f), "IPC Mapping");
+		ImGui::Separator();
+		ImGui::Spacing();
+		changed |= renderIPCMapping();
+		break;
+	default:
+		throw std::runtime_error("Invalid input type index");
 	}
 
 	ImGui::Spacing();
@@ -282,13 +281,31 @@ void InputSettingsWindow::renderContent() {
 	if (changed && _onSettingsChanged) {
 		_onSettingsChanged(_settings);
 	}
-	
+
 	ImGui::PopItemWidth();
 	ImGui::End();
 }
 
+bool InputSettingsWindow::renderCommonSettings() {
+	ImGuiSliderFlags sliderFlags = ImGuiSliderFlags_AlwaysClamp;
+	bool changed = false;
+	// Common settings
+	ImGui::Text("Max Speed (mm/s)");
+	changed |= ImGui::SliderFloat("##MaxSpeed", &_settings.maxSpeed, 1.0f, 2000.0f, "%.1f", sliderFlags);
+	ImGui::Spacing();
+
+	ImGui::Text("Max Rotation Speed (deg/s)");
+	changed |= ImGui::SliderFloat("##MaxRotSpeed", &_settings.maxRotationSpeed, 1.0f, 360.0f, "%.1f", sliderFlags);
+	ImGui::Spacing();
+
+	changed |= ImGui::Checkbox("Register Input Without Focus", &_settings.registerInputWithoutFocus);
+	ImGui::Spacing();
+	ImGui::Spacing();
+	return changed;
+}
+
 bool InputSettingsWindow::renderKeyboardMapping() {
-	bool changed = _bindingChanged;
+	bool changed = _bindingChanged || renderCommonSettings();
 	KeyboardMapping& km = _settings.keyboardMapping;
 
 	auto renderKeyBind = [&](const char* label, int& keyCode) {
@@ -300,7 +317,8 @@ bool InputSettingsWindow::renderKeyboardMapping() {
 		std::string btnId = std::string("##") + label;
 		if (_waitingForKey == &keyCode) {
 			ImGui::Button(("Press a key..." + btnId).c_str(), ImVec2(-1, 0));
-		} else {
+		}
+		else {
 			std::string keyName = getKeyName(keyCode);
 			if (ImGui::Button((keyName + btnId).c_str(), ImVec2(-1, 0))) {
 				_waitingForKey = &keyCode;
@@ -308,7 +326,7 @@ bool InputSettingsWindow::renderKeyboardMapping() {
 				_waitingForAxis = nullptr;
 			}
 		}
-	};
+		};
 
 	ImGui::TextDisabled("Click a button and press a key to rebind. Escape to cancel.");
 	ImGui::Spacing();
@@ -333,7 +351,7 @@ bool InputSettingsWindow::renderKeyboardMapping() {
 }
 
 bool InputSettingsWindow::renderControllerMapping() {
-	bool changed = _bindingChanged;
+	bool changed = _bindingChanged || renderCommonSettings();
 	ControllerMapping& cm = _settings.controllerMapping;
 	ImGuiSliderFlags sliderFlags = ImGuiSliderFlags_AlwaysClamp;
 
@@ -359,7 +377,8 @@ bool InputSettingsWindow::renderControllerMapping() {
 			std::string axisBtnId = std::string("##Axis_") + label;
 			if (_waitingForAxis == &ctrl.axisId) {
 				ImGui::Button(("Move an axis..." + axisBtnId).c_str(), ImVec2(-1, 0));
-			} else {
+			}
+			else {
 				std::string axisName = std::string("Axis ") + getAxisName(ctrl.axisId);
 				if (ImGui::Button((axisName + axisBtnId).c_str(), ImVec2(-1, 0))) {
 					_waitingForAxis = &ctrl.axisId;
@@ -368,13 +387,15 @@ bool InputSettingsWindow::renderControllerMapping() {
 				}
 			}
 			changed |= ImGui::Checkbox("Invert", &ctrl.invert);
-		} else {
+		}
+		else {
 			// Button bindings
 			std::string btn1Id = std::string("##Btn1_") + label;
 			ImGui::Text("Button 1 (Negative)");
 			if (_waitingForButton == &ctrl.buttonId1) {
 				ImGui::Button(("Press a button..." + btn1Id).c_str(), ImVec2(-1, 0));
-			} else {
+			}
+			else {
 				std::string buttonName = "Button " + std::to_string(ctrl.buttonId1);
 				if (ImGui::Button((buttonName + btn1Id).c_str(), ImVec2(-1, 0))) {
 					_waitingForButton = &ctrl.buttonId1;
@@ -387,7 +408,8 @@ bool InputSettingsWindow::renderControllerMapping() {
 			ImGui::Text("Button 2 (Positive)");
 			if (_waitingForButton == &ctrl.buttonId2) {
 				ImGui::Button(("Press a button..." + btn2Id).c_str(), ImVec2(-1, 0));
-			} else {
+			}
+			else {
 				std::string buttonName = "Button " + std::to_string(ctrl.buttonId2);
 				if (ImGui::Button((buttonName + btn2Id).c_str(), ImVec2(-1, 0))) {
 					_waitingForButton = &ctrl.buttonId2;
@@ -401,8 +423,10 @@ bool InputSettingsWindow::renderControllerMapping() {
 		ImGui::Spacing();
 		ImGui::Separator();
 		ImGui::Spacing();
-	};
-
+		};
+	ImGui::Text("Deadzone (%%)");
+	changed |= ImGui::SliderInt("##Deadzone", &cm.deadzone, 0, 100, "%d", sliderFlags);
+	ImGui::Spacing();
 	ImGui::TextDisabled("Click a button to rebind. Escape to cancel.");
 	ImGui::Spacing();
 
@@ -410,9 +434,42 @@ bool InputSettingsWindow::renderControllerMapping() {
 	renderJoystickControl("Move Y", cm.yAxisControl);
 	renderJoystickControl("Chassis Rotate", cm.chassisRotateControl);
 	renderJoystickControl("Front Rotate", cm.frontRotateControl);
+	return changed;
+}
+bool InputSettingsWindow::renderIPCMapping() {
+	bool changed = false;
+	IPCMapping& ipc = _settings.ipcMapping;
+	ImGuiSliderFlags sliderFlags = ImGuiSliderFlags_AlwaysClamp;
 
-	ImGui::Text("Deadzone (%%)");
-	changed |= ImGui::SliderInt("##Deadzone", &cm.deadzone, 0, 100, "%d", sliderFlags);
+	ImGui::Text("Address");
+	char addressBuf[256] = {};
+	auto addrLen = ipc.address.copy(addressBuf, sizeof(addressBuf) - 1);
+	addressBuf[addrLen] = '\0';
+	if (ImGui::InputText("##IPCAddress", addressBuf, sizeof(addressBuf))) {
+		ipc.address = addressBuf;
+		changed = true;
+	}
+	ImGui::Spacing();
+
+	// Port helper - InputInt clamped to valid uint16_t range
+	auto renderPort = [&](const char* label, uint16_t& port) {
+		ImGui::Text("%s", label);
+		std::string id = std::string("##") + label;
+		int portVal = static_cast<int>(port);
+		if (ImGui::InputInt(id.c_str(), &portVal)) {
+			port = static_cast<uint16_t>(std::clamp(portVal, 1, 65535));
+			changed = true;
+		}
+		ImGui::Spacing();
+		};
+
+	renderPort("Command Port", ipc.command_port);
+	renderPort("Response Port", ipc.response_port);
+	renderPort("Telemetry Port", ipc.telemetry_port);
+
+	ImGui::Text("Heartbeat Timeout (s)");
+	changed |= ImGui::SliderFloat("##HeartbeatTimeout", &ipc.heartbeatTimeout, 0.5f, 30.0f, "%.1f", sliderFlags);
+	ImGui::Spacing();
 
 	return changed;
 }

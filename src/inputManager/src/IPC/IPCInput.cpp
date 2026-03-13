@@ -29,6 +29,7 @@ void IPCInput::update(RobotState& state) {
 	// Poll for incoming messages (non-blocking)
 	zmq::message_t msg;
 	while (_command_in.recv(msg, zmq::recv_flags::dontwait)) {
+
 		if (msg.size() < sizeof(MsgHeader))
 			continue;
 
@@ -111,13 +112,12 @@ void IPCInput::updateAfterSettingsChange() {
 	_telemetry_out = zmq::socket_t(_context, zmq::socket_type::pub);
 	_response_out = zmq::socket_t(_context, zmq::socket_type::pub);
 	_command_in = zmq::socket_t(_context, zmq::socket_type::sub);
-
 	// Bind/connect to new addresses/ports
 	_telemetry_out.bind(_ipcMapping.address + ":" + std::to_string(_ipcMapping.telemetry_port));
 	_telemetry_out.set(zmq::sockopt::conflate, 1);
 	_response_out.bind(_ipcMapping.address + ":" + std::to_string(_ipcMapping.response_port));
-	_command_in.connect(_ipcMapping.address + ":" + std::to_string(_ipcMapping.command_port));
 	_command_in.set(zmq::sockopt::subscribe, "");
+	_command_in.bind(_ipcMapping.address + ":" + std::to_string(_ipcMapping.command_port));
 }
 
 

@@ -66,15 +66,15 @@ struct JoystickControll {
 	bool invert = false;
 	int axisId = 0;
 	int buttonId1 = 0;
-	int buttonId2 = 0;
+	int buttonId2 = 1;
 };
 
 struct ControllerMapping {
 	int controllerId = 0;
-	JoystickControll xAxisControl = { true,false, 1, 0, 0 };
-	JoystickControll yAxisControl = { true,false, 1, 0, 0 };
-	JoystickControll chassisRotateControl = { true,false, 4, 0, 0 };
-	JoystickControll frontRotateControl = { false,false, 0, 2, 1 };
+	JoystickControll xAxisControl = { true,true, 1, 0, 1 };
+	JoystickControll yAxisControl = { true,false, 0, 0, 1 };
+	JoystickControll chassisRotateControl = { true,false, 4, 0, 1};
+	JoystickControll frontRotateControl = { true,true, 2, 0, 1};
 	int deadzone = 5; // Deadzone for joystick axes, in percentage (0-100)
 };
 
