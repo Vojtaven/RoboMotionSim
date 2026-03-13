@@ -11,7 +11,7 @@ InputManager::InputManager(const InputSettings& inputSettings)
 {
 	updateAfterSettingsChange();
 }
-void InputManager::update(RobotState& state, bool hasFocus, const float dt) const{
+void InputManager::update(RobotState& state, bool hasFocus) const {
 	state.localVelocity = { 0,0 };
 	state.angularVelocity = 0;
 	state.frontAngularVelocity = 0;
@@ -36,6 +36,23 @@ void InputManager::update(RobotState& state, bool hasFocus, const float dt) cons
 		throw std::runtime_error("Unsupported input type");
 	}
 }
+
+void InputManager::checkForInputCompletion(const RobotState& state, const float dt) {
+	switch (_inputSettings.inputType)
+	{
+	case InputType::Keyboard:
+		break;
+	case InputType::Controller:
+		break;
+	case InputType::IPC:
+		_ipcInput->checkForInputCompletion(state,dt);
+		break;
+	default:
+		throw std::runtime_error("Unsupported input type");
+	}
+
+}
+
 void InputManager::updateAfterSettingsChange() {
 	_keyboardInput->updateAfterSettingsChange();
 	_joystickInput->updateAfterSettingsChange();

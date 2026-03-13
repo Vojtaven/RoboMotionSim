@@ -1,6 +1,8 @@
 #include "IPC/IPCInput.hpp"
+#include "IPC/CommandParameters.hpp"
 #include <zmq.hpp>
 #include <iostream>
+#include <cstring>
 
 
 IPCInput::IPCInput(const IPCMapping& ipcMapping)
@@ -15,11 +17,90 @@ IPCInput::IPCInput(const IPCMapping& ipcMapping)
 void IPCInput::update(RobotState& state) {
 	if (_motorCount < 0 || _motorCount != state.wheelCount) {
 		_motorCount = state.wheelCount;
-
+		if (_handshakeComplete)
+			SendMotorCount(_outID++, _motorCount);
 	}
 
+	// Reset motor state each frame - active commands will set values during execute
+	state.fromWheelSpeeds = false;
+	for (auto& wheel : state.wheels)
+		wheel.speed = 0;
 
+	// Poll for incoming messages (non-blocking)
+	zmq::message_t msg;
+	while (_command_in.recv(msg, zmq::recv_flags::dontwait)) {
+		if (msg.size() < sizeof(MsgHeader))
+			continue;
+
+		const uint8_t* raw = static_cast<const uint8_t*>(msg.data());
+		MsgHeader header;
+		std::memcpy(&header, raw, sizeof(MsgHeader));
+		const uint8_t* payload = raw + sizeof(MsgHeader);
+		size_t payloadSize = msg.size() - sizeof(MsgHeader);
+
+		switch (header.type) {
+		case MsgType::HANDSHAKE:
+			HandleHandshake(header);
+			break;
+		case MsgType::HEARTBEAT:
+			if (_handshakeComplete) {
+				_lastHeartbeatReceived = clock.now();
+				SendHeartbeatAck(header.id);
+			}
+			break;
+		case MsgType::COMMAND:
+			if (_handshakeComplete)
+				HandleCommand(header, payload, payloadSize);
+			break;
+		case MsgType::DISCONNECT:
+			HandleDisconnect(header.id);
+			break;
+		case MsgType::CLEAR_COMMAND_QUEUE:
+			if (_handshakeComplete) {
+				ClearCommandQueue();
+				_currentCommand = nullptr;
+			}
+			break;
+		default:
+			break;
+		}
+		_lastID = header.id;
+	}
+
+	if (!_handshakeComplete)
+		return;
+
+	HeartBeatCheck();
+
+	// Start next command from queue if no current command
+	HandleCommandStart();
+
+	// Execute and update current command
+	if (_currentCommand) {
+		_currentCommand->execute(state);
+	}
+
+	// Send telemetry
+	SentTelemetry(state);
 }
+
+void IPCInput::checkForInputCompletion(const RobotState& state, const float dt) {
+	if (_currentCommand && _currentCommand->updateAndCheckCompletion(state, dt)) {
+		if (auto* wrapper = dynamic_cast<MotorCommandWrapper*>(_currentCommand.get()))
+		{
+			wrapper->checkInnerCommandCompletion([this](uint32_t cmdId) {
+				SendCommandComplete(cmdId);
+				});
+			if (wrapper->isMoveCompleted())
+				_currentCommand = nullptr;
+		}
+		else {
+			SendCommandComplete(_currentCommand->getId());
+			_currentCommand = nullptr;
+		}
+	}
+}
+
 void IPCInput::updateAfterSettingsChange() {
 	// Close existing sockets before rebinding/reconnecting
 	_telemetry_out.close();
@@ -36,8 +117,39 @@ void IPCInput::updateAfterSettingsChange() {
 	_telemetry_out.set(zmq::sockopt::conflate, 1);
 	_response_out.bind(_ipcMapping.address + ":" + std::to_string(_ipcMapping.response_port));
 	_command_in.connect(_ipcMapping.address + ":" + std::to_string(_ipcMapping.command_port));
+	_command_in.set(zmq::sockopt::subscribe, "");
 }
 
+
+void IPCInput::HandleCommandStart() {
+	if (_commandQueue.empty())
+		return;
+
+	if (!_currentCommand) {
+		if (dynamic_cast<RawMotorCommand*>(_commandQueue.front().get()))
+		{
+			_currentCommand = StackMotorCommands();
+		}
+		else {
+			auto temp = std::move(_commandQueue.front());
+			_commandQueue.pop();
+			_currentCommand = std::move(temp);
+		}
+	}
+
+}
+
+std::unique_ptr<Command> IPCInput::StackMotorCommands() {
+	auto wrapper = std::make_unique<MotorCommandWrapper>(_motorCount);
+	while (!_commandQueue.empty() && dynamic_cast<RawMotorCommand*>(_commandQueue.front().get()))
+	{
+		auto nextRawMotor = dynamic_cast<RawMotorCommand*>(_commandQueue.front().get());
+		wrapper->addMotorCommand(nextRawMotor->motor_id, std::move(_commandQueue.front()));
+		_commandQueue.pop();
+	}
+
+	return wrapper;
+}
 
 
 void IPCInput::HandleHandshake(const MsgHeader& header) {
@@ -59,9 +171,41 @@ void IPCInput::HeartBeatCheck() {
 	}
 }
 void IPCInput::HandleCommand(const MsgHeader& header, const uint8_t* data, size_t size) {
-	//Command command = Command::Create(header, data, size);
-	//_commandQueue.push(command);
+	try {
+		CommandType cmdType = Command::getCommandType(data, size);
+		const uint8_t* cmdData = data + sizeof(CommandType);
+		size_t cmdSize = size - sizeof(CommandType);
+
+		// STOP: skip queue, cancel current command immediately
+		if (cmdType == CommandType::STOP) {
+			_currentCommand = nullptr;
+			SendCommandAck(header.id);
+			SendCommandComplete(header.id);
+			return;
+		}
+
+		// STOP_MOTOR: skip queue, stop specific motor in active wrapper
+		if (cmdType == CommandType::STOP_MOTOR) {
+			auto params = CommandParameters::ParseParams<StopMotorParams>(cmdData, cmdSize);
+			auto* wrapper = dynamic_cast<MotorCommandWrapper*>(_currentCommand.get());
+			if (wrapper)
+				wrapper->removeCommand(params.motor_id);
+			SendCommandAck(header.id);
+			SendCommandComplete(header.id);
+			return;
+		}
+
+		// Regular command: create and queue
+		auto cmd = Command::Create(header.id, cmdType, cmdData, cmdSize);
+		SendCommandAck(header.id);
+		_commandQueue.push(std::move(cmd));
+	}
+	catch (const std::exception&) {
+		SendCommandError(header.id);
+	}
 }
+
+
 
 void IPCInput::SentTelemetry(const RobotState& state) {
 	uint8_t wheelCount = state.wheelCount;
@@ -75,14 +219,21 @@ void IPCInput::SentTelemetry(const RobotState& state) {
 	MsgHeader header;
 	header.id = _outID++;
 	header.type = MsgType::TELEMETRY;
-	header.payload_size = payload_size;
+	header.payload_size = static_cast<uint16_t>(payload_size);
 	std::memcpy(ptr, &header, sizeof(MsgHeader));
 	ptr += sizeof(MsgHeader);
 
 	// Fixed part
-	TelemetryOdometry odo;
+	TelemetryOdometry odo{};
+	odo.timestamp_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+		clock.now().time_since_epoch()).count();
 	odo.distanceTraveledX = state.distanceTraveled.x;
 	odo.distanceTraveledY = state.distanceTraveled.y;
+	odo.localVelocityX = state.localVelocity.x;
+	odo.localVelocityY = state.localVelocity.y;
+	odo.frontAngle = state.frontAngle;
+	odo.chassisAngle = state.chassisAngle;
+	odo.chassisAngularVelocity = state.angularVelocity;
 	odo.wheelCount = wheelCount;
 	std::memcpy(ptr, &odo, sizeof(TelemetryOdometry));
 	ptr += sizeof(TelemetryOdometry);

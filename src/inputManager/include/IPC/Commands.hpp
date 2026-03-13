@@ -6,6 +6,7 @@
 #include "Protocol.hpp"
 #include "RobotState.hpp"
 #include <memory>
+#include <functional>
 
 class Command
 {
@@ -18,9 +19,7 @@ public:
 	virtual bool updateAndCheckCompletion(const RobotState& state, const float dt) = 0;
 	virtual void execute(RobotState& state) = 0;
 	virtual bool isMoveCompleted() const = 0;
-	virtual void loadParameters(const uint8_t* data, size_t size) {}
 	// Returns the ID of the command that completed, or 0 if not completed yet
-	virtual uint32_t getCompletedId() const { return isMoveCompleted() ? id : 0; }
 
 	static CommandType getCommandType(const uint8_t* data, size_t size);
 	static std::unique_ptr<Command> Create(uint32_t id, CommandType type, const uint8_t* data, size_t size);
@@ -241,8 +240,7 @@ public:
 	void addMotorCommand(uint16_t motor_id, std::unique_ptr<Command> cmd);
 	void removeCommand(uint16_t motor_id) { if (motor_id < motorCommands.size()) motorCommands[motor_id] = nullptr; }
 	void execute(RobotState& state) override;
-	std::unique_ptr<Command> create(uint32_t id, const uint8_t* data, size_t size);
-	uint32_t getCompletedId() const override;
+	void checkInnerCommandCompletion(std::function<void(uint32_t)> onCompletion);
 	~MotorCommandWrapper() = default;
 };
 

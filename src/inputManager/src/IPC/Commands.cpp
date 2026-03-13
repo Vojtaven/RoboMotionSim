@@ -158,27 +158,26 @@ bool MotorCommandWrapper::isMoveCompleted() const {
 	return std::all_of(motorCommands.begin(), motorCommands.end(), [](const std::unique_ptr<Command>& cmd) {
 		return !cmd || cmd->isMoveCompleted();
 		});
-
 }
+
 bool MotorCommandWrapper::updateAndCheckCompletion(const RobotState& state, const float dt) {
-	bool allCompleted = true;
+	bool allCompleted = false;
 	for (auto& cmd : motorCommands) {
-		if (cmd && !cmd->updateAndCheckCompletion(state, dt)) {
-			allCompleted = false;
-		}
+		allCompleted |= cmd && !cmd->updateAndCheckCompletion(state, dt);
 	}
 	return allCompleted;
 }
 void MotorCommandWrapper::addMotorCommand(uint16_t motor_id, std::unique_ptr<Command> cmd) {
 	motorCommands[motor_id] = std::move(cmd);
 }
-uint32_t MotorCommandWrapper::getCompletedId() const {
-	for (const auto& cmd : motorCommands) {
+void MotorCommandWrapper::checkInnerCommandCompletion(std::function<void(uint32_t)> onCompletion) {
+	for (auto& cmd : motorCommands) {
 		if (cmd && cmd->isMoveCompleted()) {
-			return cmd->getId();
+			onCompletion(cmd->getId());
+			cmd = nullptr; // Clear completed command
 		}
 	}
-	return 0;
+
 }
 
 void MotorCommandWrapper::execute(RobotState& state) {

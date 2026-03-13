@@ -10,7 +10,8 @@
 class InputManager {
 public :
 	InputManager(const InputSettings& inputSettings);
-	void update(RobotState& state, bool hasFocus, const float dt) const;
+	void update(RobotState& state, bool hasFocus) const;
+	void checkForInputCompletion(const RobotState& state, const float dt);
 	void updateAfterSettingsChange();
 private:
 	const InputSettings& _inputSettings;

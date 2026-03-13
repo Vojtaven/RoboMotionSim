@@ -13,9 +13,12 @@ class IPCInput {
 public:
 	IPCInput(const IPCMapping& ipcMapping);
 	void update(RobotState& state);
+	void checkForInputCompletion(const RobotState& state, const float dt);
 	void updateAfterSettingsChange();
 
 private:
+	void HandleCommandStart();
+	std::unique_ptr<Command> StackMotorCommands();
 	void HandleHandshake(const MsgHeader& header);
 	void HeartBeatCheck();
 	void HandleCommand(const MsgHeader& header, const uint8_t* data, size_t size);
