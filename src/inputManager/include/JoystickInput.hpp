@@ -8,12 +8,10 @@ class JoystickInput {
 public:
 	JoystickInput(const ControllerMapping& controllerMapping);
 	void update(RobotState& state, const  float maxSpeed, const float maxRotationSpeed);
-	void updateAfterSettingsChange();
+	void updateAfterSettingsChange() {}
 private:
+	float getInput(const JoystickControll& control, const float maxValue);
 	const ControllerMapping& _controllerMapping;
-	sf::Joystick::Axis _moveXAxis;
-	sf::Joystick::Axis _moveYAxis;
-	sf::Joystick::Axis _chassisRotateAxis;
 };
 
 #endif // !JOYSTICK_INPUT_HPP

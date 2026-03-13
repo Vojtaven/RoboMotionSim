@@ -46,7 +46,7 @@ void AppEngine::run() {
 	while (vizEngine->isWindowOpen()) {
 		auto now = Clock::now();
 		const std::chrono::duration<float> delta = now - last;
-		inputManager->update(*robotState, vizEngine->hasFocus(), delta.count());
+		inputManager->update(*robotState, vizEngine->hasFocus());
 		physicsEngine->update(delta.count(), *robotState, robotConfig);
 		last = now;
 		vizEngine->update(delta.count(), *robotState);

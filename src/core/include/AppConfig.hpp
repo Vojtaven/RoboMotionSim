@@ -61,13 +61,20 @@ struct KeyboardMapping {
 	int frontRotateRightKey = 10;
 };
 
+struct JoystickControll {
+	bool isAxis = false;
+	bool invert = false;
+	int axisId = 0;
+	int buttonId1 = 0;
+	int buttonId2 = 0;
+};
+
 struct ControllerMapping {
 	int controllerId = 0;
-	int moveXAxis = 1;
-	int moveYAxis = 0;
-	int chassisRotateAxis = 4;
-	int frontRotateLeftButton = 2;
-	int frontRotateRightButton = 1;
+	JoystickControll xAxisControl = { true,false, 1, 0, 0 };
+	JoystickControll yAxisControl = { true,false, 1, 0, 0 };
+	JoystickControll chassisRotateControl = { true,false, 4, 0, 0 };
+	JoystickControll frontRotateControl = { false,false, 0, 2, 1 };
 	int deadzone = 5; // Deadzone for joystick axes, in percentage (0-100)
 };
 

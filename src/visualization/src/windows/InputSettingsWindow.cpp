@@ -342,61 +342,75 @@ bool InputSettingsWindow::renderControllerMapping() {
 	cm.controllerId = std::clamp(cm.controllerId, 0, 7);
 	ImGui::Spacing();
 
-	auto renderAxisBind = [&](const char* label, int& axisCode) {
-		ImGui::TableNextRow();
-		ImGui::TableNextColumn();
-		ImGui::Text("%s", label);
-		ImGui::TableNextColumn();
+	auto renderJoystickControl = [&](const char* label, JoystickControll& ctrl) {
+		ImGui::PushID(label);
 
-		std::string btnId = std::string("##") + label;
-		if (_waitingForAxis == &axisCode) {
-			ImGui::Button(("Move an axis..." + btnId).c_str(), ImVec2(-1, 0));
+		ImGui::TextColored(ImVec4(0.8f, 0.8f, 0.2f, 1.0f), "%s", label);
+
+		const char* modeItems[] = { "Buttons", "Axis" };
+		int modeIndex = ctrl.isAxis ? 1 : 0;
+		if (ImGui::Combo("Mode", &modeIndex, modeItems, IM_ARRAYSIZE(modeItems))) {
+			ctrl.isAxis = (modeIndex == 1);
+			changed = true;
+		}
+
+		if (ctrl.isAxis) {
+			// Axis binding
+			std::string axisBtnId = std::string("##Axis_") + label;
+			if (_waitingForAxis == &ctrl.axisId) {
+				ImGui::Button(("Move an axis..." + axisBtnId).c_str(), ImVec2(-1, 0));
+			} else {
+				std::string axisName = std::string("Axis ") + getAxisName(ctrl.axisId);
+				if (ImGui::Button((axisName + axisBtnId).c_str(), ImVec2(-1, 0))) {
+					_waitingForAxis = &ctrl.axisId;
+					_waitingForKey = nullptr;
+					_waitingForButton = nullptr;
+				}
+			}
+			changed |= ImGui::Checkbox("Invert", &ctrl.invert);
 		} else {
-			std::string axisName = std::string("Axis ") + getAxisName(axisCode);
-			if (ImGui::Button((axisName + btnId).c_str(), ImVec2(-1, 0))) {
-				_waitingForAxis = &axisCode;
-				_waitingForKey = nullptr;
-				_waitingForButton = nullptr;
+			// Button bindings
+			std::string btn1Id = std::string("##Btn1_") + label;
+			ImGui::Text("Button 1 (Negative)");
+			if (_waitingForButton == &ctrl.buttonId1) {
+				ImGui::Button(("Press a button..." + btn1Id).c_str(), ImVec2(-1, 0));
+			} else {
+				std::string buttonName = "Button " + std::to_string(ctrl.buttonId1);
+				if (ImGui::Button((buttonName + btn1Id).c_str(), ImVec2(-1, 0))) {
+					_waitingForButton = &ctrl.buttonId1;
+					_waitingForKey = nullptr;
+					_waitingForAxis = nullptr;
+				}
+			}
+
+			std::string btn2Id = std::string("##Btn2_") + label;
+			ImGui::Text("Button 2 (Positive)");
+			if (_waitingForButton == &ctrl.buttonId2) {
+				ImGui::Button(("Press a button..." + btn2Id).c_str(), ImVec2(-1, 0));
+			} else {
+				std::string buttonName = "Button " + std::to_string(ctrl.buttonId2);
+				if (ImGui::Button((buttonName + btn2Id).c_str(), ImVec2(-1, 0))) {
+					_waitingForButton = &ctrl.buttonId2;
+					_waitingForKey = nullptr;
+					_waitingForAxis = nullptr;
+				}
 			}
 		}
-	};
 
-	auto renderButtonBind = [&](const char* label, int& buttonCode) {
-		ImGui::TableNextRow();
-		ImGui::TableNextColumn();
-		ImGui::Text("%s", label);
-		ImGui::TableNextColumn();
-
-		std::string btnId = std::string("##") + label;
-		if (_waitingForButton == &buttonCode) {
-			ImGui::Button(("Press a button..." + btnId).c_str(), ImVec2(-1, 0));
-		} else {
-			std::string buttonName = "Button " + std::to_string(buttonCode);
-			if (ImGui::Button((buttonName + btnId).c_str(), ImVec2(-1, 0))) {
-				_waitingForButton = &buttonCode;
-				_waitingForKey = nullptr;
-				_waitingForAxis = nullptr;
-			}
-		}
+		ImGui::PopID();
+		ImGui::Spacing();
+		ImGui::Separator();
+		ImGui::Spacing();
 	};
 
 	ImGui::TextDisabled("Click a button to rebind. Escape to cancel.");
 	ImGui::Spacing();
 
-	if (ImGui::BeginTable("##ControllerBindings", 2, ImGuiTableFlags_BordersInnerH)) {
-		ImGui::TableSetupColumn("Action", ImGuiTableColumnFlags_WidthFixed, 200);
-		ImGui::TableSetupColumn("Binding", ImGuiTableColumnFlags_WidthStretch);
+	renderJoystickControl("Move X", cm.xAxisControl);
+	renderJoystickControl("Move Y", cm.yAxisControl);
+	renderJoystickControl("Chassis Rotate", cm.chassisRotateControl);
+	renderJoystickControl("Front Rotate", cm.frontRotateControl);
 
-		renderAxisBind("Move X Axis", cm.moveXAxis);
-		renderAxisBind("Move Y Axis", cm.moveYAxis);
-		renderAxisBind("Chassis Rotate Axis", cm.chassisRotateAxis);
-		renderButtonBind("Front Rotate Left", cm.frontRotateLeftButton);
-		renderButtonBind("Front Rotate Right", cm.frontRotateRightButton);
-
-		ImGui::EndTable();
-	}
-
-	ImGui::Spacing();
 	ImGui::Text("Deadzone (%%)");
 	changed |= ImGui::SliderInt("##Deadzone", &cm.deadzone, 0, 100, "%d", sliderFlags);
 

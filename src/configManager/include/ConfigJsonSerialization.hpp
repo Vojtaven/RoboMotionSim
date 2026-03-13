@@ -17,8 +17,9 @@ void from_json(const nlohmann::json& j, Vec2<T>& v)
 	j.at("y").get_to(v.y);
 }
 
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(JoystickControll, isAxis, invert, axisId, buttonId1, buttonId2)
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(KeyboardMapping, upKey, downKey, leftKey, rightKey, chassisRotateLeftKey, chassisRotateRightKey, frontRotateLeftKey, frontRotateRightKey)
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(ControllerMapping, controllerId, moveXAxis, moveYAxis, chassisRotateAxis, frontRotateLeftButton, frontRotateRightButton, deadzone)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(ControllerMapping, controllerId, yAxisControl,xAxisControl, chassisRotateControl, frontRotateControl, deadzone)
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(IPCMapping, heartbeatTimeout, address, command_port, response_port, telemetry_port)
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(InputSettings, inputType, controllerMapping, keyboardMapping, ipcMapping, maxSpeed, maxRotationSpeed, registerInputWithoutFocus)
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(TrailSettings, trailPointSize, trailColor, trailMaxLenght, pointSpawnInteral)

@@ -198,7 +198,7 @@ public:
 class MoveByAngleRaw : public AngleCommand, public RawMoveCommand
 {
 public:
-	MoveByAngleRaw(uint32_t id, TurnRelativeRawParams params) :
+	MoveByAngleRaw(uint32_t id, MoveByAngleRawParams params) :
 		AngleCommand(id, params.angle_rad),
 		RawMoveCommand({ params.x_speed, params.y_speed }, params.rotation_speed, params.front_rotation_speed) {
 	}
@@ -217,7 +217,7 @@ static class CommandFactory
 	static MoveAtSpeedRawParams recalculateToRawValues(const MoveAtSpeedParams& params);
 	static MoveByTimeRawParams recalculateToRawValues(const MoveByTimeParams& params);
 	static MoveByDistanceRawParams recalculateToRawValues(const MoveByDistanceParams& params);
-	static TurnRelativeRawParams recalculateToRawValues(const TurnRelativeParams& params);
+	static MoveByAngleRawParams recalculateToRawValues(const MoveByAngleParams& params);
 public:
 	static std::unique_ptr<Command> createMoveByDistance(uint32_t id, const uint8_t* data, size_t size);
 	static std::unique_ptr<Command> createMoveByTime(uint32_t id, const uint8_t* data, size_t size);

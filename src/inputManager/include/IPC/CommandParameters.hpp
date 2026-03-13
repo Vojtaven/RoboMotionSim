@@ -97,8 +97,7 @@ struct MoveAtSpeedParams
 	bool rotate_chassis;
 };
 
-struct TurnRelativeRawParams 
-{
+struct MoveByAngleRawParams{
 	using command_parameters_tag = void;
 
 	float angle_rad;      // Relative change in heading
@@ -108,7 +107,7 @@ struct TurnRelativeRawParams
 	float front_rotation_speed;
 };
 
-struct TurnRelativeParams 
+struct MoveByAngleParams
 {
 	using command_parameters_tag = void;
 

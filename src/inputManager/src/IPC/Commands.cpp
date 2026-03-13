@@ -5,7 +5,7 @@
 #include <memory>
 #include <algorithm>
 #include <exception>
-
+#include <stdexcept>
 //Priority commads
 // Stop
 // Stop motor
@@ -144,6 +144,10 @@ std::unique_ptr<Command> MultipleMotorCommand::create(uint32_t id, const uint8_t
 // ANGLE-BASED COMMANDS
 // ===============================================
 
+std::unique_ptr<Command>  MoveByAngleRaw::create(uint32_t id, const uint8_t* data, size_t size) {
+	return std::make_unique<MoveByAngleRaw>(id, CommandParameters::ParseParams<MoveByAngleRawParams>(data, size));
+}
+
 bool AngleCommand::updateAndCheckCompletion(const RobotState& state, const float dt) {
 	targetAngle -= state.lastFrontDisplacement;
 	return isMoveCompleted();
@@ -190,3 +194,32 @@ void MotorCommandWrapper::execute(RobotState& state) {
 }
 
 
+// ================================================
+// COMMAND FACTORY
+// ================================================
+
+MoveAtSpeedRawParams CommandFactory::recalculateToRawValues(const MoveAtSpeedParams& params) {
+	throw std::logic_error("Function not yet implemented");
+}
+MoveByTimeRawParams CommandFactory::recalculateToRawValues(const MoveByTimeParams& params) {
+	throw std::logic_error("Function not yet implemented");
+}
+MoveByDistanceRawParams CommandFactory::recalculateToRawValues(const MoveByDistanceParams& params) {
+	throw std::logic_error("Function not yet implemented");
+}
+MoveByAngleRawParams CommandFactory::recalculateToRawValues(const MoveByAngleParams& params) {
+	throw std::logic_error("Function not yet implemented");
+}
+
+std::unique_ptr<Command> CommandFactory::createMoveByDistance(uint32_t id, const uint8_t* data, size_t size) {
+	throw std::logic_error("Function not yet implemented");
+}
+std::unique_ptr<Command> CommandFactory::createMoveByTime(uint32_t id, const uint8_t* data, size_t size) {
+	throw std::logic_error("Function not yet implemented");
+}
+std::unique_ptr<Command> CommandFactory::createMoveAtSpeed(uint32_t id, const uint8_t* data, size_t size) {
+	throw std::logic_error("Function not yet implemented");
+}
+std::unique_ptr<Command> CommandFactory::createTurnRelative(uint32_t id, const uint8_t* data, size_t size) {
+	throw std::logic_error("Function not yet implemented");
+}
