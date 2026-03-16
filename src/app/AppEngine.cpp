@@ -50,6 +50,7 @@ void AppEngine::run() {
 		physicsEngine->update(delta.count(), *robotState, robotConfig);
 		last = now;
 		vizEngine->update(delta.count(), *robotState);
+		inputManager->checkForInputCompletion(*robotState, delta.count());
 		vizEngine->draw();
 	}
 	auto& appConfig = vizEngine->getSavedAppConfig();

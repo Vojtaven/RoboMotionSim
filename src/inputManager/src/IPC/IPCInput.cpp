@@ -7,17 +7,17 @@
 
 IPCInput::IPCInput(const IPCMapping& ipcMapping)
 	: _ipcMapping(ipcMapping),
-	_context(1), 
+	_context(1),
 	_telemetry_out(_context, zmq::socket_type::pub),
 	_response_out(_context, zmq::socket_type::pub),
-	_command_in(_context, zmq::socket_type::sub)
+	_command_in(_context, zmq::socket_type::router)
 {
 	updateAfterSettingsChange();
 }
 void IPCInput::update(RobotState& state) {
 	if (_motorCount < 0 || _motorCount != state.wheelCount) {
 		_motorCount = state.wheelCount;
-		if (_handshakeComplete)
+		if (_connectedClientID.has_value())
 			SendMotorCount(_outID++, _motorCount);
 	}
 
@@ -27,8 +27,10 @@ void IPCInput::update(RobotState& state) {
 		wheel.speed = 0;
 
 	// Poll for incoming messages (non-blocking)
-	zmq::message_t msg;
-	while (_command_in.recv(msg, zmq::recv_flags::dontwait)) {
+	zmq::message_t id, msg;
+	while (_command_in.recv(id, zmq::recv_flags::dontwait)) {
+		if (!_command_in.recv(msg, zmq::recv_flags::dontwait))
+			continue;
 
 		if (msg.size() < sizeof(MsgHeader))
 			continue;
@@ -39,28 +41,29 @@ void IPCInput::update(RobotState& state) {
 		const uint8_t* payload = raw + sizeof(MsgHeader);
 		size_t payloadSize = msg.size() - sizeof(MsgHeader);
 
+		if (header.type == MsgType::HANDSHAKE)
+		{
+			HandleHandshake(id, header);
+			continue;
+		}
+
+		if (!_connectedClientID.has_value() || id != _connectedClientID)
+			continue; // Ignore messages from non-connected clients
+
 		switch (header.type) {
-		case MsgType::HANDSHAKE:
-			HandleHandshake(header);
-			break;
 		case MsgType::HEARTBEAT:
-			if (_handshakeComplete) {
-				_lastHeartbeatReceived = clock.now();
-				SendHeartbeatAck(header.id);
-			}
+			_lastHeartbeatReceived = clock.now();
+			SendHeartbeatAck(header.id);
 			break;
 		case MsgType::COMMAND:
-			if (_handshakeComplete)
-				HandleCommand(header, payload, payloadSize);
+			HandleCommand(header, payload, payloadSize);
 			break;
 		case MsgType::DISCONNECT:
 			HandleDisconnect(header.id);
 			break;
 		case MsgType::CLEAR_COMMAND_QUEUE:
-			if (_handshakeComplete) {
-				ClearCommandQueue();
-				_currentCommand = nullptr;
-			}
+			ClearCommandQueue();
+			_currentCommand = nullptr;
 			break;
 		default:
 			break;
@@ -68,7 +71,7 @@ void IPCInput::update(RobotState& state) {
 		_lastID = header.id;
 	}
 
-	if (!_handshakeComplete)
+	if (!_connectedClientID.has_value())
 		return;
 
 	HeartBeatCheck();
@@ -111,12 +114,11 @@ void IPCInput::updateAfterSettingsChange() {
 	// Recreate sockets
 	_telemetry_out = zmq::socket_t(_context, zmq::socket_type::pub);
 	_response_out = zmq::socket_t(_context, zmq::socket_type::pub);
-	_command_in = zmq::socket_t(_context, zmq::socket_type::sub);
+	_command_in = zmq::socket_t(_context, zmq::socket_type::router);
 	// Bind/connect to new addresses/ports
 	_telemetry_out.bind(_ipcMapping.address + ":" + std::to_string(_ipcMapping.telemetry_port));
 	_telemetry_out.set(zmq::sockopt::conflate, 1);
 	_response_out.bind(_ipcMapping.address + ":" + std::to_string(_ipcMapping.response_port));
-	_command_in.set(zmq::sockopt::subscribe, "");
 	_command_in.bind(_ipcMapping.address + ":" + std::to_string(_ipcMapping.command_port));
 }
 
@@ -152,12 +154,12 @@ std::unique_ptr<Command> IPCInput::StackMotorCommands() {
 }
 
 
-void IPCInput::HandleHandshake(const MsgHeader& header) {
-	if(_handshakeComplete)
+void IPCInput::HandleHandshake(zmq::message_t& id, const MsgHeader& header) {
+	if (_connectedClientID.has_value())
 		return; // Ignore handshake if already complete
 
 	_lastHeartbeatReceived = clock.now();
-	_handshakeComplete = true;
+	_connectedClientID = std::move(id);
 	SendHandshakeAck(header.id);
 	_lastID = header.id;
 }
@@ -166,7 +168,8 @@ void IPCInput::HeartBeatCheck() {
 		// Heartbeat timeout, consider connection lost
 		std::cout << "Heartbeat timeout, disconnecting client" << std::endl;
 		ClearCommandQueue();
-		_handshakeComplete = false;
+		_currentCommand = nullptr;
+		_connectedClientID.reset();
 		_motorCount = -1;
 	}
 }
@@ -269,7 +272,7 @@ void IPCInput::SendResponse(MsgType type, uint32_t id, const std::vector<uint8_t
 
 	_response_out.send(zmq::buffer(buf), zmq::send_flags::none);
 }
-void IPCInput::SendMotorCount(uint32_t id,uint32_t motorCount) {
+void IPCInput::SendMotorCount(uint32_t id, uint32_t motorCount) {
 	MsgHeader header;
 	header.id = id;
 	header.type = MsgType::MOTOR_COUNT;
@@ -286,8 +289,8 @@ void IPCInput::SendMotorCount(uint32_t id,uint32_t motorCount) {
 	_response_out.send(zmq::buffer(buf), zmq::send_flags::none);
 }
 
-void IPCInput::SendHandshakeAck(uint32_t id) {SendResponse(MsgType::HANDSHAKE_ACK, id); }
-void IPCInput::SendHeartbeatAck(uint32_t id) {SendResponse(MsgType::HEARTBEAT_ACK, id); }
+void IPCInput::SendHandshakeAck(uint32_t id) { SendResponse(MsgType::HANDSHAKE_ACK, id); }
+void IPCInput::SendHeartbeatAck(uint32_t id) { SendResponse(MsgType::HEARTBEAT_ACK, id); }
 void IPCInput::ClearCommandQueue() {
 	_commandQueue = std::queue<std::unique_ptr<Command>>();
 }
@@ -298,8 +301,9 @@ void IPCInput::DisconnectClient() {
 void IPCInput::HandleDisconnect(uint32_t id) {
 	std::cout << "Disconnecting client" << std::endl;
 	ClearCommandQueue();
-	_handshakeComplete = false;
+	_connectedClientID.reset();
 	_motorCount = -1;
+	_currentCommand = nullptr;	
 	SendDisconnectAck(id);
 }
-void IPCInput::SendDisconnectAck(uint32_t id) {SendResponse(MsgType::DISCONNECT_ACK, id); }
+void IPCInput::SendDisconnectAck(uint32_t id) { SendResponse(MsgType::DISCONNECT_ACK, id); }

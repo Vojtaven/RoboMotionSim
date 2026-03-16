@@ -8,7 +8,7 @@
 #include "Commands.hpp"
 #include <queue>
 #include <chrono>
-
+#include <optional>
 class IPCInput {
 public:
 	IPCInput(const IPCMapping& ipcMapping);
@@ -19,7 +19,7 @@ public:
 private:
 	void HandleCommandStart();
 	std::unique_ptr<Command> StackMotorCommands();
-	void HandleHandshake(const MsgHeader& header);
+	void HandleHandshake(zmq::message_t& id, const MsgHeader& header);
 	void HeartBeatCheck();
 	void HandleCommand(const MsgHeader& header, const uint8_t* data, size_t size);
 	void SentTelemetry(const RobotState& state);
@@ -42,13 +42,13 @@ private:
 	zmq::context_t _context;
 	uint32_t _lastID = 0;
 	uint32_t _outID = 0;
-	bool _handshakeComplete = false;
+	std::optional<zmq::message_t> _connectedClientID;
 	int _motorCount =-1;
 	std::queue<std::unique_ptr<Command>> _commandQueue;
 	std::unique_ptr<Command> _currentCommand = nullptr;
     zmq::socket_t _telemetry_out;  // high freq, conflate=1
     zmq::socket_t _response_out;  // low freq, no conflate
-    zmq::socket_t _command_in;   // commands in
+    zmq::socket_t _command_in;   // commands in, router
 };
 
 #endif // !IPC_INPUT_HPP

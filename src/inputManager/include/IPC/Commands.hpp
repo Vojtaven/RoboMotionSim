@@ -143,7 +143,7 @@ protected:
 public:
 	// Moving at speed until stopeed by another command 
 	bool isMoveCompleted() const override { return false; }
-	bool updateAndCheckCompletion(const RobotState& state, const float dt) override { return false; }
+	bool updateAndCheckCompletion(const RobotState&, const float) override { return false; }
 	virtual ~SpeedCommand() = default;
 };
 
@@ -174,7 +174,7 @@ class MultipleMotorCommand : public SpeedCommand {
 private:
 	std::vector<float> _motorSpeeds;
 public:
-	MultipleMotorCommand(uint32_t id, std::vector<float> motorSpeeds) : SpeedCommand(0), _motorSpeeds(motorSpeeds) {}
+	MultipleMotorCommand(uint32_t, std::vector<float> motorSpeeds) : SpeedCommand(0), _motorSpeeds(motorSpeeds) {}
 	void execute(RobotState& state) override;
 	static std::unique_ptr<Command> create(uint32_t id, const uint8_t* data, size_t size);
 	~MultipleMotorCommand() = default;
@@ -190,7 +190,7 @@ private:
 protected:
 	AngleCommand(uint32_t id, float targetAngle) : Command(id), targetAngle(targetAngle) {}
 public:
-	bool isMoveCompleted() const override { return std::abs(targetAngle) <= 0.001f; }
+	bool isMoveCompleted() const override { return targetAngle < 0.001f; }
 	bool updateAndCheckCompletion(const RobotState& state, const float dt) override;
 	virtual ~AngleCommand() = default;
 };
@@ -212,7 +212,7 @@ public:
 // COMMAND FACTORY
 // ================================================
 
-static class CommandFactory
+class CommandFactory
 {
 	static MoveAtSpeedRawParams recalculateToRawValues(const MoveAtSpeedParams& params);
 	static MoveByTimeRawParams recalculateToRawValues(const MoveByTimeParams& params);

@@ -149,8 +149,8 @@ std::unique_ptr<Command>  MoveByAngleRaw::create(uint32_t id, const uint8_t* dat
 }
 
 bool AngleCommand::updateAndCheckCompletion(const RobotState& state, const float dt) {
-	targetAngle -= state.lastFrontDisplacement;
-	return isMoveCompleted();
+	targetAngle -= state.lastFrontDisplacement + state.lastChassisDisplacement;
+	return this->isMoveCompleted();
 }
 
 // ================================================

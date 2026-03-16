@@ -25,6 +25,8 @@ void PhysicsEngine::updatePosition(const float dt, RobotState& state) {
 	state.chassisAngle += state.angularVelocity * dt;
 	state.frontAngle += state.frontAngularVelocity * dt;
 
+	state.lastChassisDisplacement = state.angularVelocity * dt;
+	state.lastFrontDisplacement = state.frontAngularVelocity  * dt;
 	state.lastDistanceDisplacement = state.localVelocity * dt;
 	for (size_t i = 0; i < state.wheels.size(); i++) {
 		state.wheels[i].lastDistanceDisplacement = state.wheels[i].speed * dt;
