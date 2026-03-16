@@ -4,8 +4,11 @@
 #include <SFML/Graphics.hpp>
 #include <memory>
 #include <functional>
+#include <string>
 #include "AppConfig.hpp"
 #include "RobotState.hpp"
+#include "RobotStatLogger.hpp"
+
 class RobotStatWindow {
 public:
 	RobotStatWindow(const AppConfig& config);
@@ -25,11 +28,16 @@ private:
 	void renderMotionSection(const RobotState& robotState, float panelW);
 	void renderPoseSection(const RobotState& robotState);
 	void renderWheelsSection(const RobotState& robotState, float panelW);
+	void renderLoggingSection(const RobotState& robotState);
 
 	std::unique_ptr<sf::RenderWindow> _window;
+	RobotStatLogger _logger;
 	WindowConfig _windowConfig;
 	bool _pendingClose = false;
 	bool _isOpen = false;
+	bool _isLogging = false;
+	const std::filesystem::path _executableDir;
+	std::string _logFilename = "robot_stats.csv";
 };
 
-#endif // !ROBOT_STAT_WINDOW_HPP
+#endif // !ROBOT_STAT_WINDOW_HPP		

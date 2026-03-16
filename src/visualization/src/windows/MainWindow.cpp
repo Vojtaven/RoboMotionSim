@@ -121,6 +121,28 @@ void MainWindow::renderImGuiMenu() {
 		ImGui::PopStyleColor();
 		ImGui::End();
 	}
+
+	if (_showTimeStamp) {
+		using namespace std::chrono;
+		auto sec = floor<seconds>(_timeStamp);
+		auto ms = duration_cast<milliseconds>(_timeStamp - sec).count();
+		std::string timeStr = std::format("{:%H:%M:%S}", sec);
+
+		ImGui::SetNextWindowSize(ImVec2(160, 30), ImGuiCond_Always);
+		ImGui::SetNextWindowPos(ImVec2(padding, padding), ImGuiCond_Always);
+		ImGui::SetNextWindowBgAlpha(0.6f);
+		ImGui::Begin("##Timestamp", nullptr,
+			ImGuiWindowFlags_NoTitleBar |
+			ImGuiWindowFlags_NoResize |
+			ImGuiWindowFlags_NoMove |
+			ImGuiWindowFlags_NoScrollbar |
+			ImGuiWindowFlags_NoSavedSettings |
+			ImGuiWindowFlags_AlwaysAutoResize);
+		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 0, 0, 1.0f));
+		ImGui::Text("Time: %s.%03lld", timeStr.c_str(), ms);
+		ImGui::PopStyleColor();
+		ImGui::End();
+	}
 }
 
 void MainWindow::initImGui() {
@@ -166,11 +188,12 @@ void MainWindow::saveWindowConfig(WindowConfig& config) const {
 	config.resizable = true;
 }
 
-void MainWindow::update(const float dt, const RobotState& robotState) {
+void MainWindow::update(const float dt, const RobotState& robotState, const std::chrono::system_clock::time_point& timeStamp) {
+	_timeStamp = timeStamp;
 	sf::Time deltaTime = sf::seconds(dt);
 	_renderEngine->update(robotState, dt);
 	updateAllOtherWindows(deltaTime, robotState);
-
+	
 	ImGui::SFML::SetCurrentWindow(*_window);
 	ImGui::SFML::Update(*_window, deltaTime);
 
@@ -192,8 +215,11 @@ void MainWindow::update(const float dt, const RobotState& robotState) {
 			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape)) {
 				_showMenu = false;
 			}
-			if (event->getIf<sf::Event::KeyPressed>()->scancode == sf::Keyboard::Scancode::F8) {
+			else if (event->getIf<sf::Event::KeyPressed>()->scancode == sf::Keyboard::Scancode::F8) {
 				_showFps = !_showFps;
+			}
+			else if (event->getIf<sf::Event::KeyPressed>()->scancode == sf::Keyboard::Scancode::F7) {
+				_showTimeStamp = !_showTimeStamp;
 			}
 		}
 	}

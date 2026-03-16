@@ -1,13 +1,33 @@
 #include "windows/RobotStatWindow.hpp"
 #include <imgui.h>
+#include <imgui_stdlib.h>
 #include <imgui-SFML.h>
 #include <algorithm>
+#include <chrono>
 #include <cstdint>
+#include <filesystem>
 #include "SFMLHelper.hpp"
 #include "embeddedFont.h"
 #include "windows/WindowHelper.hpp"
 
 namespace {
+    std::filesystem::path getExecutableDir() {
+#ifdef _WIN32
+        wchar_t buf[MAX_PATH];
+        GetModuleFileNameW(nullptr, buf, MAX_PATH);
+        return std::filesystem::path(buf).parent_path();
+#elif __APPLE__
+        char buf[PATH_MAX];
+        uint32_t size = sizeof(buf);
+        _NSGetExecutablePath(buf, &size);
+        return std::filesystem::path(buf).parent_path();
+#else // Linux/Unix
+        char buf[PATH_MAX];
+        ssize_t count = readlink("/proc/self/exe", buf, PATH_MAX);
+        return std::filesystem::path(buf, count).parent_path();
+#endif
+    }
+
     constexpr float MaxVelocity = 3000.0f;
     constexpr float LabelColumnX = 150.0f;
     constexpr float RowIndent = 10.0f;
@@ -21,6 +41,7 @@ namespace {
     constexpr float WheelColumnGap = 6.0f;
     constexpr float WheelColumnIndent = 18.0f;
     constexpr float MinColWidthForFullLabel = 60.0f;
+    constexpr float LoggingLabelColumnX = 60.0f;
     constexpr int MaxWheelColumns = 3;
 
     const ImVec4 ActiveValueColor(0.4f, 1.0f, 0.6f, 1.0f);
@@ -102,7 +123,7 @@ namespace {
     }
 } // anonymous namespace
 
-RobotStatWindow::RobotStatWindow(const AppConfig& config)
+RobotStatWindow::RobotStatWindow(const AppConfig& config) : _executableDir(getExecutableDir())
 {
 	_windowConfig = config.robotStatWindow;
 	if (_windowConfig.open) {
@@ -197,6 +218,9 @@ void RobotStatWindow::update(sf::Time dt, const RobotState& robotState) {
 
 	ImGui::SFML::Update(*_window, dt);
 
+	if (_isLogging)
+		_logger.logStats(std::chrono::system_clock::now(), robotState);
+
 	renderContent(robotState);
 }
 
@@ -232,6 +256,9 @@ void RobotStatWindow::renderContent(const RobotState& robotState) {
 	renderPoseSection(robotState);
 	DrawSectionSeparator(panelW);
 	renderWheelsSection(robotState, panelW);
+
+	DrawSectionSeparator(panelW);
+	renderLoggingSection(robotState);
 
 	ImGui::PopStyleVar();
 	ImGui::PopItemWidth();
@@ -332,4 +359,56 @@ void RobotStatWindow::renderWheelsSection(const RobotState& robotState, float pa
 
     ImVec2 cardEnd = ImGui::GetCursorScreenPos();
     DrawAccentBar(cardStart, cardEnd, ImVec4(1.0f, 0.6f, 0.2f, 1.0f));
+}
+
+void RobotStatWindow::renderLoggingSection(const RobotState& robotState) {
+    ImVec2 cardStart = ImGui::GetCursorScreenPos();
+
+    ImGui::SetCursorPosX(ImGui::GetCursorPosX() + SectionHeaderIndent);
+    ImGui::TextColored(ImVec4(0.4f, 1.0f, 0.7f, 1.0f), "  Logging");
+    ImGui::Spacing();
+
+    ImGui::SetCursorPosX(ImGui::GetCursorPosX() + RowIndent);
+    ImGui::TextDisabled("File:");
+    ImGui::SameLine(LoggingLabelColumnX);
+    ImGui::SetNextItemWidth(-FLT_MIN);
+    ImGui::InputText("##logfile", &_logFilename,
+        _isLogging ? ImGuiInputTextFlags_ReadOnly : ImGuiInputTextFlags_None);
+
+    ImGui::SetCursorPosX(ImGui::GetCursorPosX() + RowIndent);
+    ImGui::TextDisabled("Dir:");
+    ImGui::SameLine(LoggingLabelColumnX);
+    ImGui::TextDisabled("%s", _executableDir.string().c_str());
+
+    ImGui::Spacing();
+    ImGui::SetCursorPosX(ImGui::GetCursorPosX() + RowIndent);
+
+    if (!_isLogging) {
+        if (ImGui::Button("Start Logging", ImVec2(-FLT_MIN, 0))) {
+            auto fullPath = _executableDir / _logFilename;
+            _logger.startLogging(fullPath.string(), robotState.wheelCount, true);
+            _isLogging = true;
+        }
+    } else {
+        ImGui::PushStyleColor(ImGuiCol_Button,        ImVec4(0.65f, 0.1f, 0.1f, 1.0f));
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.8f,  0.2f, 0.2f, 1.0f));
+        ImGui::PushStyleColor(ImGuiCol_ButtonActive,  ImVec4(0.5f,  0.05f,0.05f,1.0f));
+        if (ImGui::Button("Stop Logging", ImVec2(-FLT_MIN, 0))) {
+            _logger.stopLoging();
+            _isLogging = false;
+        }
+        ImGui::PopStyleColor(3);
+    }
+
+    ImGui::Spacing();
+    ImGui::SetCursorPosX(ImGui::GetCursorPosX() + RowIndent);
+    if (_isLogging) {
+        ImGui::TextColored(ImVec4(0.3f, 1.0f, 0.4f, 1.0f), "[REC] Recording...");
+    } else {
+        ImGui::TextDisabled("[---] Idle");
+    }
+    ImGui::Spacing();
+
+    ImVec2 cardEnd = ImGui::GetCursorScreenPos();
+    DrawAccentBar(cardStart, cardEnd, ImVec4(0.3f, 1.0f, 0.5f, 1.0f));
 }

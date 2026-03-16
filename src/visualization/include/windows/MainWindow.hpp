@@ -13,7 +13,7 @@ public:
 	void open(const RobotConfig& robotConfig);
 	void setRobotConfig(const RobotConfig& config, bool holdPosition = true) { _renderEngine->updateRobotShape(config, holdPosition); }
 	void close();
-	void update(const float dt, const RobotState& robotState);
+	void update(const float dt, const RobotState& robotState, const std::chrono::system_clock::time_point& timeStamp);
 	AppConfig& getSavedAppConfig() { return _appConfig; }
 	void saveConfig();
 	void draw();
@@ -27,8 +27,10 @@ private:
 	void initImGui();
 	bool _showMenu = false;
 	bool _showFps = false;
+	bool _showTimeStamp = false;
 	bool _isOpen = true;
 	bool _showInputError = false;
+	std::chrono::system_clock::time_point _timeStamp;
 	WindowConfig& _windowConfig;
 	AppConfig& _appConfig;
 	std::unique_ptr<RenderEngine> _renderEngine;

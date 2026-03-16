@@ -7,13 +7,14 @@
 #include "RobotState.hpp"
 #include "InputManager.hpp"
 #include <memory>
-
+#include <chrono>
 class AppEngine {
 public:
 	AppEngine();
 	void run();
 
 private:
+	std::chrono::system_clock::time_point _wallTime;
 	std::unique_ptr<ConfigManager> configManager;
 	std::unique_ptr < VisualizationEngine> vizEngine;
 	std::unique_ptr < PhysicsEngine> physicsEngine;

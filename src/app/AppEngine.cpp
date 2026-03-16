@@ -15,6 +15,7 @@ using Clock = std::chrono::steady_clock;
 
 AppEngine::AppEngine() 
 {
+	_wallTime = std::chrono::system_clock::now();
 	int screenWidth = sf::VideoMode::getDesktopMode().size.x;
 	int screenHeight = sf::VideoMode::getDesktopMode().size.y;
 	physicsEngine = std::make_unique<PhysicsEngine>();
@@ -46,10 +47,11 @@ void AppEngine::run() {
 	while (vizEngine->isWindowOpen()) {
 		auto now = Clock::now();
 		const std::chrono::duration<float> delta = now - last;
+		_wallTime += std::chrono::duration_cast<std::chrono::system_clock::duration>(delta);
 		inputManager->update(*robotState, vizEngine->hasFocus());
 		physicsEngine->update(delta.count(), *robotState, robotConfig);
 		last = now;
-		vizEngine->update(delta.count(), *robotState);
+		vizEngine->update(delta.count(), *robotState, _wallTime);
 		inputManager->checkForInputCompletion(*robotState, delta.count());
 		vizEngine->draw();
 	}

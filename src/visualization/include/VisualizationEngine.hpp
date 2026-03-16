@@ -6,13 +6,13 @@
 #include "RobotState.hpp"
 #include "AppConfig.hpp"
 #include "windows/MainWindow.hpp"
-
+#include <chrono>
 class VisualizationEngine {
 public:
 	VisualizationEngine(AppConfig& appConfig, const RobotConfig& robotConfig = RobotConfig());
 	void setRobotConfig(const RobotConfig& config, bool holdPosition = false) { _mainWindow->setRobotConfig(config, holdPosition); }
 	void draw() { _mainWindow->draw(); }
-	void update(float dt, const RobotState& state) { _mainWindow->update(dt, state); }
+	void update(float dt, const RobotState& state, const std::chrono::system_clock::time_point& timeStamp) { _mainWindow->update(dt, state, timeStamp); }
 	sf::Window& getMainWindow()	{ return _mainWindow->getWindow(); }
 	AppConfig& getSavedAppConfig() { return _mainWindow->getSavedAppConfig(); }
 	bool isWindowOpen() const { return _mainWindow->isOpen(); }
