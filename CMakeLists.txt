@@ -90,6 +90,10 @@ if(WIN32)
         $<TARGET_FILE:sfml-system>
         $<TARGET_FILE_DIR:${PROJECT_NAME}>
     )
+    set_target_properties(${PROJECT_NAME} PROPERTIES WIN32_EXECUTABLE TRUE)
+    if(NOT MSVC)
+        target_link_options(${PROJECT_NAME} PRIVATE -mwindows)
+    endif()
 endif()
 
 # Linux-specific settings
@@ -102,10 +106,11 @@ endif()
 # ============================================================================
 if(MSVC)
     target_compile_options(${PROJECT_NAME} PRIVATE /W4)
+    target_link_options(${PROJECT_NAME} PRIVATE /SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup)
 else()
     target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -Wpedantic)
+    target_link_options(${PROJECT_NAME} PRIVATE -mwindows)
 endif()
-
 # ============================================================================
 # Installation
 # ============================================================================
