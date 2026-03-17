@@ -8,6 +8,7 @@
 #include "JoystickInput.hpp"
 #include "RobotState.hpp"
 #include "IPC/IPCInput.hpp"
+#include "SerialInput.hpp"
 
 class InputManager {
 public :
@@ -21,6 +22,7 @@ private:
 	std::unique_ptr<KeyboardInput> _keyboardInput;
 	std::unique_ptr<JoystickInput> _joystickInput;
 	std::unique_ptr<IPCInput> _ipcInput;
+	std::unique_ptr<SerialInput> _serialInput;
 };
 
 #endif // !INPUT_MANAGER_HPP

@@ -245,7 +245,7 @@ void InputSettingsWindow::renderContent() {
 	bool changed = false;
 
 	// Input type selector
-	const char* inputTypeItems[] = { "Keyboard", "Controller", "IPC" };
+	const char* inputTypeItems[] = { "Keyboard", "Controller", "IPC", "Serial" };
 	_inputTypeIndex = (int)_settings.inputType;
 	if (ImGui::Combo("Input Type", &_inputTypeIndex, inputTypeItems, IM_ARRAYSIZE(inputTypeItems))) {
 		_settings.inputType = (InputType)_inputTypeIndex;
@@ -269,6 +269,9 @@ void InputSettingsWindow::renderContent() {
 	case 2:
 		changed |= renderIPCMapping();
 		break;
+	case 3:
+		changed |= renderSerialMapping();
+		break;
 	default:
 		throw std::runtime_error("Invalid input type index");
 	}
@@ -280,7 +283,7 @@ void InputSettingsWindow::renderContent() {
 	// Reset button
 	if (ImGui::Button("Reset to Defaults", ImVec2(-1, 30))) {
 		_settings = _defaultSettings;
-		_inputTypeIndex = (_settings.inputType == InputType::Controller) ? 1 : 0;
+		_inputTypeIndex = (int)_settings.inputType;
 		_waitingForKey = nullptr;
 		_waitingForButton = nullptr;
 		_waitingForAxis = nullptr;
@@ -518,6 +521,45 @@ bool InputSettingsWindow::renderIPCMapping() {
 
 	ImGui::Text("Heartbeat Timeout (s)");
 	changed |= ImGui::SliderFloat("##HeartbeatTimeout", &ipc.heartbeatTimeout, 0.5f, 30.0f, "%.1f", sliderFlags);
+	ImGui::Spacing();
+
+	return changed;
+}
+
+bool InputSettingsWindow::renderSerialMapping() {
+	ImGui::TextColored(ImVec4(0.4f, 0.8f, 1.0f, 1.0f), "Serial Mapping");
+	ImGui::Separator();
+	ImGui::Spacing();
+	bool changed = false;
+	SerialMapping& serial = _settings.serialMapping;
+
+	ImGui::Text("Port Name");
+	char portBuf[64] = {};
+	auto portLen = serial.portName.copy(portBuf, sizeof(portBuf) - 1);
+	portBuf[portLen] = '\0';
+	if (ImGui::InputText("##SerialPort", portBuf, sizeof(portBuf))) {
+		serial.portName = portBuf;
+		changed = true;
+	}
+	ImGui::Spacing();
+
+	ImGui::Text("Baud Rate");
+	static const unsigned int baudRates[] = { 9600, 19200, 38400, 57600, 115200, 230400, 460800, 921600 };
+	static const char* baudRateNames[] = { "9600", "19200", "38400", "57600", "115200", "230400", "460800", "921600" };
+	int currentBaudIndex = 0;
+	for (int i = 0; i < IM_ARRAYSIZE(baudRates); ++i) {
+		if (baudRates[i] == serial.baudRate) {
+			currentBaudIndex = i;
+			break;
+		}
+	}
+	if (ImGui::Combo("##BaudRate", &currentBaudIndex, baudRateNames, IM_ARRAYSIZE(baudRateNames))) {
+		serial.baudRate = baudRates[currentBaudIndex];
+		changed = true;
+	}
+	ImGui::Spacing();
+
+	ImGui::TextDisabled("Binary protocol: [uint8 motorCount][float x motorCount]");
 	ImGui::Spacing();
 
 	return changed;

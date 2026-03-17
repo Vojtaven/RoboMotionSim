@@ -9,7 +9,8 @@
 enum class InputType {
 	Keyboard = 0,
 	Controller = 1,
-	IPC = 2
+	IPC = 2,
+	Serial = 3
 };
 
 struct WindowConfig {
@@ -87,11 +88,17 @@ struct IPCMapping {
 	float heartbeatTimeout = 5.0f; // Time in seconds to wait without receiving a heartbeat before considering the connection lost
 };
 
+struct SerialMapping {
+	std::string portName = "COM3";
+	unsigned int baudRate = 115200;
+};
+
 struct InputSettings {
 	InputType inputType = InputType::Keyboard;
 	ControllerMapping controllerMapping;
 	KeyboardMapping keyboardMapping;
 	IPCMapping ipcMapping;
+	SerialMapping serialMapping;
 	float maxSpeed = 200; // Max speed in mm/s, used to scale input values to real speeds
 	float maxRotationSpeed = 60; // Max rotation speed in degrees/s, used to scale input values to real speeds
 	bool registerInputWithoutFocus = true;

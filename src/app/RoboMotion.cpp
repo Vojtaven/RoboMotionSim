@@ -23,8 +23,6 @@ Fix Initialization of robot shape
 * Robot designer
 * Robot settigns
 * App settings 
-* Program input - Piping
-* Serial input
 */
 
 

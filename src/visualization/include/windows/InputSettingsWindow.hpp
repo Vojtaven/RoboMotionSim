@@ -30,6 +30,7 @@ private:
 	bool renderKeyboardMapping();
 	bool renderControllerMapping();
 	bool renderIPCMapping();
+	bool renderSerialMapping();
 
 	std::unique_ptr<sf::RenderWindow> _window;
 	WindowConfig _windowConfig;
