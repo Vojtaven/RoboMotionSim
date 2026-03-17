@@ -46,6 +46,9 @@ private:
 	int* _waitingForAxis = nullptr;
 	bool _bindingChanged = false;
 
+	std::vector<std::string> _controllerNames;
+	sf::Time _controllerRefreshAccumulator;
+
 	const InputSettings _defaultSettings;
 };
 

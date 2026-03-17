@@ -35,6 +35,24 @@ static const char* getAxisName(int axisCode) {
 	default: return "Unknown";
 	}
 }
+
+static void updateControllerList(std::vector<std::string>& controllerNames, int& selectedController) {
+	controllerNames.clear();
+
+	for (int i = 0; i < sf::Joystick::Count; ++i) {  // Count = 8
+		if (sf::Joystick::isConnected(i)) {
+			sf::Joystick::Identification id = sf::Joystick::getIdentification(i);
+			std::string name = "[" + std::to_string(i) + "] " + id.name.toAnsiString();
+			controllerNames.push_back(name);
+		}
+	}
+
+	// Reset selection if it's now out of range
+	if (selectedController >= (int)controllerNames.size())
+		selectedController = 0;
+
+}
+
 InputSettingsWindow::InputSettingsWindow(const AppConfig& config)
 {
 	_windowConfig = config.inputSettingsWindow;
@@ -117,6 +135,7 @@ bool InputSettingsWindow::isOpen() const {
 void InputSettingsWindow::update(sf::Time dt) {
 	if (!isOpen()) return;
 
+	_controllerRefreshAccumulator += dt;
 	_bindingChanged = false;
 
 	// Switch to settings window context
@@ -241,23 +260,13 @@ void InputSettingsWindow::renderContent() {
 
 	switch (_inputTypeIndex) {
 	case 0:
-		ImGui::TextColored(ImVec4(0.4f, 0.8f, 1.0f, 1.0f), "Keyboard Mapping");
-		ImGui::Separator();
-		ImGui::Spacing();
 		changed |= renderKeyboardMapping();
 		break;
-
 	case 1:
-		ImGui::TextColored(ImVec4(0.4f, 0.8f, 1.0f, 1.0f), "Controller Mapping");
-		ImGui::Separator();
-		ImGui::Spacing();
 		changed |= renderControllerMapping();
 		break;
 
 	case 2:
-		ImGui::TextColored(ImVec4(0.4f, 0.8f, 1.0f, 1.0f), "IPC Mapping");
-		ImGui::Separator();
-		ImGui::Spacing();
 		changed |= renderIPCMapping();
 		break;
 	default:
@@ -306,6 +315,9 @@ bool InputSettingsWindow::renderCommonSettings() {
 
 bool InputSettingsWindow::renderKeyboardMapping() {
 	bool changed = _bindingChanged || renderCommonSettings();
+	ImGui::TextColored(ImVec4(0.4f, 0.8f, 1.0f, 1.0f), "Keyboard Mapping");
+	ImGui::Separator();
+	ImGui::Spacing();
 	KeyboardMapping& km = _settings.keyboardMapping;
 
 	auto renderKeyBind = [&](const char* label, int& keyCode) {
@@ -352,12 +364,45 @@ bool InputSettingsWindow::renderKeyboardMapping() {
 
 bool InputSettingsWindow::renderControllerMapping() {
 	bool changed = _bindingChanged || renderCommonSettings();
+	ImGui::TextColored(ImVec4(0.4f, 0.8f, 1.0f, 1.0f), "Controller Mapping");
+	ImGui::Separator();
+	ImGui::Spacing();
 	ControllerMapping& cm = _settings.controllerMapping;
 	ImGuiSliderFlags sliderFlags = ImGuiSliderFlags_AlwaysClamp;
 
-	ImGui::Text("Controller ID");
-	changed |= ImGui::InputInt("##ControllerId", &cm.controllerId);
-	cm.controllerId = std::clamp(cm.controllerId, 0, 7);
+	if (_controllerNames.empty() || _controllerRefreshAccumulator >= sf::seconds(1.0f)) {
+		_controllerRefreshAccumulator = sf::Time::Zero;
+		updateControllerList(_controllerNames, cm.controllerId);
+	}
+
+	ImGui::Text("Controllers:");
+
+	if (_controllerNames.empty()) {
+		ImGui::BeginDisabled();
+		if (ImGui::BeginCombo("##controllers", "No controllers found"))
+			ImGui::EndCombo();
+		ImGui::EndDisabled();
+	}
+	else {
+		const char* preview = _controllerNames[cm.controllerId].c_str();
+
+		if (ImGui::BeginCombo("##controllers", preview)) {
+			for (int i = 0; i < (int)_controllerNames.size(); ++i) {
+				bool isSelected = (cm.controllerId == i);
+				if (ImGui::Selectable(_controllerNames[i].c_str(), isSelected)) {
+					cm.controllerId = i;
+					changed = true;
+				}
+				if (isSelected)
+					ImGui::SetItemDefaultFocus();
+			}
+			ImGui::EndCombo();
+		}
+	}
+
+	//ImGui::Text("Controller ID");
+	//changed |= ImGui::InputInt("##ControllerId", &cm.controllerId);
+	//cm.controllerId = std::clamp(cm.controllerId, 0, 7);
 	ImGui::Spacing();
 
 	auto renderJoystickControl = [&](const char* label, JoystickControll& ctrl) {
@@ -427,6 +472,7 @@ bool InputSettingsWindow::renderControllerMapping() {
 	ImGui::Text("Deadzone (%%)");
 	changed |= ImGui::SliderInt("##Deadzone", &cm.deadzone, 0, 100, "%d", sliderFlags);
 	ImGui::Spacing();
+	ImGui::Separator();
 	ImGui::TextDisabled("Click a button to rebind. Escape to cancel.");
 	ImGui::Spacing();
 
@@ -437,6 +483,9 @@ bool InputSettingsWindow::renderControllerMapping() {
 	return changed;
 }
 bool InputSettingsWindow::renderIPCMapping() {
+	ImGui::TextColored(ImVec4(0.4f, 0.8f, 1.0f, 1.0f), "IPC Mapping");
+	ImGui::Separator();
+	ImGui::Spacing();
 	bool changed = false;
 	IPCMapping& ipc = _settings.ipcMapping;
 	ImGuiSliderFlags sliderFlags = ImGuiSliderFlags_AlwaysClamp;

@@ -143,6 +143,44 @@ void MainWindow::renderImGuiMenu() {
 		ImGui::PopStyleColor();
 		ImGui::End();
 	}
+
+	renderErrorMessages();
+	_errorMessages.clear();
+}
+
+void MainWindow::renderErrorMessages() {
+	if (_errorMessages.empty()) return;
+
+	ImVec2 displaySize = ImGui::GetIO().DisplaySize;
+	const float windowWidth = 400.0f;
+	const float padding = 10.0f;
+	ImGui::SetNextWindowPos(ImVec2((displaySize.x - windowWidth) * 0.5f, displaySize.y * 0.25f), ImGuiCond_Always);
+	ImGui::SetNextWindowSize(ImVec2(windowWidth, 0), ImGuiCond_Always);
+	ImGui::SetNextWindowBgAlpha(0.92f);
+
+	ImGui::PushStyleColor(ImGuiCol_TitleBg,       ImVec4(0.6f, 0.1f, 0.1f, 1.0f));
+	ImGui::PushStyleColor(ImGuiCol_TitleBgActive,  ImVec4(0.7f, 0.1f, 0.1f, 1.0f));
+
+	ImGui::Begin("Errors", nullptr,
+		ImGuiWindowFlags_NoResize |
+		ImGuiWindowFlags_NoMove |
+		ImGuiWindowFlags_NoSavedSettings |
+		ImGuiWindowFlags_AlwaysAutoResize);
+
+	ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.4f, 0.4f, 1.0f));
+
+	for (int i = static_cast<int>(_errorMessages.size()) - 1; i >= 0; --i) {
+		ImGui::TextWrapped("%s", _errorMessages[i].c_str());
+		ImGui::SameLine(windowWidth - 50.0f);
+		if (i > 0)
+			ImGui::Separator();
+	}
+
+	ImGui::PopStyleColor();
+
+	ImGui::Spacing();
+	ImGui::End();
+	ImGui::PopStyleColor(2);
 }
 
 void MainWindow::initImGui() {
@@ -231,6 +269,10 @@ void MainWindow::SetOnInputSettingsChanged(std::function<void()> callback) {
 		this->_appConfig.inputSettings = newSettings;
 		_onInputSettingsChanged();
 		});
+}
+
+void MainWindow::showErrorMessage(const std::string& message) {
+	_errorMessages.push_back(message);
 }
 
 void MainWindow::saveConfig() {

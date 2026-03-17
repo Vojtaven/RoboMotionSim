@@ -13,7 +13,7 @@
 #include <memory>
 using Clock = std::chrono::steady_clock;
 
-AppEngine::AppEngine() 
+AppEngine::AppEngine()
 {
 	_wallTime = std::chrono::system_clock::now();
 	int screenWidth = sf::VideoMode::getDesktopMode().size.x;
@@ -23,7 +23,7 @@ AppEngine::AppEngine()
 	configManager = std::make_unique<ConfigManager>(Vec2i{ screenWidth,screenHeight });
 	auto& robotConfig = configManager->getConstRobotConfig();
 	auto& appConfig = configManager->getAppConfig();
-	vizEngine = std::make_unique<VisualizationEngine>(appConfig,robotConfig);
+	vizEngine = std::make_unique<VisualizationEngine>(appConfig, robotConfig);
 
 	robotState = std::make_unique<RobotState>(robotConfig.getWheelCount());
 	robotState->position = { 0,0 };
@@ -42,13 +42,16 @@ AppEngine::AppEngine()
 void AppEngine::run() {
 	auto& robotConfig = configManager->getConstRobotConfig();
 	auto last = Clock::now();
-	
+
 
 	while (vizEngine->isWindowOpen()) {
 		auto now = Clock::now();
 		const std::chrono::duration<float> delta = now - last;
 		_wallTime += std::chrono::duration_cast<std::chrono::system_clock::duration>(delta);
-		inputManager->update(*robotState, vizEngine->hasFocus());
+		auto inputResult = inputManager->update(*robotState, vizEngine->hasFocus());
+		if (inputResult.has_value()) {
+			vizEngine->showErrorMessage(inputResult.value());
+		}
 		physicsEngine->update(delta.count(), *robotState, robotConfig);
 		last = now;
 		vizEngine->update(delta.count(), *robotState, _wallTime);

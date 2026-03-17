@@ -2,6 +2,8 @@
 #define INPUT_MANAGER_HPP	
 #include "AppConfig.hpp"
 #include <memory>
+#include <optional>
+#include <string>
 #include "KeyboardInput.hpp"
 #include "JoystickInput.hpp"
 #include "RobotState.hpp"
@@ -10,7 +12,7 @@
 class InputManager {
 public :
 	InputManager(const InputSettings& inputSettings);
-	void update(RobotState& state, bool hasFocus) const;
+	std::optional<std::string> update(RobotState& state, bool hasFocus) const;
 	void checkForInputCompletion(const RobotState& state, const float dt);
 	void updateAfterSettingsChange();
 private:

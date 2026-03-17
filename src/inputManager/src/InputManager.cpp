@@ -11,29 +11,27 @@ InputManager::InputManager(const InputSettings& inputSettings)
 {
 	updateAfterSettingsChange();
 }
-void InputManager::update(RobotState& state, bool hasFocus) const {
+std::optional<std::string> InputManager::update(RobotState& state, bool hasFocus) const {
 	state.localVelocity = { 0,0 };
 	state.angularVelocity = 0;
 	state.frontAngularVelocity = 0;
 
 	if (!_inputSettings.registerInputWithoutFocus && !hasFocus)
-		return;
+		return std::nullopt;
 
 
 	switch (_inputSettings.inputType)
 	{
 	case InputType::Keyboard:
 		_keyboardInput->update(state, _inputSettings.maxSpeed, _maxRotationSpeedRadians);
-		break;
+		return std::nullopt;
 	case InputType::Controller:
-		_joystickInput->update(state, _inputSettings.maxSpeed, _maxRotationSpeedRadians);
-		break;
-
+		return _joystickInput->update(state, _inputSettings.maxSpeed, _maxRotationSpeedRadians);
 	case InputType::IPC:
 		_ipcInput->update(state);
-		break;
+		return std::nullopt;
 	default:
-		throw std::runtime_error("Unsupported input type");
+		return "Unsupported input type";
 	}
 }
 

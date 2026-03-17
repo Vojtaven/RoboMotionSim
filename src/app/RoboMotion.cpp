@@ -16,9 +16,6 @@ int main() {
 
 /*NEXT TODO
 Fix Initialization of robot shape
-Proper Input error handling and messages
-Robot stats
-
 */
 
 
@@ -34,9 +31,15 @@ Robot stats
 /* Some not Inportant TODOs
 One imgui context
 Grid rerendering optimization
-
+Solve the problem of lag when connecting controller 
 */
 
+
+/*Interesting problems encountered
+Grid Aligment
+Lag when connecting controller 
+
+*/
 
 
 

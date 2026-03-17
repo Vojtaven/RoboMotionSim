@@ -21,9 +21,11 @@ public:
 	bool isOpen() const { return _isOpen; }
 	Vec2f getRenderWindowCenter() const { return _renderEngine->getWindowCenter(); }
 	void SetOnInputSettingsChanged(std::function<void()> callback);
+	void showErrorMessage(const std::string& message);
 private:
 	void saveWindowConfig(WindowConfig& config) const;
 	void renderImGuiMenu();
+	void renderErrorMessages();
 	void initImGui();
 	bool _showMenu = false;
 	bool _showFps = false;
@@ -38,6 +40,7 @@ private:
 	std::unique_ptr<RenderSettingsWindow> _settingsWindow;
 	std::unique_ptr<InputSettingsWindow> _inputSettingsWindow;
 	std::unique_ptr<RobotStatWindow> _robotStatWindow;	
+	std::vector<std::string> _errorMessages;
 	std::function<void()> _onInputSettingsChanged;
 	// Other windows management
 	void initializeOtherWindows();
