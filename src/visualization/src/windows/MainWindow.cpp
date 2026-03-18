@@ -189,9 +189,7 @@ void MainWindow::renderErrorMessages() {
 }
 
 void MainWindow::initImGui() {
-	if (!ImGui::SFML::Init(*_window)) {
-		// Handle initialization failure if needed
-	}
+	ImGui::SFML::Init(*_window);
 
 	ImGuiIO& io = ImGui::GetIO();
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;

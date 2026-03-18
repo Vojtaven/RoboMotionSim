@@ -64,9 +64,6 @@ public:
 private:
 	std::vector<RobotParts::DriveAxle_t> _axels;
 	RobotDriveType _DriveType ;
-	// Things used in simulator only
-	// TODO
-	// 1) Add chassis
 };
 
 #endif // ROBO_CONFIG_H

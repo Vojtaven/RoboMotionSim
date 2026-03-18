@@ -116,7 +116,6 @@ void PhysicsEngine::updateDirectionVectors(RobotState& state) {
 void PhysicsEngine::calculateLocalVelocityFromWheelSpeed(RobotState& state, const RobotConfig& config) {
 	const auto wheels = config.GetRobotWheels();
 
-	// Least-squares: (J^T J) * x = J^T * b, where x = [chassis_vx, chassis_vy, omega]
 	float A[3][3] = {};
 	float rhs[3] = {};
 
@@ -148,7 +147,6 @@ void PhysicsEngine::calculateLocalVelocityFromWheelSpeed(RobotState& state, cons
 		i++;
 	}
 
-	// Gauss-Jordan elimination with partial pivoting
 	float aug[3][4] = {};
 	for (int r = 0; r < 3; r++) {
 		for (int c = 0; c < 3; c++) aug[r][c] = A[r][c];
@@ -177,7 +175,6 @@ void PhysicsEngine::calculateLocalVelocityFromWheelSpeed(RobotState& state, cons
 	const float chassis_vy = (std::abs(aug[1][1]) > 1e-9f) ? aug[1][3] / aug[1][1] : 0.0f;
 	const float omega = (std::abs(aug[2][2]) > 1e-9f) ? aug[2][3] / aug[2][2] : 0.0f;
 
-	// Rotate chassis-frame velocity back to local (front-relative) frame
 	const float cos_front = std::cos(state.frontAngle);
 	const float sin_front = std::sin(state.frontAngle);
 	state.localVelocity.x = chassis_vx * cos_front + chassis_vy * sin_front;
