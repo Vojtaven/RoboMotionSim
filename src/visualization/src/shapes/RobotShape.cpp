@@ -6,12 +6,35 @@
 #include "SFMLHelper.hpp"
 
 std::unique_ptr<sf::ConvexShape> makeRobotBase(const std::vector<sf::Vector2f>& points) {
-	if (points.size() < 3) {
-		// Too few points for a polygon
+	if (points.size() < 2) {
+		// Zero or one point: nothing meaningful to draw
 		sf::ConvexShape shape;
 		shape.setPointCount(points.size());
 		for (size_t i = 0; i < points.size(); ++i)
 			shape.setPoint(i, points[i]);
+		return std::make_unique<sf::ConvexShape>(shape);
+	}
+
+	if (points.size() == 2) {
+		// Two wheels: extrude a rectangle around the wheel axis
+		const sf::Vector2f& a = points[0];
+		const sf::Vector2f& b = points[1];
+		sf::Vector2f dir = b - a;
+		float len = std::sqrt(dir.x * dir.x + dir.y * dir.y);
+		sf::Vector2f perp = (len > 0.f)
+			? sf::Vector2f{ -dir.y / len, dir.x / len }
+			: sf::Vector2f{ 0.f, 1.f };
+		float depth = len * 0.25f;
+
+		sf::ConvexShape shape;
+		shape.setPointCount(4);
+		shape.setPoint(0, a + perp * depth);
+		shape.setPoint(1, b + perp * depth);
+		shape.setPoint(2, b - perp * depth);
+		shape.setPoint(3, a - perp * depth);
+		shape.setFillColor({ 50, 50, 50 });
+		shape.setOutlineColor(sf::Color::Cyan);
+		shape.setOutlineThickness(4.f);
 		return std::make_unique<sf::ConvexShape>(shape);
 	}
 

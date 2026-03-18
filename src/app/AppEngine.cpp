@@ -42,6 +42,12 @@ AppEngine::AppEngine()
 		configManager->getRobotConfig() = newConfig;
 		robotState->wheelCount = newConfig.getWheelCount();
 		robotState->wheels.resize(newConfig.getWheelCount());
+		if (newConfig.GetRobotDriveType() == RobotDriveType::DIFFERENTIAL) {
+			robotState->chassisAngle += robotState->frontAngle;
+			robotState->frontAngle = 0;
+		}
+
+		vizEngine->setRobotConfig(newConfig, *robotState);
 		});
 
 }

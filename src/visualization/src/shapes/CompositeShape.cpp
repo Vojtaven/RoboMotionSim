@@ -5,26 +5,6 @@ void CompositeShape::draw(sf::RenderTarget& target, sf::RenderStates states) con
     states.transform *= getTransform();
     for (auto& drawable : _drawables)
         target.draw(*drawable, states);
-
-    // Convert FloatRect to a drawable RectangleShape
-    sf::RectangleShape boundsRect;
-    boundsRect.setPosition(_bounds.position);
-    boundsRect.setSize(_bounds.size);
-    boundsRect.setFillColor(sf::Color::Transparent); // or any color you want
-	boundsRect.setOutlineColor(sf::Color::Red);
-	boundsRect.setOutlineThickness(1.f);
-    target.draw(boundsRect, states);
-}
-
-void CompositeShape::drawBoundingBox(sf::RenderTarget& target, sf::RenderStates states) const {
-	states.transform *= getTransform();
-	sf::RectangleShape rect;
-	rect.setPosition(_bounds.position);
-	rect.setSize(_bounds.size);
-	rect.setFillColor({ 0,0,0 });
-	rect.setOutlineColor({ 255,255,255 });
-	rect.setOutlineThickness(1);
-	target.draw(rect, states);
 }
 
 void CompositeShape::updateBounds() {

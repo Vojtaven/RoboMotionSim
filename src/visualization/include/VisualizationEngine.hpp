@@ -10,7 +10,7 @@
 class VisualizationEngine {
 public:
 	VisualizationEngine(AppConfig& appConfig, const RobotConfig& robotConfig = RobotConfig());
-	void setRobotConfig(const RobotConfig& config, bool holdPosition = false) { _mainWindow->setRobotConfig(config, holdPosition); }
+	void setRobotConfig(const RobotConfig& config, const RobotState& state) { _mainWindow->setRobotConfig(config, state); }
 	void draw() { _mainWindow->draw(); }
 	void update(float dt, const RobotState& state, const std::chrono::system_clock::time_point& timeStamp) { _mainWindow->update(dt, state, timeStamp); }
 	sf::Window& getMainWindow()	{ return _mainWindow->getWindow(); }

@@ -12,7 +12,7 @@ class MainWindow
 public:
 	MainWindow(AppConfig& config);
 	void open(const RobotConfig& robotConfig);
-	void setRobotConfig(const RobotConfig& config, bool holdPosition = true) { _renderEngine->updateRobotShape(config, holdPosition); }
+	void setRobotConfig(const RobotConfig& config, const RobotState& state) { _renderEngine->updateRobotShape(config, state); }
 	void close();
 	void update(const float dt, const RobotState& robotState, const std::chrono::system_clock::time_point& timeStamp);
 	AppConfig& getSavedAppConfig() { return _appConfig; }

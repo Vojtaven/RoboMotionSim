@@ -19,7 +19,7 @@ public:
 	void regenerateGridLines();
 	void resetRobotPosition(sf::Vector2f pos);
 	void updateAfterSettingsChange();
-	void updateRobotShape(const RobotConfig& config, bool holdPosition = true);
+	void updateRobotShape(const RobotConfig& config, const RobotState& state);
 	Vec2f getWindowCenter() const;
 	const RenderSettings& getCurrentRenderSettings() const;
 	void clearRobotTrail() { _trail->clearTrail(); }

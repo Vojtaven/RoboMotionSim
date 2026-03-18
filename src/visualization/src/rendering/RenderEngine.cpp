@@ -46,12 +46,10 @@ void RenderEngine::updateAfterResize() {
 	regenerateGridLines();
 }
 
-void RenderEngine::updateRobotShape(const RobotConfig& config, bool holdPosition) {
-	sf::Vector2f lastPosition = holdPosition ? _robotShape->getPosition() :
-		(sf::Vector2f)_window.getSize() / (2.0f * _settings.scaleFactor);
+void RenderEngine::updateRobotShape(const RobotConfig& config, const RobotState& state) {
 	_robotShape = std::make_unique<RobotShape>(config);
 	_robotShape->setVectorsVisibility(_settings.showForwardVectors, _settings.showRollerVectors, _settings.showWheelDirectionVectors);
-	resetRobotPosition(lastPosition);
+	_robotShape->update(state);
 }
 
 void RenderEngine::updateAfterSettingsChange() {

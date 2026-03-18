@@ -24,7 +24,7 @@ void MainWindow::open(const RobotConfig& robotConfig)
 	_window->setPosition(ToSFMLVector2i(_windowConfig.position));
 	initImGui();
 	_renderEngine = std::make_unique<RenderEngine>(*_window, _appConfig.renderSettings);
-	setRobotConfig(robotConfig);
+	setRobotConfig(robotConfig, RobotState(robotConfig.getWheelCount()));
 	initializeOtherWindows(robotConfig);
 	_window->requestFocus();
 }
