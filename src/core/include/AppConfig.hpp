@@ -46,6 +46,9 @@ struct RenderSettings {
 	bool showTrail = true;
 	bool showGrid = true;
 	bool lockViewOnRobot = false;
+	bool showForwardVectors = true;
+	bool showRollerVectors = true;
+	bool showWheelDirectionVectors = true;
 	int frameRateLimit = 60;
 	GridSettings gridSettings;
 	TrailSettings trailSettings;

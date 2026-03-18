@@ -27,13 +27,11 @@ void WheelVectors::setRollerLength(float length) {
 	_rollerVector->setLength(length);
 }
 
-void WheelVectors::RollerVectorVisible(bool visible) { _rollerVectorVisible = visible; }
-void WheelVectors::ForwardVectorVisible(bool visible) { _forwardVectorVisible = visible; }
 // X = forward length, Y = roller length
 void WheelVectors::update(const WheelState& state) {
 	setForwardLength(state.speed);
 	setRollerLength(state.rollerSpeed);
-	UpdateDirectionVector();
+	updateDirectionVector();
 }
 
 
@@ -46,7 +44,7 @@ void WheelVectors::draw(sf::RenderTarget& target, sf::RenderStates states) const
 		_directionVector->draw(target, states);
 }
 
-void WheelVectors::UpdateDirectionVector() {
+void WheelVectors::updateDirectionVector() {
 	const float directionVectorLength = std::sqrtf(_rollerLenght * _rollerLenght
 		+ _forwardLength * _forwardLength
 		+ 2 * _forwardLength * _rollerLenght * std::cos(_rollerAngle));

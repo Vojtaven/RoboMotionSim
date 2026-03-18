@@ -14,7 +14,10 @@ private:
 	bool _rollerVectorVisible = true;
 	bool _forwardVectorVisible = true;
 	float _forwardLength = 0, _rollerLenght = 0;
-	const float _rollerAngle = 0, _wheelAngle = 0;	
+	const float _rollerAngle = 0, _wheelAngle = 0;
+
+
+	void updateDirectionVector();
 public:
 	WheelVectors(const RobotParts::Wheel& wheel,
 		sf::Color forwardColor = sf::Color::White,
@@ -27,10 +30,13 @@ public:
 	void setRollerLength(float length);
 	void update(const WheelState& state);
 
-	void RollerVectorVisible(bool visible);
-	void ForwardVectorVisible(bool visible);
+	void setVectorsVisible(bool forwardVisible, bool rollerVisible, bool directionVisible) {
+		_forwardVectorVisible = forwardVisible;
+		_rollerVectorVisible = rollerVisible;
+		_directionVectorVisible = directionVisible;
+	}
 	void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
-	void UpdateDirectionVector();
+
 };
 
 

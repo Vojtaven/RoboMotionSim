@@ -15,6 +15,7 @@ public:
 	void showSpeedDisable() { _showSpeed = false; }
 	void update(const RobotState& state);
 	void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
+	void setVectorsVisibility(bool forwardVisible, bool rollerVisible, bool directionVisible);
 private:
 	void addWheel(const RobotParts::Wheel& wheel);
 	void addWheelVector(const RobotParts::Wheel& wheel);

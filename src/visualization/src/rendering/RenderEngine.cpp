@@ -14,6 +14,7 @@ RenderEngine::RenderEngine(sf::RenderWindow& window, const RenderSettings& setti
 	_trail(std::make_unique<RobotTrail>(settings.trailSettings))
 {
 	_robotShape->setPosition({ 0,0 });
+	_robotShape->setVectorsVisibility(settings.showForwardVectors, settings.showRollerVectors, settings.showWheelDirectionVectors);
 	_worldView->setCenter({ 0,0 });
 	_window.setView(*_worldView);
 
@@ -49,6 +50,7 @@ void RenderEngine::updateRobotShape(const RobotConfig& config, bool holdPosition
 	sf::Vector2f lastPosition = holdPosition ? _robotShape->getPosition() :
 		(sf::Vector2f)_window.getSize() / (2.0f * _settings.scaleFactor);
 	_robotShape = std::make_unique<RobotShape>(config);
+	_robotShape->setVectorsVisibility(_settings.showForwardVectors, _settings.showRollerVectors, _settings.showWheelDirectionVectors);
 	resetRobotPosition(lastPosition);
 }
 
@@ -59,6 +61,7 @@ void RenderEngine::updateAfterSettingsChange() {
 	_window.setView(*_worldView);
 	_trail->updateAfterSettingsChange();
 	_grid->updateAfterSettingsChange();
+	_robotShape->setVectorsVisibility(_settings.showForwardVectors, _settings.showRollerVectors, _settings.showWheelDirectionVectors);
 }
 
 void RenderEngine::draw() {

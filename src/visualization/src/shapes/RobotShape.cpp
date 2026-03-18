@@ -115,6 +115,12 @@ void RobotShape::update(const RobotState& state) {
 	updateDirectionVectors(state);
 }
 
+void RobotShape::setVectorsVisibility(bool forwardVisible, bool rollerVisible, bool directionVisible) {
+	for (auto& wheelVectors : _speedOfWheels) {
+		wheelVectors->setVectorsVisible(forwardVisible, rollerVisible, directionVisible);
+	}
+}
+
 void RobotShape::updateDirectionVectors(const RobotState& state) {
 	// If the number of direction vectors changed, rebuild them
 	if (_directionVectors.size() != state.directionVectors.size()) {

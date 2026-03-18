@@ -192,9 +192,13 @@ void RenderSettingsWindow::renderContent() {
 	ImGui::Spacing();
 	ImGui::Separator();
 	ImGui::Spacing();
-	changed |= ImGui::InputFloat("Trail Point Size", &_settings.trailSettings.trailPointSize, 0.5f, 2.0f, "%.2f");
-	changed |= ImGui::InputFloat("Trail spawn interval", &_settings.trailSettings.pointSpawnInteral, 0.05f, 0.5f, "%.2f");
-	changed |= ImGui::InputInt("Trail max length", &_settings.trailSettings.trailMaxLenght);
+	ImGui::Text("Trail Settings");
+	ImGui::Spacing();
+	ImGui::PopItemWidth();
+	changed |= ImGui::InputFloat("Point Size", &_settings.trailSettings.trailPointSize, 0.5f, 2.0f, "%.2f");
+	changed |= ImGui::InputFloat("Spawn interval", &_settings.trailSettings.pointSpawnInteral, 0.05f, 0.5f, "%.2f");
+	changed |= ImGui::InputInt("Max length", &_settings.trailSettings.trailMaxLenght);
+	ImGui::PushItemWidth(-FLT_MIN);
 	changed |= ImGui::Checkbox("Show Trail", &_settings.showTrail);
 
 	_settings.trailSettings.trailPointSize = std::max(_settings.trailSettings.trailPointSize, 0.0f);
@@ -203,6 +207,17 @@ void RenderSettingsWindow::renderContent() {
 	if (ImGui::Button("Reset Trail", ImVec2(-1, 30))) {
 		_clearRobotTrail();
 	}
+
+	ImGui::Spacing();
+	ImGui::Separator();
+	ImGui::Spacing();
+	ImGui::Text("Robot Vector Settings");
+	ImGui::Spacing();
+
+	changed |= ImGui::Checkbox("Show Forward Vectors", &_settings.showForwardVectors);
+	changed |= ImGui::Checkbox("Show Roller Vectors", &_settings.showRollerVectors);
+	changed |= ImGui::Checkbox("Show Wheel Direction Vectors", &_settings.showWheelDirectionVectors);
+
 	ImGui::Spacing();
 	ImGui::Separator();
 	ImGui::Spacing();
