@@ -28,6 +28,7 @@ private:
 	void firstTimeSetup();
 	void saveConfig();
 	void renderContent();
+	void renderPreview();
 	void loadFromRobotConfig(const RobotConfig& config);
 	RobotConfig buildRobotConfig() const;
 	void renderAxleEditor(int index);
@@ -42,6 +43,9 @@ private:
 	std::vector<RobotParts::DriveAxle_t> _axles;
 	char _filePath[512] = {};
 	std::string _statusMessage;
+
+	bool _showPreview = true;
+	std::unique_ptr<sf::RenderTexture> _previewTexture;
 };
 
 #endif // !ROBOT_DESIGNER_WINDOW_HPP

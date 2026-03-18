@@ -6,6 +6,7 @@
 #include <fstream>
 #include <format>
 #include <sstream>
+#include <algorithm>
 #include "SFMLHelper.hpp"
 #include "embeddedFont.h"
 #include "windows/WindowHelper.hpp"
@@ -13,6 +14,7 @@
 #include "ExportHelper.hpp"
 #include "ImportHelper.hpp"
 #include "nfd.hpp"
+#include "shapes/RobotShape.hpp"
 
 RobotDesignerWindow::RobotDesignerWindow(const AppConfig& config, const RobotConfig& robotConfig)
 {
@@ -201,6 +203,51 @@ void RobotDesignerWindow::renderAxleEditor(int index) {
 	ImGui::TreePop();
 }
 
+void RobotDesignerWindow::renderPreview() {
+	float availWidth = ImGui::GetWindowWidth()
+		- ImGui::GetStyle().WindowPadding.x * 2.0f
+		- ImGui::GetStyle().ScrollbarSize;
+	float availHeight = availWidth * 0.75f;
+	if (availWidth < 1.0f || availHeight < 1.0f) return;
+
+	auto texW = static_cast<unsigned int>(availWidth);
+	auto texH = static_cast<unsigned int>(availHeight);
+
+	if (!_previewTexture || _previewTexture->getSize() != sf::Vector2u{texW, texH}) {
+		_previewTexture = std::make_unique<sf::RenderTexture>(sf::Vector2u{texW, texH});
+		_previewTexture->setSmooth(true);
+	}
+
+	RobotConfig config = buildRobotConfig();
+	RobotShape shape(config);
+	sf::FloatRect bounds = shape.getLocalBounds();
+
+	float padding = 1.2f;
+	float viewW = bounds.size.x * padding;
+	float viewH = bounds.size.y * padding;
+
+	if (viewW < 1.0f) viewW = 100.0f;
+	if (viewH < 1.0f) viewH = 100.0f;
+
+	float aspect = availWidth / availHeight;
+	float boundsAspect = viewW / viewH;
+	if (boundsAspect > aspect) {
+		viewH = viewW / aspect;
+	} else {
+		viewW = viewH * aspect;
+	}
+
+	sf::Vector2f center = bounds.position + bounds.size / 2.0f;
+	sf::View view(center, {viewW, viewH});
+	_previewTexture->setView(view);
+
+	_previewTexture->clear(sf::Color(20, 20, 20));
+	_previewTexture->draw(shape);
+	_previewTexture->display();
+
+	ImGui::Image(*_previewTexture, sf::Vector2f{availWidth, availHeight});
+}
+
 void RobotDesignerWindow::renderContent() {
 	ImVec2 windowSize = ImGui::GetIO().DisplaySize;
 	ImGui::SetNextWindowPos(ImVec2(0, 0));
@@ -239,6 +286,17 @@ void RobotDesignerWindow::renderContent() {
 	ImGui::Spacing();
 	if (ImGui::Button("+ Add Axle")) {
 		_axles.push_back(RobotParts::DriveAxle_t{});
+	}
+
+	ImGui::Spacing();
+	ImGui::Separator();
+	ImGui::Spacing();
+
+	// Robot preview
+	ImGui::Checkbox("Show Preview", &_showPreview);
+	if (_showPreview) {
+		ImGui::Spacing();
+		renderPreview();
 	}
 
 	ImGui::Spacing();

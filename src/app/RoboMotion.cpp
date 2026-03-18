@@ -19,17 +19,6 @@ int main() {
 	NFD_Quit();
 }
 
-/*NEXT TODO
-Fix Initialization of robot shape
-*/
-
-
-/* TODO list
-* Robot designer
-* Robot settigns
-* App settings 
-*/
-
 
 /* Some not Inportant TODOs
 One imgui context
