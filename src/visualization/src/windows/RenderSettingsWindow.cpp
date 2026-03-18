@@ -196,14 +196,14 @@ void RenderSettingsWindow::renderContent() {
 	ImGui::Spacing();
 	ImGui::PopItemWidth();
 	changed |= ImGui::InputFloat("Point Size", &_settings.trailSettings.trailPointSize, 0.5f, 2.0f, "%.2f");
-	changed |= ImGui::InputFloat("Spawn interval", &_settings.trailSettings.pointSpawnInteral, 0.05f, 0.5f, "%.2f");
-	changed |= ImGui::InputInt("Max length", &_settings.trailSettings.trailMaxLenght);
+	changed |= ImGui::InputFloat("Spawn interval", &_settings.trailSettings.pointSpawnInterval, 0.05f, 0.5f, "%.2f");
+	changed |= ImGui::InputInt("Max length", &_settings.trailSettings.trailMaxLength);
 	ImGui::PushItemWidth(-FLT_MIN);
 	changed |= ImGui::Checkbox("Show Trail", &_settings.showTrail);
 
 	_settings.trailSettings.trailPointSize = std::max(_settings.trailSettings.trailPointSize, 0.0f);
-	_settings.trailSettings.pointSpawnInteral = std::max(_settings.trailSettings.pointSpawnInteral, 0.0f);
-	_settings.trailSettings.trailMaxLenght = std::clamp(_settings.trailSettings.trailMaxLenght, 0, 10000);
+	_settings.trailSettings.pointSpawnInterval = std::max(_settings.trailSettings.pointSpawnInterval, 0.0f);
+	_settings.trailSettings.trailMaxLength = std::clamp(_settings.trailSettings.trailMaxLength, 0, 10000);
 	if (ImGui::Button("Reset Trail", ImVec2(-1, 30))) {
 		_clearRobotTrail();
 	}

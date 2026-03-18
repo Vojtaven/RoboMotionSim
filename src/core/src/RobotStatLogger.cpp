@@ -10,11 +10,11 @@ void RobotStatLogger::startLogging(const std::string& filename, int wheelCount, 
         _logFile = std::ofstream(filename, std::ios::out | std::ios::app);
 }
 
-void RobotStatLogger::stopLoging() {
+void RobotStatLogger::stopLogging() {
     _logFile.close();
 }
 RobotStatLogger::~RobotStatLogger() {
-    stopLoging();
+    stopLogging();
 }
 void RobotStatLogger::writeHeader(int wheelCount)
 {
@@ -51,8 +51,8 @@ void RobotStatLogger::logStats(
     _logFile << ","
         << robotState.position.x << ","
         << robotState.position.y << ","
-        << robotState.globalvelocity.x << ","
-        << robotState.globalvelocity.y << ","
+        << robotState.globalVelocity.x << ","
+        << robotState.globalVelocity.y << ","
         << robotState.chassisAngle << ","
         << robotState.angularVelocity;
 

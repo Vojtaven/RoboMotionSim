@@ -405,7 +405,7 @@ bool InputSettingsWindow::renderControllerMapping() {
 
 	ImGui::Spacing();
 
-	auto renderJoystickControl = [&](const char* label, JoystickControll& ctrl) {
+	auto renderJoystickControl = [&](const char* label, JoystickControl& ctrl) {
 		ImGui::PushID(label);
 
 		ImGui::TextColored(ImVec4(0.8f, 0.8f, 0.2f, 1.0f), "%s", label);

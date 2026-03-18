@@ -12,7 +12,7 @@ public:
 	std::optional<std::string> update(RobotState& state, const float maxSpeed, const float maxRotationSpeed);
 	void updateAfterSettingsChange() {}
 private:
-	float getInput(const JoystickControll& control, const float maxValue);
+	float getInput(const JoystickControl& control, const float maxValue);
 	const ControllerMapping& _controllerMapping;
 };
 

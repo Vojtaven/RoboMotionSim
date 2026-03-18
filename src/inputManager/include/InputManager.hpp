@@ -1,5 +1,5 @@
-#ifndef INOPUT_MANAGER_HPP
-#define INPUT_MANAGER_HPP	
+#ifndef INPUT_MANAGER_HPP
+#define INPUT_MANAGER_HPP
 #include "AppConfig.hpp"
 #include <memory>
 #include <optional>

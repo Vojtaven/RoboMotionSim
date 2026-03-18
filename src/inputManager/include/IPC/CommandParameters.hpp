@@ -3,7 +3,7 @@
 
 #include <cstdint>
 #include <type_traits>
-#include <exception>
+#include <stdexcept>
 #include <cstring>
 
 // Base class for constraining command parameters in templates
@@ -15,7 +15,7 @@ struct CommandParameters {
 		requires requires { typename T::command_parameters_tag; }
 	{
 		if (size != sizeof(T))
-			throw std::exception("Invalid command payload: incorrect size for expected parameters");
+			throw std::runtime_error("Invalid command payload: incorrect size for expected parameters");
 		T params;
 		std::memcpy(&params, data, sizeof(T));
 		return params;

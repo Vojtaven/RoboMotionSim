@@ -33,7 +33,7 @@ void Grid::regenerate() {
 		addSubGridLines();
 	}
 	addGridLines();
-	addGridText((unsigned int)(_settings.DefaultFontSize * _DPIScale));
+	addGridText((unsigned int)(_settings.defaultGridFontSize * _DPIScale));
 }
 
 void Grid::mapText(const sf::RenderTarget& target) {
@@ -90,9 +90,9 @@ void Grid::addGridText(unsigned int textSize) {
 }
 
 int Grid::snapGridToNiceValues() const {
-	double raw = _settings.WantedGridSpacing / _scale;
+	double raw = _settings.wantedGridSpacing / _scale;
 	if (raw <= 0.0)
-		return _settings.WantedGridSpacing;
+		return _settings.wantedGridSpacing;
 
 	int exponent = static_cast<int>(std::floor(std::log10(raw)));
 	double base = std::pow(10.0, exponent);

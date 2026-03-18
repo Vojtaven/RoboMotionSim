@@ -9,7 +9,7 @@ class RobotStatLogger
 public:
 	RobotStatLogger() {}
 	void startLogging(const std::string& filename, int wheelCount, bool overwrite = false);
-	void stopLoging();
+	void stopLogging();
 	~RobotStatLogger();
 	void logStats(std::chrono::system_clock::time_point const& timeStamp, const RobotState& robotState);
 private:

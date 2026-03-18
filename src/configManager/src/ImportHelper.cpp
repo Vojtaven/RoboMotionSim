@@ -38,7 +38,7 @@ RobotConfig ImportHelper::loadRobotConfigFrom(const std::string& path) {
 
 	for (size_t i = 0; i < wheelCount; i++)
 	{
-		config.AddAxel(RobotParts::DriveAxle_t{
+		config.AddAxle(RobotParts::DriveAxle_t{
 		createFromConfigWheel(wheels[i].second,evaluator),
 		createFromConfigMotor(motors[i].second,evaluator)
 			});
@@ -114,9 +114,9 @@ RobotParts::Wheel ImportHelper::createFromConfigWheel(const std::string& values,
 	float x = evaluator.EvaluateExpressions(splittedValues[1]);
 	float y = evaluator.EvaluateExpressions(splittedValues[2]);
 	float angle =
-		Utils::DegreesToRadians(evaluator.EvaluateExpressions(splittedValues[3]));
+		DegreesToRadians(evaluator.EvaluateExpressions(splittedValues[3]));
 	float roller =
-		Utils::DegreesToRadians(evaluator.EvaluateExpressions(splittedValues[4]));
+		DegreesToRadians(evaluator.EvaluateExpressions(splittedValues[4]));
 
 	return RobotParts::Wheel{ diameter, x, y, angle, roller };
 }

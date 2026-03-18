@@ -23,7 +23,7 @@ struct RobotState {
 	Vec2f distanceTraveled = { 0,0 }; //mm
 	Vec2f lastDistanceDisplacement = { 0,0 }; //mm
 	Vec2f localVelocity; // mm/s
-	Vec2f globalvelocity; // mm/s
+	Vec2f globalVelocity; // mm/s
 	float chassisAngle = 0; //Rad
 	float lastChassisDisplacement = 0; //Rad
 	float frontAngle = 0; //Rad
@@ -35,7 +35,7 @@ struct RobotState {
 	std::vector<WheelState> wheels;
 	std::vector<DirectionVector> directionVectors;
 	
-	bool fromWheelSpeeds = false; // Determines if we calculates robot local speed from wheels speed
+	bool fromWheelSpeeds = false; // Determines if we calculate robot local speed from wheel speeds
 };
 
 #endif // !ROBOTSTATE_HPP

@@ -46,24 +46,23 @@ enum class RobotDriveType {
 
 class RobotConfig {
 public:
-	const std::vector<RobotParts::DriveAxle_t>& GetRobotDriveAxels() const { return _axels; }
-	std::vector<RobotParts::DriveAxle_t>& GetRobotDriveAxels() { return _axels; }
+	const std::vector<RobotParts::DriveAxle_t>& GetRobotDriveAxles() const { return _axles; }
+	std::vector<RobotParts::DriveAxle_t>& GetRobotDriveAxles() { return _axles; }
 	auto GetRobotWheels() const {
-		return _axels |
-			std::ranges::views::transform([](const auto& axel) -> const RobotParts::Wheel& { return axel.wheel; });
+		return _axles |
+			std::ranges::views::transform([](const auto& axle) -> const RobotParts::Wheel& { return axle.wheel; });
 	}
 	auto GetRobotWheels() {
-		return _axels |
-			std::ranges::views::transform([](auto& axel) -> RobotParts::Wheel& { return axel.wheel; });
+		return _axles |
+			std::ranges::views::transform([](auto& axle) -> RobotParts::Wheel& { return axle.wheel; });
 	}
-	const RobotDriveType GetRobotDriveType() const { return _DriveType; }
-	void AddAxel(RobotParts::DriveAxle_t& axel) { _axels.push_back(axel); }
-	void AddAxel(RobotParts::DriveAxle_t axel) { _axels.push_back(axel); }
-	void ChangeDriveType(RobotDriveType type) { _DriveType = type; }
-	int getWheelCount() const { return static_cast<int>(_axels.size()); }
+	RobotDriveType GetRobotDriveType() const { return _driveType; }
+	void AddAxle(RobotParts::DriveAxle_t axle) { _axles.push_back(axle); }
+	void ChangeDriveType(RobotDriveType type) { _driveType = type; }
+	int getWheelCount() const { return static_cast<int>(_axles.size()); }
 private:
-	std::vector<RobotParts::DriveAxle_t> _axels;
-	RobotDriveType _DriveType ;
+	std::vector<RobotParts::DriveAxle_t> _axles;
+	RobotDriveType _driveType = RobotDriveType::DIFFERENTIAL;
 };
 
 #endif // ROBO_CONFIG_H

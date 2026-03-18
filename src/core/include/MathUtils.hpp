@@ -40,7 +40,7 @@ static inline float DegreesToRadians(float degrees) {
     return (float)(degrees * (std::numbers::pi / 180));
 }
 
-static inline float RadiansToDegree(float radians) {
+static inline float RadiansToDegrees(float radians) {
     return (float)(radians / (std::numbers::pi / 180));
 }
 

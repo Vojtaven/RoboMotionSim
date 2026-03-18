@@ -21,7 +21,7 @@ void PhysicsEngine::update(const float dt, RobotState& state, const RobotConfig&
 
 void PhysicsEngine::updatePosition(const float dt, RobotState& state) {
 	state.distanceTraveled += state.localVelocity * dt;
-	state.position += state.globalvelocity * dt;
+	state.position += state.globalVelocity * dt;
 	state.chassisAngle += state.angularVelocity * dt;
 	state.frontAngle += state.frontAngularVelocity * dt;
 
@@ -34,7 +34,7 @@ void PhysicsEngine::updatePosition(const float dt, RobotState& state) {
 }
 
 void PhysicsEngine::toGlobalFrame(RobotState& state) {
-	Vec2f& global = state.globalvelocity;
+	Vec2f& global = state.globalVelocity;
 	Vec2f& local = state.localVelocity;
 	const float angle = state.frontAngle + state.chassisAngle;
 	global.x = local.x * std::cos(angle) - local.y * std::sin(angle);
@@ -47,8 +47,8 @@ void PhysicsEngine::toWheelSpeed(RobotState& state, const RobotConfig& config, c
 	const float chassisCos = std::cos(state.chassisAngle);
 	const float chassisSin = std::sin(state.chassisAngle);
 	// Convert global velocity to chassis-front-relative velocity
-	const float chassis_vx = state.globalvelocity.x * chassisCos + state.globalvelocity.y * chassisSin;
-	const float chassis_vy = -state.globalvelocity.x * chassisSin + state.globalvelocity.y * chassisCos;
+	const float chassis_vx = state.globalVelocity.x * chassisCos + state.globalVelocity.y * chassisSin;
+	const float chassis_vy = -state.globalVelocity.x * chassisSin + state.globalVelocity.y * chassisCos;
 
 	const auto omega = state.angularVelocity;
 	int i = 0;

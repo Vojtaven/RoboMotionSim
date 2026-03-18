@@ -292,8 +292,8 @@ void RobotStatWindow::renderMotionSection(const RobotState& robotState, float pa
     ImGui::Spacing();
     VelocityBar("Local Vel X", robotState.localVelocity.x, panelW);
     VelocityBar("Local Vel Y", robotState.localVelocity.y, panelW);
-    VelocityBar("Global Vel X", robotState.globalvelocity.x, panelW);
-    VelocityBar("Global Vel Y", robotState.globalvelocity.y, panelW);
+    VelocityBar("Global Vel X", robotState.globalVelocity.x, panelW);
+    VelocityBar("Global Vel Y", robotState.globalVelocity.y, panelW);
     ImGui::Spacing();
 
     ImVec2 cardEnd = ImGui::GetCursorScreenPos();
@@ -405,7 +405,7 @@ void RobotStatWindow::renderLoggingSection(const RobotState& robotState) {
         ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.8f,  0.2f, 0.2f, 1.0f));
         ImGui::PushStyleColor(ImGuiCol_ButtonActive,  ImVec4(0.5f,  0.05f,0.05f,1.0f));
         if (ImGui::Button("Stop Logging", ImVec2(-FLT_MIN, 0))) {
-            _logger.stopLoging();
+            _logger.stopLogging();
             _isLogging = false;
         }
         ImGui::PopStyleColor(3);

@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.24)
 set(APP_NAME "RoboMotionSim")
 set(APP_VERSION "0.6.0")
 
-project(${APP_NAME} VERSION 1.0.0 LANGUAGES CXX)
+project(${APP_NAME} VERSION ${APP_VERSION} LANGUAGES CXX)
 
 # Set startup project for Visual Studio
 if(MSVC)
@@ -110,7 +110,9 @@ if(MSVC)
     target_link_options(${PROJECT_NAME} PRIVATE /SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup)
 else()
     target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -Wpedantic)
-    target_link_options(${PROJECT_NAME} PRIVATE -mwindows)
+    if(WIN32)
+        target_link_options(${PROJECT_NAME} PRIVATE -mwindows)
+    endif()
 endif()
 # ============================================================================
 # Installation

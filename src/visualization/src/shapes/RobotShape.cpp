@@ -88,10 +88,9 @@ RobotShape::RobotShape(const RobotConfig& config, bool drawCenter, bool showSpee
 	_showSpeed(showSpeed),
 	_drawCenter(drawCenter)
 {
-	auto axels = config.GetRobotDriveAxels();
-	if (_drawCenter) {}
+	auto axles = config.GetRobotDriveAxles();
 
-	std::transform(axels.begin(), axels.end(), std::back_inserter(_wheelMountingPoints),
+	std::transform(axles.begin(), axles.end(), std::back_inserter(_wheelMountingPoints),
 		[](const RobotParts::DriveAxle_t& axle) {
 			return sf::Vector2f{ axle.wheel.x_position, axle.wheel.y_position };
 		});

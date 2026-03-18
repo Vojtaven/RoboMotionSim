@@ -4,11 +4,11 @@
 RobotTrail::RobotTrail(const TrailSettings& settings) : _color(ToSFMLColor(settings.trailColor)), _settings(settings) {}
 
 void RobotTrail::addTrailPoint(const sf::Vector2f& position, const float dt) {
-	if ((interval += dt) < _settings.pointSpawnInteral)
+	if ((interval += dt) < _settings.pointSpawnInterval)
 		return;
 
 	interval = 0;
-	if (_trail.size() > _settings.trailMaxLenght)
+	if (_trail.size() > _settings.trailMaxLength)
 		_trail.pop_front();
 
 	_trail.emplace_back(sf::CircleShape(_settings.trailPointSize));
@@ -21,7 +21,7 @@ void RobotTrail::addTrailPoint(const sf::Vector2f& position, const float dt) {
 
 void RobotTrail::updateAfterSettingsChange() {
 	_color = ToSFMLColor(_settings.trailColor);
-	while(_trail.size() > _settings.trailMaxLenght)
+	while(_trail.size() > _settings.trailMaxLength)
 		_trail.pop_front();
 	for (auto& point : _trail) {
 		point.setOrigin({ _settings.trailPointSize, _settings.trailPointSize });

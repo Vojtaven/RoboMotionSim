@@ -20,7 +20,7 @@ int main() {
 }
 
 
-/* Some not Inportant TODOs
+/* Some not Important TODOs
 One imgui context
 Grid rerendering optimization
 Solve the problem of lag when connecting controller 
@@ -28,7 +28,7 @@ Solve the problem of lag when connecting controller
 
 
 /*Interesting problems encountered
-Grid Aligment
+Grid Alignment
 Lag when connecting controller 
 
 */

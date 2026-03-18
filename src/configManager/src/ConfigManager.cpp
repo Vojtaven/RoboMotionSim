@@ -22,7 +22,7 @@ void ConfigManager::loadDefaultConfigs(const Vec2i screenSize) {
             throw std::runtime_error("App version mismatch");
         }
     }
-    catch(...){
+    catch (const std::exception&) {
 		_appConfig.configVersion = CONFIG_VERSION;
 		_appConfig.appName = APP_NAME;
 		_appConfig.mainWindow.position = { screenSize.x / 4, screenSize.y / 4 };
@@ -35,7 +35,7 @@ void ConfigManager::loadDefaultConfigs(const Vec2i screenSize) {
     try {
 		loadRobotConfig((_systemConfigDir / "robot_config.ini").string());
     }
-    catch (...){
+    catch (const std::exception&) {
         createDefaultConfigs(robotConfigPath, (const char*)DEFAULT_ROBOT_CONFIG_DATA, DEFAULT_ROBOT_CONFIG_DATA_SIZE);
         loadRobotConfig(robotConfigPath.string());
 	}
@@ -43,13 +43,13 @@ void ConfigManager::loadDefaultConfigs(const Vec2i screenSize) {
 }
 
 
-void ConfigManager::createDefaultConfigs(std::filesystem::path path, const char* data, const int lenght) {
+void ConfigManager::createDefaultConfigs(std::filesystem::path path, const char* data, const int length) {
     std::filesystem::create_directories(path.parent_path());
 
     // Write embedded default config to file
     std::ofstream file(path, std::ios::binary);
     if (file) {
-        file.write(data,lenght);
+        file.write(data, length);
     }
     else {
 		throw std::runtime_error("Failed to create default config at: " + path.string());
@@ -69,7 +69,7 @@ std::filesystem::path ConfigManager::getUserConfigDir() {
         return path;
     }
     return std::filesystem::temp_directory_path();
-#elif __LINUX__
+#elif defined(__linux__)
     // Linux: ~/.config
     const char* xdgConfig = std::getenv("XDG_CONFIG_HOME");
     if (xdgConfig) {

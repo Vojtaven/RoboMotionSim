@@ -28,9 +28,9 @@ public:
 	const RobotConfig& getConstRobotConfig() const { return _robotConfig; }
 	RobotConfig& getRobotConfig() { return _robotConfig; }
 private:
-	void createDefaultConfigs(std::filesystem::path path, const char* data, const int lenght);
+	void createDefaultConfigs(std::filesystem::path path, const char* data, const int length);
 	void loadDefaultConfigs(const Vec2i screenSize);
 	std::filesystem::path getUserConfigDir();
 };
 
-#endif //CONFIG_PARSER_HPP
+#endif // CONFIG_MANAGER_HPP

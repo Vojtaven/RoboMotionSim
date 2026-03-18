@@ -19,7 +19,7 @@ std::optional<std::string> JoystickInput::update(RobotState& state, const float 
 	state.frontAngularVelocity = getInput(_controllerMapping.frontRotateControl, maxRotationSpeed);
 	return std::nullopt;
 }
-float JoystickInput::getInput(const JoystickControll& control, const float maxValue) {
+float JoystickInput::getInput(const JoystickControl& control, const float maxValue) {
 	float result = 0;
 	const int id = _controllerMapping.controllerId;
 	if (control.isAxis) {

@@ -139,7 +139,7 @@ void RobotDesignerWindow::loadFromRobotConfig(const RobotConfig& config) {
 	case RobotDriveType::MECANUM:       _driveTypeIndex = 2; break;
 	}
 
-	for (const auto& axle : config.GetRobotDriveAxels()) {
+	for (const auto& axle : config.GetRobotDriveAxles()) {
 		_axles.push_back(axle);
 	}
 
@@ -158,7 +158,7 @@ RobotConfig RobotDesignerWindow::buildRobotConfig() const {
 	}
 
 	for (const auto& axel : _axles) {
-		config.AddAxel(axel);
+		config.AddAxle(axel);
 	}
 
 	return config;
@@ -168,8 +168,8 @@ void RobotDesignerWindow::renderAxleEditor(int index) {
 	RobotParts::DriveAxle_t& axle = _axles[index];
 	std::string id = std::to_string(index);
 
-	float wheelAngleDeg = RadiansToDegree(axle.wheel.wheel_angle);
-	float rollerAngleDeg = RadiansToDegree(axle.wheel.roller_angle);
+	float wheelAngleDeg = RadiansToDegrees(axle.wheel.wheel_angle);
+	float rollerAngleDeg = RadiansToDegrees(axle.wheel.roller_angle);
 
 	if (!ImGui::TreeNode(("Axle " + id).c_str())) return;
 

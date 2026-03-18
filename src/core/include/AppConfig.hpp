@@ -5,7 +5,7 @@
 #include <array>
 
 // Here to discard configs with old version
-#define CONFIG_VERSION "0.6.8"
+#define CONFIG_VERSION "0.7.0"
 enum class InputType {
 	Keyboard = 0,
 	Controller = 1,
@@ -24,15 +24,15 @@ struct WindowConfig {
 
 struct TrailSettings {
 	std::array<float, 4> trailColor = { 1,1,0.45f,0.5f };
-	int trailMaxLenght = 100;
+	int trailMaxLength = 100;
 	float trailPointSize = 10;
-	float pointSpawnInteral = 0.25f; // Time in seconds between spawning trail points
+	float pointSpawnInterval = 0.25f; // Time in seconds between spawning trail points
 };
 
 struct GridSettings {
 	int spacing = 50;
-	int WantedGridSpacing = 200; // Used for auto spacing, the grid will try to keep the spacing close to this value
-	unsigned int DefaultFontSize = 30;
+	int wantedGridSpacing = 200; // Used for auto spacing, the grid will try to keep the spacing close to this value
+	unsigned int defaultGridFontSize = 30;
 	bool autoSpacing = true;
 	std::array<float, 4> color = { 80.0f / 255.0f, 80.0f / 255.0f, 80.0f / 255.0f, 1 };
 	int subdivisionsCount = 0;
@@ -65,7 +65,7 @@ struct KeyboardMapping {
 	int frontRotateRightKey = 10;
 };
 
-struct JoystickControll {
+struct JoystickControl {
 	bool isAxis = false;
 	bool invert = false;
 	int axisId = 0;
@@ -75,10 +75,10 @@ struct JoystickControll {
 
 struct ControllerMapping {
 	int controllerId = 0;
-	JoystickControll xAxisControl = { true,true, 1, 0, 1 };
-	JoystickControll yAxisControl = { true,false, 0, 0, 1 };
-	JoystickControll chassisRotateControl = { true,false, 4, 0, 1};
-	JoystickControll frontRotateControl = { true,true, 2, 0, 1};
+	JoystickControl xAxisControl = { true,true, 1, 0, 1 };
+	JoystickControl yAxisControl = { true,false, 0, 0, 1 };
+	JoystickControl chassisRotateControl = { true,false, 4, 0, 1};
+	JoystickControl frontRotateControl = { true,true, 2, 0, 1};
 	int deadzone = 5; // Deadzone for joystick axes, in percentage (0-100)
 };
 

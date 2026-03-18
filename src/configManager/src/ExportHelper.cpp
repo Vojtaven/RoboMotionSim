@@ -12,17 +12,17 @@ void ExportHelper::saveRobotConfigTo(const RobotConfig& config, const std::strin
 	if (!file.is_open())
 		throw std::runtime_error("Output file cannot be opened.");
 
-	auto axels = config.GetRobotDriveAxels();
-	int wheelCount = axels.size();
+	auto axles = config.GetRobotDriveAxles();
+	int wheelCount = axles.size();
 	RobotDriveType type = config.GetRobotDriveType();
 	writeConfigLine("DRIVE_TYPE", exportToConfig(type), file);
 	writeConfigLine("WHEELS", std::to_string(wheelCount), file);
 
 	for (int i = 0; i < wheelCount; i++)
-		writeConfigLine(std::format("WHEEL_{}", i), exportToConfig(axels[i].wheel), file);
+		writeConfigLine(std::format("WHEEL_{}", i), exportToConfig(axles[i].wheel), file);
 
 	for (int i = 0; i < wheelCount; i++)
-		writeConfigLine(std::format("MOTOR_{}", i), exportToConfig(axels[i].motor), file);
+		writeConfigLine(std::format("MOTOR_{}", i), exportToConfig(axles[i].motor), file);
 
 	file.close();
 }
@@ -37,8 +37,8 @@ std::string ExportHelper::exportToConfig(const RobotParts::Motor& motor) {
 
 std::string ExportHelper::exportToConfig(const RobotParts::Wheel& wheel) {
 	return std::format("{},{},{},{},{}", wheel.diameter, wheel.x_position, wheel.y_position,
-		Utils::RadiansToDegree(wheel.wheel_angle),
-		Utils::RadiansToDegree(wheel.roller_angle));
+		RadiansToDegrees(wheel.wheel_angle),
+		RadiansToDegrees(wheel.roller_angle));
 }
 
 

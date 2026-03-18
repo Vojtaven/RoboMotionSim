@@ -1,16 +1,9 @@
 #include "AppEngine.hpp"
-#include <SFML/Graphics.hpp>
-#include <iostream>
-#include <string>
-#include <asio.hpp>
-#include "VisualizationEngine.hpp"
-#include "RobotConfig.hpp"
-#include "ConfigManager.hpp"
-#include <numbers> 
-#include "PhysicsEngine.hpp"
+
 #include <chrono>
-#include "MathUtils.hpp"
 #include <memory>
+
+#include <SFML/Graphics.hpp>
 using Clock = std::chrono::steady_clock;
 
 AppEngine::AppEngine()

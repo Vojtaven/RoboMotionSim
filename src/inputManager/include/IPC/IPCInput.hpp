@@ -1,8 +1,6 @@
-#ifndef IPC_INPUT_HPP
 #define IPC_INPUT_HPP
 #include "AppConfig.hpp"
 #include "RobotState.hpp"
-#include <SFML/Window/Joystick.hpp>
 #include <zmq.hpp>
 #include "Protocol.hpp"
 #include "Commands.hpp"
