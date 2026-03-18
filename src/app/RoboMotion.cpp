@@ -1,10 +1,12 @@
 #include "AppEngine.hpp"
 #include <iostream>
-
+#include <nfd.hpp>
 
 int main() {
-	AppEngine app;
+	// Native File Dialog initialization
+	NFD_Init();
 
+	AppEngine app;
 	try {
 		app.run();
 	}
@@ -12,6 +14,9 @@ int main() {
 		std::cerr << "Error: " << e.what() << std::endl;
 		return EXIT_FAILURE;
 	}
+
+	// Native File Dialog cleanup
+	NFD_Quit();
 }
 
 /*NEXT TODO

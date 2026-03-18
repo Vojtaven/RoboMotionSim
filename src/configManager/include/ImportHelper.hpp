@@ -3,7 +3,6 @@
 #include <string>
 #include "RobotConfig.hpp"
 #include "AppConfig.hpp"	
-#include "silent_exprtk.hpp"
 #include "Utils.hpp"
 class ImportHelper
 {

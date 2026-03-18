@@ -36,8 +36,8 @@ private:
 	bool _pendingClose = false;
 	bool _isOpen = false;
 	bool _isLogging = false;
-	const std::filesystem::path _executableDir;
-	std::string _logFilename = "robot_stats.csv";
+	std::string _lastLogFileName = "";
+	std::filesystem::path _logFolder = "";
 };
 
 #endif // !ROBOT_STAT_WINDOW_HPP		

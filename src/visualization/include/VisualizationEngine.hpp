@@ -20,6 +20,7 @@ public:
 	// Returns in normal units
 	Vec2f getWindowCenter() const { return _mainWindow->getRenderWindowCenter(); }
 	void SetOnInputSettingsChanged(std::function<void()> callback) { _mainWindow->SetOnInputSettingsChanged(std::move(callback)); }
+	void SetOnRobotConfigChanged(std::function<void(const RobotConfig&)> callback) { _mainWindow->SetOnRobotConfigChanged(std::move(callback)); }
 	void showErrorMessage(const std::string& message) { _mainWindow->showErrorMessage(message); }
 private:
 	void CreateMainWindow(AppConfig& appConfig);

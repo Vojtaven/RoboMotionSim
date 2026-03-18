@@ -247,7 +247,7 @@ void InputSettingsWindow::renderContent() {
 	// Input type selector
 	const char* inputTypeItems[] = { "Keyboard", "Controller", "IPC", "Serial" };
 	_inputTypeIndex = (int)_settings.inputType;
-	if (ImGui::Combo("Input Type", &_inputTypeIndex, inputTypeItems, IM_ARRAYSIZE(inputTypeItems))) {
+	if (ImGui::Combo("##", &_inputTypeIndex, inputTypeItems, IM_ARRAYSIZE(inputTypeItems))) {
 		_settings.inputType = (InputType)_inputTypeIndex;
 		_waitingForKey = nullptr;
 		_waitingForButton = nullptr;
@@ -403,9 +403,6 @@ bool InputSettingsWindow::renderControllerMapping() {
 		}
 	}
 
-	//ImGui::Text("Controller ID");
-	//changed |= ImGui::InputInt("##ControllerId", &cm.controllerId);
-	//cm.controllerId = std::clamp(cm.controllerId, 0, 7);
 	ImGui::Spacing();
 
 	auto renderJoystickControl = [&](const char* label, JoystickControll& ctrl) {
@@ -415,7 +412,7 @@ bool InputSettingsWindow::renderControllerMapping() {
 
 		const char* modeItems[] = { "Buttons", "Axis" };
 		int modeIndex = ctrl.isAxis ? 1 : 0;
-		if (ImGui::Combo("Mode", &modeIndex, modeItems, IM_ARRAYSIZE(modeItems))) {
+		if (ImGui::Combo("", &modeIndex, modeItems, IM_ARRAYSIZE(modeItems))) {
 			ctrl.isAxis = (modeIndex == 1);
 			changed = true;
 		}

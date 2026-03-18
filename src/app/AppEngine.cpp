@@ -38,13 +38,19 @@ AppEngine::AppEngine()
 		this->inputManager->updateAfterSettingsChange();
 		});
 
+	vizEngine->SetOnRobotConfigChanged([this](const RobotConfig& newConfig) {
+		configManager->getRobotConfig() = newConfig;
+		robotState->wheelCount = newConfig.getWheelCount();
+		robotState->wheels.resize(newConfig.getWheelCount());
+		});
+
 }
 void AppEngine::run() {
-	auto& robotConfig = configManager->getConstRobotConfig();
+
 	auto last = Clock::now();
 
 
-	while (vizEngine->isWindowOpen()) {
+	while (vizEngine->isWindowOpen()) { 
 		auto now = Clock::now();
 		const std::chrono::duration<float> delta = now - last;
 		_wallTime += std::chrono::duration_cast<std::chrono::system_clock::duration>(delta);
@@ -52,7 +58,7 @@ void AppEngine::run() {
 		if (inputResult.has_value()) {
 			vizEngine->showErrorMessage(inputResult.value());
 		}
-		physicsEngine->update(delta.count(), *robotState, robotConfig);
+		physicsEngine->update(delta.count(), *robotState, configManager->getConstRobotConfig());
 		last = now;
 		vizEngine->update(delta.count(), *robotState, _wallTime);
 		inputManager->checkForInputCompletion(*robotState, delta.count());

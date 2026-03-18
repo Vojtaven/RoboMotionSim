@@ -11,27 +11,25 @@ namespace RobotParts {
 		 * handle (in steps/sec). This acts as an upper safety limit, potentially used
 		 * by derived classes to cap the speed set by setMaxSpeed().
 		 */
-		const float hardwareMaxSpeedLimit;
+		float hardwareMaxSpeedLimit;
 
 		// @brief Stores the amount of steps the motors need to take to do full
 		// rotation of wheel including gearbox's ratio etc
-		const float stepsPerRotation;
+		float stepsPerRotation;
 
-		const int pin1, pin2;
+		int pin1, pin2;
 	};
 
 	struct Wheel {
-		const float diameter;
+		float diameter;
 		// Position of wheel center relative to robot center in mm
-		const float x_position;
+		float x_position;
 		// Position of wheel center relative to robot center in mm
-		const float y_position;
+		float y_position;
 		// Angle of the wheel's driving direction relative to robot frame in radians
-		const float wheel_angle;
+		float wheel_angle;
 		// Angle of the rollers on the omni wheel in radians
-		const float roller_angle;
-
-		const Vec2f driveVector;
+		float roller_angle;
 	};
 
 	struct DriveAxle_t {

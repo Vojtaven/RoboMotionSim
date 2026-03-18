@@ -9,6 +9,7 @@
 #include "SFMLHelper.hpp"
 #include "embeddedFont.h"
 #include "windows/WindowHelper.hpp"
+#include "nfd.hpp"
 
 namespace {
     std::filesystem::path getExecutableDir() {
@@ -123,7 +124,7 @@ namespace {
     }
 } // anonymous namespace
 
-RobotStatWindow::RobotStatWindow(const AppConfig& config) : _executableDir(getExecutableDir())
+RobotStatWindow::RobotStatWindow(const AppConfig& config) : _logFolder(getExecutableDir() / "logs")
 {
 	_windowConfig = config.robotStatWindow;
 	if (_windowConfig.open) {
@@ -368,24 +369,34 @@ void RobotStatWindow::renderLoggingSection(const RobotState& robotState) {
     ImGui::TextColored(ImVec4(0.4f, 1.0f, 0.7f, 1.0f), "  Logging");
     ImGui::Spacing();
 
-    ImGui::SetCursorPosX(ImGui::GetCursorPosX() + RowIndent);
-    ImGui::TextDisabled("File:");
-    ImGui::SameLine(LoggingLabelColumnX);
-    ImGui::SetNextItemWidth(-FLT_MIN);
-    ImGui::InputText("##logfile", &_logFilename,
-        _isLogging ? ImGuiInputTextFlags_ReadOnly : ImGuiInputTextFlags_None);
+    if(ImGui::Button("Find log folder", ImVec2(-FLT_MIN, 0))) {
+        NFD::UniquePath outPath;
+
+        nfdresult_t result = NFD::PickFolder(outPath);
+
+        if (result == NFD_OKAY) {
+            _logFolder = outPath.get();
+        }
+    }
+
 
     ImGui::SetCursorPosX(ImGui::GetCursorPosX() + RowIndent);
     ImGui::TextDisabled("Dir:");
     ImGui::SameLine(LoggingLabelColumnX);
-    ImGui::TextDisabled("%s", _executableDir.string().c_str());
+    ImGui::TextDisabled("%s", _logFolder.string().c_str());
+
+    ImGui::SetCursorPosX(ImGui::GetCursorPosX() + RowIndent);
+    ImGui::TextDisabled("Log:");
+    ImGui::SameLine(LoggingLabelColumnX);
+    ImGui::TextDisabled("%s", _lastLogFileName.c_str());
 
     ImGui::Spacing();
     ImGui::SetCursorPosX(ImGui::GetCursorPosX() + RowIndent);
 
     if (!_isLogging) {
         if (ImGui::Button("Start Logging", ImVec2(-FLT_MIN, 0))) {
-            auto fullPath = _executableDir / _logFilename;
+			_lastLogFileName = "log_" + std::to_string(std::chrono::system_clock::now().time_since_epoch().count()) + ".csv";
+            auto fullPath = _logFolder / _lastLogFileName;
             _logger.startLogging(fullPath.string(), robotState.wheelCount, true);
             _isLogging = true;
         }

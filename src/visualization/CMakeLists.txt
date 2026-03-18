@@ -26,12 +26,17 @@ add_library(${MODULE_NAME} STATIC
     ${CMAKE_CURRENT_BINARY_DIR}/embeddedFont.h
 )
 # Link required libraries
-target_link_libraries(${MODULE_NAME} PUBLIC
+target_link_libraries(${MODULE_NAME} PRIVATE
     sfml-system
     sfml-window
     sfml-graphics
     imgui
     ImGui-SFML
+    configManager
+    nfd
+)
+
+target_link_libraries(${MODULE_NAME} PUBLIC
     core
 )
  

@@ -45,7 +45,7 @@ target_include_directories(${MODULE_NAME} PUBLIC
 )
 target_link_libraries(${MODULE_NAME} PUBLIC exprtk)
 target_link_libraries(${MODULE_NAME} PUBLIC core)
-target_link_libraries(${MODULE_NAME} PUBLIC nlohmann_json)
+target_link_libraries(${MODULE_NAME} PRIVATE nlohmann_json)
 set_target_properties(${MODULE_NAME} PROPERTIES FOLDER "Project Modules")
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${LIBRARY_SOURCES})
 source_group("Config Files" FILES ${CONFIG_FILES})

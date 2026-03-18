@@ -6,6 +6,7 @@
 #include "RenderSettingsWindow.hpp"
 #include "InputSettingsWindow.hpp"
 #include "RobotStatWindow.hpp"
+#include "RobotDesignerWindow.hpp"
 class MainWindow
 {
 public:
@@ -21,6 +22,7 @@ public:
 	bool isOpen() const { return _isOpen; }
 	Vec2f getRenderWindowCenter() const { return _renderEngine->getWindowCenter(); }
 	void SetOnInputSettingsChanged(std::function<void()> callback);
+	void SetOnRobotConfigChanged(std::function<void(const RobotConfig&)> callback);
 	void showErrorMessage(const std::string& message);
 private:
 	void saveWindowConfig(WindowConfig& config) const;
@@ -39,11 +41,13 @@ private:
 	std::unique_ptr<sf::RenderWindow> _window;
 	std::unique_ptr<RenderSettingsWindow> _settingsWindow;
 	std::unique_ptr<InputSettingsWindow> _inputSettingsWindow;
-	std::unique_ptr<RobotStatWindow> _robotStatWindow;	
+	std::unique_ptr<RobotStatWindow> _robotStatWindow;
+	std::unique_ptr<RobotDesignerWindow> _robotDesignerWindow;
 	std::vector<std::string> _errorMessages;
 	std::function<void()> _onInputSettingsChanged;
+	std::function<void(const RobotConfig&)> _onRobotConfigChanged;
 	// Other windows management
-	void initializeOtherWindows();
+	void initializeOtherWindows(const RobotConfig& robotConfig);
 	void closeOtherWindows();
 	void updateAllOtherWindows(sf::Time dt, const RobotState& robotState);
 	void drawAllOtherWindows();

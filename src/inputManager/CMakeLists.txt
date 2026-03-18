@@ -12,12 +12,15 @@ add_library(${MODULE_NAME} STATIC
     ${LIBRARY_SOURCES}
 )
 # Link required libraries
-target_link_libraries(${MODULE_NAME} PUBLIC
+target_link_libraries(${MODULE_NAME} PRIVATE
     sfml-system
     sfml-window
 	asio
-    core
     cppzmq-static
+)
+
+target_link_libraries(${MODULE_NAME} PUBLIC
+    core
 )
  
 target_include_directories(${MODULE_NAME} PUBLIC 
