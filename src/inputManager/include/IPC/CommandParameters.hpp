@@ -110,7 +110,8 @@ struct MoveByAngleRawParams{
 struct MoveByAngleParams
 {
 	using command_parameters_tag = void;
-
+	float x_speed;
+	float y_speed;
 	float angle_rad;      // Relative change in heading
 	float rotation_speed;
 	float center_x_mm;    // Pivot point offset X

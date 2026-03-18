@@ -219,10 +219,10 @@ class CommandFactory
 	static MoveByDistanceRawParams recalculateToRawValues(const MoveByDistanceParams& params);
 	static MoveByAngleRawParams recalculateToRawValues(const MoveByAngleParams& params);
 public:
-	static std::unique_ptr<Command> createMoveByDistance(uint32_t id, const uint8_t* data, size_t size);
-	static std::unique_ptr<Command> createMoveByTime(uint32_t id, const uint8_t* data, size_t size);
-	static std::unique_ptr<Command> createMoveAtSpeed(uint32_t id, const uint8_t* data, size_t size);
-	static std::unique_ptr<Command> createTurnRelative(uint32_t id, const uint8_t* data, size_t size);
+	static std::unique_ptr<MoveByDistanceRaw> createMoveByDistance(uint32_t id, const uint8_t* data, size_t size);
+	static std::unique_ptr<MoveByTimeRaw> createMoveByTime(uint32_t id, const uint8_t* data, size_t size);
+	static std::unique_ptr<MoveAtSpeedRaw> createMoveAtSpeed(uint32_t id, const uint8_t* data, size_t size);
+	static std::unique_ptr<MoveByAngleRaw> createTurnRelative(uint32_t id, const uint8_t* data, size_t size);
 };
 
 // ================================================

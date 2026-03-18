@@ -199,27 +199,50 @@ void MotorCommandWrapper::execute(RobotState& state) {
 // ================================================
 
 MoveAtSpeedRawParams CommandFactory::recalculateToRawValues(const MoveAtSpeedParams& params) {
-	throw std::logic_error("Function not yet implemented");
+	MoveAtSpeedRawParams rawParams;
+	rawParams.x_speed = params.x_speed - params.rotation_speed * params.center_y_mm;
+	rawParams.y_speed = params.y_speed + params.rotation_speed * params.center_x_mm;
+	rawParams.rotation_speed = params.rotation_speed;
+	rawParams.front_rotation_speed = params.rotate_chassis ? 0.0f: -params.rotation_speed;
+	return rawParams;
 }
 MoveByTimeRawParams CommandFactory::recalculateToRawValues(const MoveByTimeParams& params) {
-	throw std::logic_error("Function not yet implemented");
+	MoveByTimeRawParams rawParams;
+	rawParams.x_speed = params.x_speed - params.rotation_speed * params.center_y_mm;
+	rawParams.y_speed = params.y_speed + params.rotation_speed * params.center_x_mm;
+	rawParams.rotation_speed = params.rotation_speed;
+	rawParams.front_rotation_speed = params.rotate_chassis ? 0.0f : -params.rotation_speed;
+	rawParams.time_s = params.time_s;
+	return rawParams;
 }
 MoveByDistanceRawParams CommandFactory::recalculateToRawValues(const MoveByDistanceParams& params) {
-	throw std::logic_error("Function not yet implemented");
+	MoveByDistanceRawParams rawParams;
+	rawParams.x_speed = params.x_speed - params.rotation_speed * params.center_y_mm;
+	rawParams.y_speed = params.y_speed + params.rotation_speed * params.center_x_mm;
+	rawParams.rotation_speed = params.rotation_speed;
+	rawParams.front_rotation_speed = params.rotate_chassis ? 0.0f : -params.rotation_speed;
+	rawParams.distance_mm = params.distance_mm;
+	return rawParams;
 }
 MoveByAngleRawParams CommandFactory::recalculateToRawValues(const MoveByAngleParams& params) {
-	throw std::logic_error("Function not yet implemented");
+	MoveByAngleRawParams rawParams;
+	rawParams.x_speed = params.x_speed - params.rotation_speed * params.center_y_mm;
+	rawParams.y_speed = params.y_speed + params.rotation_speed * params.center_x_mm;
+	rawParams.rotation_speed = params.rotation_speed;
+	rawParams.front_rotation_speed = params.rotate_chassis ? 0.0f : -params.rotation_speed;
+	rawParams.angle_rad = params.angle_rad;
+	return rawParams;
 }
 
-std::unique_ptr<Command> CommandFactory::createMoveByDistance(uint32_t id, const uint8_t* data, size_t size) {
-	throw std::logic_error("Function not yet implemented");
+std::unique_ptr<MoveByDistanceRaw> CommandFactory::createMoveByDistance(uint32_t id, const uint8_t* data, size_t size) {
+	return std::make_unique<MoveByDistanceRaw>(id, recalculateToRawValues(CommandParameters::ParseParams<MoveByDistanceParams>(data, size)));
 }
-std::unique_ptr<Command> CommandFactory::createMoveByTime(uint32_t id, const uint8_t* data, size_t size) {
-	throw std::logic_error("Function not yet implemented");
+std::unique_ptr<MoveByTimeRaw> CommandFactory::createMoveByTime(uint32_t id, const uint8_t* data, size_t size) {
+	return std::make_unique<MoveByTimeRaw>(id, recalculateToRawValues(CommandParameters::ParseParams<MoveByTimeParams>(data, size)));
 }
-std::unique_ptr<Command> CommandFactory::createMoveAtSpeed(uint32_t id, const uint8_t* data, size_t size) {
-	throw std::logic_error("Function not yet implemented");
+std::unique_ptr<MoveAtSpeedRaw> CommandFactory::createMoveAtSpeed(uint32_t id, const uint8_t* data, size_t size) {
+	return std::make_unique<MoveAtSpeedRaw>(id, recalculateToRawValues(CommandParameters::ParseParams<MoveAtSpeedParams>(data, size)));
 }
-std::unique_ptr<Command> CommandFactory::createTurnRelative(uint32_t id, const uint8_t* data, size_t size) {
-	throw std::logic_error("Function not yet implemented");
+std::unique_ptr<MoveByAngleRaw> CommandFactory::createTurnRelative(uint32_t id, const uint8_t* data, size_t size) {
+	return std::make_unique<MoveByAngleRaw>(id, recalculateToRawValues(CommandParameters::ParseParams<MoveByAngleParams>(data, size)));
 }
