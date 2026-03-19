@@ -2,11 +2,7 @@
 #include <imgui.h>
 #include <imgui-SFML.h>
 #include <cstdint>
-#include <cstring>
-#include <fstream>
-#include <format>
 #include <sstream>
-#include <algorithm>
 #include "SFMLHelper.hpp"
 #include "embeddedFont.h"
 #include "windows/WindowHelper.hpp"
@@ -288,7 +284,7 @@ void RobotDesignerWindow::renderContent() {
 	}
 
 	ImGui::Spacing();
-	if ((_driveTypeIndex != 0 || _axles.size() < 1) && ImGui::Button("+ Add Axle")) {
+	if (ImGui::Button("+ Add Axle")) {
 		_axles.push_back(RobotParts::DriveAxle_t{});
 	}
 
@@ -314,9 +310,14 @@ void RobotDesignerWindow::renderContent() {
 	if (ImGui::Button("Apply to Simulation", ImVec2(-FLT_MIN, 30))) {
 		if (_onRobotConfigApplied) {
 			RobotConfig config = buildRobotConfig();
-
-			_onRobotConfigApplied(config);
-			_statusMessage = "Config applied to simulation.";
+			auto validationError = config.validateConfig();
+			if(validationError == std::nullopt) {
+				_onRobotConfigApplied(config);
+				_statusMessage = StatusMessage::Info("Config applied to simulation.");
+			}
+			else {
+				_statusMessage = StatusMessage::Error("Config validation error: " + *validationError);
+			}
 		}
 	}
 
@@ -337,11 +338,11 @@ void RobotDesignerWindow::renderContent() {
 		if (result == NFD_OKAY) {
 			std::string savePath = outPath.get();
 			RobotConfig config = buildRobotConfig();
-			ExportHelper::saveRobotConfigTo(config, std::string(_filePath));
-			_statusMessage = "Saved successfully.";
+			ExportHelper::saveRobotConfigTo(config, savePath);
+			_statusMessage = StatusMessage::Info("Saved successfully.");
 		}
 		else  if (result == NFD_ERROR) {
-			_statusMessage = std::string("Error: ") + NFD::GetError();
+			_statusMessage = StatusMessage::Error(std::string("Error: ") + NFD::GetError());
 		}
 	}
 	ImGui::SameLine();
@@ -358,18 +359,37 @@ void RobotDesignerWindow::renderContent() {
 			std::string selectedPath = outPath.get();
 			RobotConfig loaded = ImportHelper::loadRobotConfigFrom(selectedPath);
 			loadFromRobotConfig(loaded);
-			_statusMessage = "Loaded successfully.";
+			_statusMessage = StatusMessage::Info("Loaded successfully.");
 		}
 		else  if (result == NFD_ERROR) {
-			_statusMessage = std::string("Error: ") + NFD::GetError();
+			_statusMessage = StatusMessage::Error(std::string("Error: ") + NFD::GetError());
 		}
 	}
 
 	// Status message
-	if (!_statusMessage.empty()) {
-		ImGui::Spacing();
-		ImGui::TextWrapped("%s", _statusMessage.c_str());
+	if (!_statusMessage.message.empty()) {
+		ImGui::OpenPopup("Status Message");
 	}
+
+	ImVec2 displaySize = ImGui::GetIO().DisplaySize;
+	ImGui::SetNextWindowPos(ImVec2(displaySize.x * 0.5f, displaySize.y * 0.5f), ImGuiCond_Always, ImVec2(0.5f, 0.5f));
+
+	if (ImGui::BeginPopupModal("Status Message", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
+		ImGui::PushTextWrapPos(400.0f); // Set wrap width as needed
+		ImGui::TextColored(
+			_statusMessage.isError ? ImVec4(1.0f, 0.6f, 0.6f, 1.0f) : ImVec4(0.6f, 0.9f, 0.6f, 1.0f),
+			"%s", _statusMessage.message.c_str()
+		);
+		float windowWidth = ImGui::GetWindowSize().x;
+		float okButtonWidth = 80.0f;
+		ImGui::SetCursorPosX((windowWidth - okButtonWidth) * 0.5f);
+		if (ImGui::Button("OK", ImVec2(okButtonWidth, 0))) {
+			_statusMessage.message.clear();
+			ImGui::CloseCurrentPopup();
+		}
+		ImGui::EndPopup();
+	}
+
 
 	ImGui::PopItemWidth();
 	ImGui::End();

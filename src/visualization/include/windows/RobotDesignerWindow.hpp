@@ -41,8 +41,18 @@ private:
 
 	int _driveTypeIndex = 0;
 	std::vector<RobotParts::DriveAxle_t> _axles;
-	char _filePath[512] = {};
-	std::string _statusMessage;
+
+
+
+	struct StatusMessage {
+		std::string message;
+		bool isError;
+		static StatusMessage Info(const std::string& msg) { return StatusMessage{ msg, false }; }
+		static StatusMessage Error(const std::string& msg) { return StatusMessage{ msg, true }; }
+		static StatusMessage Empty() { return StatusMessage{ "", false }; }
+	};
+
+	StatusMessage _statusMessage;
 
 	bool _showPreview = true;
 	std::unique_ptr<sf::RenderTexture> _previewTexture;
