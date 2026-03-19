@@ -6,6 +6,7 @@
 #include "SFMLHelper.hpp"
 #include "embeddedFont.h"
 #include "windows/WindowHelper.hpp"
+#include "ColorConstants.hpp"
 #include "MathUtils.hpp"
 #include "ExportHelper.hpp"
 #include "ImportHelper.hpp"
@@ -115,7 +116,7 @@ void RobotDesignerWindow::draw() {
 	if (!isOpen()) return;
 
 	ImGui::SFML::SetCurrentWindow(*_window);
-	_window->clear(sf::Color(30, 30, 30));
+	_window->clear(Colors::WindowClearColor);
 	ImGui::SFML::Render(*_window);
 	_window->display();
 }
@@ -173,7 +174,7 @@ void RobotDesignerWindow::renderAxleEditor(int index, bool renderRollerAngle) {
 
 	ImGui::PushID(index);
 	ImGui::PopItemWidth();
-	ImGui::TextColored(ImVec4(0.6f, 0.9f, 0.6f, 1.0f), "Wheel");
+	ImGui::TextColored(Colors::WheelLabel, "Wheel");
 	ImGui::InputFloat("Diameter (mm)", &axle.wheel.diameter, 1.0f, 10.0f, "%.1f");
 	ImGui::InputFloat("X Position (mm)", &axle.wheel.x_position, 1.0f, 10.0f, "%.1f");
 	ImGui::InputFloat("Y Position (mm)", &axle.wheel.y_position, 1.0f, 10.0f, "%.1f");
@@ -184,7 +185,7 @@ void RobotDesignerWindow::renderAxleEditor(int index, bool renderRollerAngle) {
 	axle.wheel.wheel_angle = DegreesToRadians(wheelAngleDeg);
 
 	ImGui::Spacing();
-	ImGui::TextColored(ImVec4(0.9f, 0.6f, 0.6f, 1.0f), "Motor");
+	ImGui::TextColored(Colors::MotorLabel, "Motor");
 	ImGui::InputFloat("Max Speed (steps/s)", &axle.motor.hardwareMaxSpeedLimit, 10.0f, 100.0f, "%.0f");
 	ImGui::InputFloat("Steps/Rotation", &axle.motor.stepsPerRotation, 1.0f, 10.0f, "%.0f");
 	ImGui::InputInt("Pin 1", &axle.motor.pin1);
@@ -241,7 +242,7 @@ void RobotDesignerWindow::renderPreview() {
 	sf::View view(center, { viewW, viewH });
 	_previewTexture->setView(view);
 
-	_previewTexture->clear(sf::Color(20, 20, 20));
+	_previewTexture->clear(Colors::PreviewBackground);
 	_previewTexture->draw(shape);
 	_previewTexture->display();
 
@@ -260,7 +261,7 @@ void RobotDesignerWindow::renderContent() {
 		ImGuiWindowFlags_NoCollapse);
 
 	ImGui::PushItemWidth(-FLT_MIN);
-	ImGui::TextColored(ImVec4(0.4f, 0.8f, 1.0f, 1.0f), "Robot Designer");
+	ImGui::TextColored(Colors::WindowHeader, "Robot Designer");
 	ImGui::Separator();
 	ImGui::Spacing();
 
@@ -273,7 +274,7 @@ void RobotDesignerWindow::renderContent() {
 	ImGui::Spacing();
 
 	// Axles
-	ImGui::TextColored(ImVec4(0.4f, 0.8f, 1.0f, 1.0f), "Drive Axles (%d)", (int)_axles.size());
+	ImGui::TextColored(Colors::WindowHeader, "Drive Axles (%d)", (int)_axles.size());
 	ImGui::Spacing();
 
 	for (int i = 0; i < (int)_axles.size(); i++) {
@@ -304,7 +305,7 @@ void RobotDesignerWindow::renderContent() {
 	ImGui::Spacing();
 
 	// Apply button
-	ImGui::TextColored(ImVec4(0.4f, 0.8f, 1.0f, 1.0f), "Actions");
+	ImGui::TextColored(Colors::WindowHeader, "Actions");
 	ImGui::Spacing();
 
 	if (ImGui::Button("Apply to Simulation", ImVec2(-FLT_MIN, 30))) {
@@ -326,7 +327,7 @@ void RobotDesignerWindow::renderContent() {
 	ImGui::Spacing();
 
 	// File operations
-	ImGui::TextColored(ImVec4(0.4f, 0.8f, 1.0f, 1.0f), "Save / Load");
+	ImGui::TextColored(Colors::WindowHeader, "Save / Load");
 	ImGui::Spacing();
 	float buttonWidth = (ImGui::GetContentRegionAvail().x - ImGui::GetStyle().ItemSpacing.x) * 0.5f;
 	if (ImGui::Button("Save As...", ImVec2(buttonWidth, 0))) {
@@ -377,7 +378,7 @@ void RobotDesignerWindow::renderContent() {
 	if (ImGui::BeginPopupModal("Status Message", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
 		ImGui::PushTextWrapPos(400.0f); // Set wrap width as needed
 		ImGui::TextColored(
-			_statusMessage.isError ? ImVec4(1.0f, 0.6f, 0.6f, 1.0f) : ImVec4(0.6f, 0.9f, 0.6f, 1.0f),
+			_statusMessage.isError ? Colors::ErrorStatusText : Colors::SuccessStatusText,
 			"%s", _statusMessage.message.c_str()
 		);
 		float windowWidth = ImGui::GetWindowSize().x;

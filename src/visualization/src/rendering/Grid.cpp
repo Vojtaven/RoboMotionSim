@@ -1,6 +1,7 @@
 #include "rendering/Grid.hpp"
 #include "SFMLHelper.hpp"
 #include "windows/WindowHelper.hpp"
+#include "ColorConstants.hpp"
 Grid::Grid(const GridSettings& settings, const float& scale, const sf::Font& font, const sf::View& view)
 	: _settings(settings),
 	_scale(scale),
@@ -73,7 +74,7 @@ void Grid::addGridLines(const sf::Color& color, const float spacing) {
 
 void Grid::addGridText(unsigned int textSize) {
 	_text.clear();
-	TextLabelFactory factory(*_font, textSize, _gridColor, sf::Color(0, 0, 0, 150));
+	TextLabelFactory factory(*_font, textSize, _gridColor, Colors::GridTextBackground);
 	//sf::Color(0, 0, 0, 100)
 	for (float x = startPos.x; x <= _bounds.right; x += _spacing)
 	{

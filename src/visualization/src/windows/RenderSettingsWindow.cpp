@@ -6,6 +6,7 @@
 #include "SFMLHelper.hpp"
 #include "embeddedFont.h"
 #include "windows/WindowHelper.hpp"
+#include "ColorConstants.hpp"
 RenderSettingsWindow::RenderSettingsWindow(const AppConfig& config)
 {
 	_windowConfig = config.renderSettingsWindow;
@@ -114,7 +115,7 @@ void RenderSettingsWindow::draw() {
 	if (!isOpen()) return;
 
 	ImGui::SFML::SetCurrentWindow(*_window);
-	_window->clear(sf::Color(30, 30, 30));
+	_window->clear(Colors::WindowClearColor);
 	ImGui::SFML::Render(*_window);
 	_window->display();
 }
@@ -137,7 +138,7 @@ void RenderSettingsWindow::renderContent() {
 		ImGuiWindowFlags_NoCollapse);
 
 	ImGui::PushItemWidth(-FLT_MIN);
-	ImGui::TextColored(ImVec4(0.4f, 0.8f, 1.0f, 1.0f), "Visualization Settings");
+	ImGui::TextColored(Colors::WindowHeader, "Visualization Settings");
 	ImGui::Separator();
 	ImGui::Spacing();
 

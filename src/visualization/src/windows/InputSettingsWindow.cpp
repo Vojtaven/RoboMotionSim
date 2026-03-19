@@ -11,6 +11,7 @@
 #include "SFMLHelper.hpp"
 #include "embeddedFont.h"
 #include "windows/WindowHelper.hpp"
+#include "ColorConstants.hpp"
 
 static std::string getKeyName(int keyCode) {
 	if (keyCode < 0) return "Unknown";
@@ -213,7 +214,7 @@ void InputSettingsWindow::draw() {
 	if (!isOpen()) return;
 
 	ImGui::SFML::SetCurrentWindow(*_window);
-	_window->clear(sf::Color(30, 30, 30));
+	_window->clear(Colors::WindowClearColor);
 	ImGui::SFML::Render(*_window);
 	_window->display();
 }
@@ -236,7 +237,7 @@ void InputSettingsWindow::renderContent() {
 		ImGuiWindowFlags_NoCollapse);
 
 	ImGui::PushItemWidth(-FLT_MIN);
-	ImGui::TextColored(ImVec4(0.4f, 0.8f, 1.0f, 1.0f), "Input Settings");
+	ImGui::TextColored(Colors::WindowHeader, "Input Settings");
 	ImGui::Separator();
 	ImGui::Spacing();
 
@@ -318,7 +319,7 @@ bool InputSettingsWindow::renderCommonSettings() {
 
 bool InputSettingsWindow::renderKeyboardMapping() {
 	bool changed = _bindingChanged || renderCommonSettings();
-	ImGui::TextColored(ImVec4(0.4f, 0.8f, 1.0f, 1.0f), "Keyboard Mapping");
+	ImGui::TextColored(Colors::WindowHeader, "Keyboard Mapping");
 	ImGui::Separator();
 	ImGui::Spacing();
 	KeyboardMapping& km = _settings.keyboardMapping;
@@ -343,7 +344,9 @@ bool InputSettingsWindow::renderKeyboardMapping() {
 		}
 		};
 
+	ImGui::PushTextWrapPos(0.0f);
 	ImGui::TextDisabled("Click a button and press a key to rebind. Escape to cancel.");
+	ImGui::PopTextWrapPos();
 	ImGui::Spacing();
 
 	if (ImGui::BeginTable("##KeyboardBindings", 2, ImGuiTableFlags_BordersInnerH)) {
@@ -367,7 +370,7 @@ bool InputSettingsWindow::renderKeyboardMapping() {
 
 bool InputSettingsWindow::renderControllerMapping() {
 	bool changed = _bindingChanged || renderCommonSettings();
-	ImGui::TextColored(ImVec4(0.4f, 0.8f, 1.0f, 1.0f), "Controller Mapping");
+	ImGui::TextColored(Colors::WindowHeader, "Controller Mapping");
 	ImGui::Separator();
 	ImGui::Spacing();
 	ControllerMapping& cm = _settings.controllerMapping;
@@ -408,7 +411,7 @@ bool InputSettingsWindow::renderControllerMapping() {
 	auto renderJoystickControl = [&](const char* label, JoystickControl& ctrl) {
 		ImGui::PushID(label);
 
-		ImGui::TextColored(ImVec4(0.8f, 0.8f, 0.2f, 1.0f), "%s", label);
+		ImGui::TextColored(Colors::JoystickControlLabel, "%s", label);
 
 		const char* modeItems[] = { "Buttons", "Axis" };
 		int modeIndex = ctrl.isAxis ? 1 : 0;
@@ -483,7 +486,7 @@ bool InputSettingsWindow::renderControllerMapping() {
 	return changed;
 }
 bool InputSettingsWindow::renderIPCMapping() {
-	ImGui::TextColored(ImVec4(0.4f, 0.8f, 1.0f, 1.0f), "IPC Mapping");
+	ImGui::TextColored(Colors::WindowHeader, "IPC Mapping");
 	ImGui::Separator();
 	ImGui::Spacing();
 	bool changed = false;
@@ -524,7 +527,7 @@ bool InputSettingsWindow::renderIPCMapping() {
 }
 
 bool InputSettingsWindow::renderSerialMapping() {
-	ImGui::TextColored(ImVec4(0.4f, 0.8f, 1.0f, 1.0f), "Serial Mapping");
+	ImGui::TextColored(Colors::WindowHeader, "Serial Mapping");
 	ImGui::Separator();
 	ImGui::Spacing();
 	bool changed = false;

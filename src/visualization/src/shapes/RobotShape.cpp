@@ -4,6 +4,7 @@
 #include <memory>
 #include "shapes/WheelVectors.hpp"
 #include "SFMLHelper.hpp"
+#include "ColorConstants.hpp"
 
 std::unique_ptr<sf::ConvexShape> makeRobotBase(const std::vector<sf::Vector2f>& points) {
 	if (points.size() < 2) {
@@ -32,8 +33,8 @@ std::unique_ptr<sf::ConvexShape> makeRobotBase(const std::vector<sf::Vector2f>& 
 		shape.setPoint(1, b + perp * depth);
 		shape.setPoint(2, b - perp * depth);
 		shape.setPoint(3, a - perp * depth);
-		shape.setFillColor({ 50, 50, 50 });
-		shape.setOutlineColor(sf::Color::Cyan);
+		shape.setFillColor(Colors::RobotBaseFill);
+		shape.setOutlineColor(Colors::RobotOutline);
 		shape.setOutlineThickness(4.f);
 		return std::make_unique<sf::ConvexShape>(shape);
 	}
@@ -75,8 +76,8 @@ std::unique_ptr<sf::ConvexShape> makeRobotBase(const std::vector<sf::Vector2f>& 
 		shape.setPoint(i, hull[i]);
 
 	// Optional styling
-	shape.setFillColor({ 50,50,50 });
-	shape.setOutlineColor(sf::Color::Cyan);
+	shape.setFillColor(Colors::RobotBaseFill);
+	shape.setOutlineColor(Colors::RobotOutline);
 	shape.setOutlineThickness(4.f);
 
 	return std::make_unique<sf::ConvexShape>(shape);
@@ -103,7 +104,7 @@ RobotShape::RobotShape(const RobotConfig& config, bool drawCenter, bool showSpee
 
 	distanceFromCenter /= _numberOfWheels * 3;
 
-	auto frontVec = std::make_unique<PointVector>(sf::Vector2f{0,0}, 0.0f, distanceFromCenter, sf::Color::White);
+	auto frontVec = std::make_unique<PointVector>(sf::Vector2f{0,0}, 0.0f, distanceFromCenter, Colors::FrontVector);
 	_frontVector = frontVec.get();
 
 	for (const auto& wheel : config.GetRobotWheels())
@@ -154,7 +155,7 @@ void RobotShape::updateDirectionVectors(const RobotState& state) {
 				ToSFMLVector2f(dirVec.position),
 				dirVec.angle,
 				dirVec.length,
-				sf::Color::Magenta,
+				Colors::DirectionVector,
 				6.f,
 				sf::Vector2f{20, 20}
 			);
@@ -189,9 +190,9 @@ void RobotShape::addWheelVector(const RobotParts::Wheel& wheel) {
 	//Vector of speed for this wheel
 	auto wheelVectors = std::make_unique<WheelVectors>(
 		wheel,
-		sf::Color::Red,
-		sf::Color::Green,
-		sf::Color::Yellow,
+		Colors::WheelForwardVector,
+		Colors::WheelRollerVector,
+		Colors::WheelDirVector,
 		4.f, sf::Vector2f{ 25, 25 });
 
 	_speedOfWheels.push_back(wheelVectors.get());

@@ -9,6 +9,7 @@
 #include "SFMLHelper.hpp"
 #include "embeddedFont.h"
 #include "windows/WindowHelper.hpp"
+#include "ColorConstants.hpp"
 #include "nfd.hpp"
 
 namespace {
@@ -45,13 +46,6 @@ namespace {
     constexpr float LoggingLabelColumnX = 60.0f;
     constexpr int MaxWheelColumns = 3;
 
-    const ImVec4 ActiveValueColor(0.4f, 1.0f, 0.6f, 1.0f);
-    const ImVec4 InactiveValueColor(0.55f, 0.55f, 0.55f, 1.0f);
-    const ImVec4 BarBackgroundColor(0.15f, 0.18f, 0.22f, 1.0f);
-    const ImVec4 WheelTitleColor(1.0f, 0.72f, 0.3f, 1.0f);
-    const ImU32 HeaderLineColor = IM_COL32(0, 180, 255, 60);
-    const ImU32 SeparatorColor = IM_COL32(255, 255, 255, 18);
-
     constexpr ImGuiWindowFlags FullscreenWindowFlags =
         ImGuiWindowFlags_NoTitleBar |
         ImGuiWindowFlags_NoResize |
@@ -73,7 +67,7 @@ namespace {
         ImGui::GetWindowDrawList()->AddLine(
             ImVec2(x + SectionHeaderIndent, y),
             ImVec2(x + panelW, y),
-            SeparatorColor, 1.0f
+            Colors::SectionSeparator, 1.0f
         );
         ImGui::Spacing();
     }
@@ -83,8 +77,8 @@ namespace {
         ImGui::TextDisabled("%s", label);
         ImGui::SameLine(LabelColumnX);
         ImVec4 valColor = (std::abs(value) > ValueEpsilon)
-            ? ActiveValueColor
-            : InactiveValueColor;
+            ? Colors::ActiveValue
+            : Colors::InactiveValue;
         ImGui::TextColored(valColor, "%.2f", value);
         ImGui::SameLine();
         ImGui::TextDisabled("%s", unit);
@@ -96,10 +90,10 @@ namespace {
         ImGui::SameLine(LabelColumnX);
         float fraction = std::min(std::abs(value) / MaxVelocity, 1.0f);
         ImVec4 barColor = fraction > HighVelocityThreshold
-            ? ImVec4(1.0f, 0.5f, 0.2f, 1.0f)
-            : ImVec4(0.2f, 0.8f, 0.45f, 1.0f);
+            ? Colors::HighVelocityBar
+            : Colors::NormalVelocityBar;
         ImGui::PushStyleColor(ImGuiCol_PlotHistogram, barColor);
-        ImGui::PushStyleColor(ImGuiCol_FrameBg, BarBackgroundColor);
+        ImGui::PushStyleColor(ImGuiCol_FrameBg, Colors::BarBackground);
         char overlay[32];
         snprintf(overlay, sizeof(overlay), "%.1f mm/s", value);
         ImGui::ProgressBar(fraction, ImVec2(panelW - VelocityBarOffset, VelocityBarHeight), overlay);
@@ -111,7 +105,7 @@ namespace {
         char buf[32];
         snprintf(buf, sizeof(buf), "%.1f", value);
         ImGui::PushStyleColor(ImGuiCol_PlotHistogram, barColor);
-        ImGui::PushStyleColor(ImGuiCol_FrameBg, BarBackgroundColor);
+        ImGui::PushStyleColor(ImGuiCol_FrameBg, Colors::BarBackground);
         ImGui::ProgressBar(std::min(absVal / MaxVelocity, 1.f), ImVec2(colW, WheelBarHeight), buf);
         ImGui::PopStyleColor(2);
         ImGui::TextDisabled(colW > MinColWidthForFullLabel ? fullLabel : shortLabel);
@@ -229,7 +223,7 @@ void RobotStatWindow::draw() {
 	if (!isOpen()) return;
 
 	ImGui::SFML::SetCurrentWindow(*_window);
-	_window->clear(sf::Color(30, 30, 30));
+	_window->clear(Colors::WindowClearColor);
 	ImGui::SFML::Render(*_window);
 	_window->display();
 }
@@ -267,13 +261,13 @@ void RobotStatWindow::renderContent(const RobotState& robotState) {
 }
 
 void RobotStatWindow::renderHeader(float windowWidth) {
-    ImGui::TextColored(ImVec4(0.3f, 0.85f, 1.0f, 1.0f), "  ROBOT STATS");
+    ImGui::TextColored(Colors::StatsTitle, "  ROBOT STATS");
     ImVec2 headerEnd = ImGui::GetCursorScreenPos();
     float x = ImGui::GetWindowPos().x;
     ImGui::GetWindowDrawList()->AddLine(
         ImVec2(x, headerEnd.y),
         ImVec2(x + windowWidth, headerEnd.y),
-        HeaderLineColor, 1.0f
+        Colors::HeaderLine, 1.0f
     );
     ImGui::Spacing();
     ImGui::Spacing();
@@ -281,10 +275,10 @@ void RobotStatWindow::renderHeader(float windowWidth) {
 
 void RobotStatWindow::renderMotionSection(const RobotState& robotState, float panelW) {
     ImVec2 cardStart = ImGui::GetCursorScreenPos();
-    ImGui::PushStyleColor(ImGuiCol_Header, ImVec4(0.1f, 0.14f, 0.18f, 1.0f));
+    ImGui::PushStyleColor(ImGuiCol_Header, Colors::SectionHeaderBg);
 
     ImGui::SetCursorPosX(ImGui::GetCursorPosX() +SectionHeaderIndent);
-    ImGui::TextColored(ImVec4(0.35f, 0.75f, 1.0f, 1.0f), "  Motion");
+    ImGui::TextColored(Colors::MotionSectionTitle, "  Motion");
     ImGui::Spacing();
 
     StatRow("Angular Vel", robotState.angularVelocity, "rad/s");
@@ -297,7 +291,7 @@ void RobotStatWindow::renderMotionSection(const RobotState& robotState, float pa
     ImGui::Spacing();
 
     ImVec2 cardEnd = ImGui::GetCursorScreenPos();
-    DrawAccentBar(cardStart, cardEnd, ImVec4(0.2f, 0.7f, 1.0f, 1.0f));
+    DrawAccentBar(cardStart, cardEnd, Colors::MotionAccent);
     ImGui::PopStyleColor();
 }
 
@@ -305,29 +299,29 @@ void RobotStatWindow::renderPoseSection(const RobotState& robotState) {
     ImVec2 cardStart = ImGui::GetCursorScreenPos();
 
     ImGui::SetCursorPosX(ImGui::GetCursorPosX() + SectionHeaderIndent);
-    ImGui::TextColored(ImVec4(0.85f, 0.55f, 1.0f, 1.0f), "  Pose");
+    ImGui::TextColored(Colors::PoseSectionTitle, "  Pose");
     ImGui::Spacing();
 
     ImGui::SetCursorPosX(ImGui::GetCursorPosX() + RowIndent);
     ImGui::TextDisabled("Position");
     ImGui::SameLine(LabelColumnX);
-    ImGui::TextColored(ActiveValueColor, "(%.1f,", robotState.position.x);
+    ImGui::TextColored(Colors::ActiveValue, "(%.1f,", robotState.position.x);
     ImGui::SameLine();
-    ImGui::TextColored(ActiveValueColor, "%.1f) mm", robotState.position.y);
+    ImGui::TextColored(Colors::ActiveValue, "%.1f) mm", robotState.position.y);
 
     StatRow("Chassis Angle", robotState.chassisAngle, "deg");
     StatRow("Front Angle", robotState.frontAngle, "deg");
     ImGui::Spacing();
 
     ImVec2 cardEnd = ImGui::GetCursorScreenPos();
-    DrawAccentBar(cardStart, cardEnd, ImVec4(0.8f, 0.4f, 1.0f, 1.0f));
+    DrawAccentBar(cardStart, cardEnd, Colors::PoseAccent);
 }
 
 void RobotStatWindow::renderWheelsSection(const RobotState& robotState, float panelW) {
     ImVec2 cardStart = ImGui::GetCursorScreenPos();
 
     ImGui::SetCursorPosX(ImGui::GetCursorPosX() + SectionHeaderIndent);
-    ImGui::TextColored(WheelTitleColor, "  Wheels");
+    ImGui::TextColored(Colors::WheelSectionTitle, "  Wheels");
     ImGui::Spacing();
 
     int columns = GetWheelColumnCount(robotState.wheelCount);
@@ -345,9 +339,9 @@ void RobotStatWindow::renderWheelsSection(const RobotState& robotState, float pa
         ImGui::PushID(i);
         ImGui::BeginGroup();
 
-        ImGui::TextColored(WheelTitleColor, "W%d", i + 1);
-        WheelProgressBar(wheel.speed, colW, ImVec4(1.f, 0, 0, 1.f), "speed mm/s", "spd");
-        WheelProgressBar(wheel.rollerSpeed, colW, ImVec4(0, 1, 0, 1.f), "rol mm/s", "rol");
+        ImGui::TextColored(Colors::WheelSectionTitle, "W%d", i + 1);
+        WheelProgressBar(wheel.speed, colW, Colors::WheelSpeedBar, "speed mm/s", "spd");
+        WheelProgressBar(wheel.rollerSpeed, colW, Colors::RollerSpeedBar, "rol mm/s", "rol");
 
         ImGui::EndGroup();
         ImGui::PopID();
@@ -359,14 +353,14 @@ void RobotStatWindow::renderWheelsSection(const RobotState& robotState, float pa
     ImGui::Spacing();
 
     ImVec2 cardEnd = ImGui::GetCursorScreenPos();
-    DrawAccentBar(cardStart, cardEnd, ImVec4(1.0f, 0.6f, 0.2f, 1.0f));
+    DrawAccentBar(cardStart, cardEnd, Colors::WheelAccent);
 }
 
 void RobotStatWindow::renderLoggingSection(const RobotState& robotState) {
     ImVec2 cardStart = ImGui::GetCursorScreenPos();
 
     ImGui::SetCursorPosX(ImGui::GetCursorPosX() + SectionHeaderIndent);
-    ImGui::TextColored(ImVec4(0.4f, 1.0f, 0.7f, 1.0f), "  Logging");
+    ImGui::TextColored(Colors::LoggingSectionTitle, "  Logging");
     ImGui::Spacing();
 
     if(ImGui::Button("Find log folder", ImVec2(-FLT_MIN, 0))) {
@@ -401,9 +395,9 @@ void RobotStatWindow::renderLoggingSection(const RobotState& robotState) {
             _isLogging = true;
         }
     } else {
-        ImGui::PushStyleColor(ImGuiCol_Button,        ImVec4(0.65f, 0.1f, 0.1f, 1.0f));
-        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.8f,  0.2f, 0.2f, 1.0f));
-        ImGui::PushStyleColor(ImGuiCol_ButtonActive,  ImVec4(0.5f,  0.05f,0.05f,1.0f));
+        ImGui::PushStyleColor(ImGuiCol_Button,        Colors::DangerButton);
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, Colors::DangerButtonHovered);
+        ImGui::PushStyleColor(ImGuiCol_ButtonActive,  Colors::DangerButtonActive);
         if (ImGui::Button("Stop Logging", ImVec2(-FLT_MIN, 0))) {
             _logger.stopLogging();
             _isLogging = false;
@@ -414,12 +408,12 @@ void RobotStatWindow::renderLoggingSection(const RobotState& robotState) {
     ImGui::Spacing();
     ImGui::SetCursorPosX(ImGui::GetCursorPosX() + RowIndent);
     if (_isLogging) {
-        ImGui::TextColored(ImVec4(0.3f, 1.0f, 0.4f, 1.0f), "[REC] Recording...");
+        ImGui::TextColored(Colors::RecordingText, "[REC] Recording...");
     } else {
         ImGui::TextDisabled("[---] Idle");
     }
     ImGui::Spacing();
 
     ImVec2 cardEnd = ImGui::GetCursorScreenPos();
-    DrawAccentBar(cardStart, cardEnd, ImVec4(0.3f, 1.0f, 0.5f, 1.0f));
+    DrawAccentBar(cardStart, cardEnd, Colors::LoggingAccent);
 }

@@ -9,6 +9,7 @@
 #include "windows/InputSettingsWindow.hpp"
 #include "windows/RobotStatWindow.hpp"
 #include "windows/RobotDesignerWindow.hpp"
+#include "ColorConstants.hpp"
 MainWindow::MainWindow(AppConfig& config)
 	: _appConfig(config), _windowConfig(config.mainWindow)
 {
@@ -121,7 +122,7 @@ void MainWindow::renderImGuiMenu() {
 			ImGuiWindowFlags_NoScrollbar |
 			ImGuiWindowFlags_NoSavedSettings |
 			ImGuiWindowFlags_AlwaysAutoResize);
-		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 0, 0, 1.0f));
+		ImGui::PushStyleColor(ImGuiCol_Text, Colors::OverlayText);
 		ImGui::Text("FPS: %.0f", ImGui::GetIO().Framerate);
 		ImGui::PopStyleColor();
 		ImGui::End();
@@ -143,7 +144,7 @@ void MainWindow::renderImGuiMenu() {
 			ImGuiWindowFlags_NoScrollbar |
 			ImGuiWindowFlags_NoSavedSettings |
 			ImGuiWindowFlags_AlwaysAutoResize);
-		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 0, 0, 1.0f));
+		ImGui::PushStyleColor(ImGuiCol_Text, Colors::OverlayText);
 		ImGui::Text("Time: %s.%03lld", timeStr.c_str(), ms);
 		ImGui::PopStyleColor();
 		ImGui::End();
@@ -163,8 +164,8 @@ void MainWindow::renderErrorMessages() {
 	ImGui::SetNextWindowSize(ImVec2(windowWidth, 0), ImGuiCond_Always);
 	ImGui::SetNextWindowBgAlpha(0.92f);
 
-	ImGui::PushStyleColor(ImGuiCol_TitleBg,       ImVec4(0.6f, 0.1f, 0.1f, 1.0f));
-	ImGui::PushStyleColor(ImGuiCol_TitleBgActive,  ImVec4(0.7f, 0.1f, 0.1f, 1.0f));
+	ImGui::PushStyleColor(ImGuiCol_TitleBg,       Colors::ErrorTitleBg);
+	ImGui::PushStyleColor(ImGuiCol_TitleBgActive,  Colors::ErrorTitleBgActive);
 
 	ImGui::Begin("Errors", nullptr,
 		ImGuiWindowFlags_NoResize |
@@ -172,7 +173,7 @@ void MainWindow::renderErrorMessages() {
 		ImGuiWindowFlags_NoSavedSettings |
 		ImGuiWindowFlags_AlwaysAutoResize);
 
-	ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.4f, 0.4f, 1.0f));
+	ImGui::PushStyleColor(ImGuiCol_Text, Colors::ErrorText);
 
 	for (int i = static_cast<int>(_errorMessages.size()) - 1; i >= 0; --i) {
 		ImGui::TextWrapped("%s", _errorMessages[i].c_str());
@@ -203,12 +204,12 @@ void MainWindow::initImGui() {
 
 	// Set colors for a modern look
 	ImVec4* colors = style.Colors;
-	colors[ImGuiCol_WindowBg] = ImVec4(0.1f, 0.1f, 0.1f, 0.95f);
-	colors[ImGuiCol_TitleBg] = ImVec4(0.2f, 0.2f, 0.2f, 1.0f);
-	colors[ImGuiCol_TitleBgActive] = ImVec4(0.3f, 0.3f, 0.3f, 1.0f);
-	colors[ImGuiCol_Button] = ImVec4(0.25f, 0.25f, 0.25f, 1.0f);
-	colors[ImGuiCol_ButtonHovered] = ImVec4(0.35f, 0.35f, 0.35f, 1.0f);
-	colors[ImGuiCol_ButtonActive] = ImVec4(0.45f, 0.45f, 0.45f, 1.0f);
+	colors[ImGuiCol_WindowBg] = Colors::StyleWindowBg;
+	colors[ImGuiCol_TitleBg] = Colors::StyleTitleBg;
+	colors[ImGuiCol_TitleBgActive] = Colors::StyleTitleBgActive;
+	colors[ImGuiCol_Button] = Colors::StyleButton;
+	colors[ImGuiCol_ButtonHovered] = Colors::StyleButtonHovered;
+	colors[ImGuiCol_ButtonActive] = Colors::StyleButtonActive;
 }
 
 void MainWindow::draw() {
