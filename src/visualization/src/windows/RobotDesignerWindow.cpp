@@ -59,6 +59,7 @@ void RobotDesignerWindow::open() {
 
 	ImGuiIO& io = ImGui::GetIO();
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+	io.IniFilename = nullptr; // Disable automatic .ini saving/loading
 	WindowHelper::SetScaledFont(io, DEFAULT_FONT_DATA, DEFAULT_FONT_DATA_SIZE, _windowConfig.defaultFontSize);
 	_windowConfig.open = true;
 	_isOpen = true;
