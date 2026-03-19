@@ -39,9 +39,10 @@ namespace RobotParts {
 } // namespace RobotParts
 
 enum class RobotDriveType {
-	DIFFERENTIAL,
-	OMNI_WHEEL,
-	MECANUM
+	DIFFERENTIAL = 0,
+	OMNI_WHEEL = 1,
+	MECANUM = 2,
+	CUSTOM = 3
 };
 
 class RobotConfig {
@@ -57,7 +58,7 @@ public:
 			std::ranges::views::transform([](auto& axle) -> RobotParts::Wheel& { return axle.wheel; });
 	}
 	RobotDriveType GetRobotDriveType() const { return _driveType; }
-	void AddAxle(RobotParts::DriveAxle_t axle) { _axles.push_back(axle); }
+	void AddAxle(RobotParts::DriveAxle_t axle) {_axles.push_back(axle); }
 	void ChangeDriveType(RobotDriveType type) { _driveType = type; }
 	int getWheelCount() const { return static_cast<int>(_axles.size()); }
 private:

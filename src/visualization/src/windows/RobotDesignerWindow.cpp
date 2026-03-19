@@ -133,11 +133,7 @@ void RobotDesignerWindow::saveConfig() {
 void RobotDesignerWindow::loadFromRobotConfig(const RobotConfig& config) {
 	_axles.clear();
 
-	switch (config.GetRobotDriveType()) {
-	case RobotDriveType::DIFFERENTIAL: _driveTypeIndex = 0; break;
-	case RobotDriveType::OMNI_WHEEL:   _driveTypeIndex = 1; break;
-	case RobotDriveType::MECANUM:       _driveTypeIndex = 2; break;
-	}
+	_driveTypeIndex = (int)config.GetRobotDriveType();
 
 	for (const auto& axle : config.GetRobotDriveAxles()) {
 		_axles.push_back(axle);
@@ -151,20 +147,26 @@ void RobotDesignerWindow::loadFromRobotConfig(const RobotConfig& config) {
 RobotConfig RobotDesignerWindow::buildRobotConfig() const {
 	RobotConfig config;
 
-	switch (_driveTypeIndex) {
-	case 0: config.ChangeDriveType(RobotDriveType::DIFFERENTIAL); break;
-	case 1: config.ChangeDriveType(RobotDriveType::OMNI_WHEEL); break;
-	case 2: config.ChangeDriveType(RobotDriveType::MECANUM); break;
+	config.ChangeDriveType((RobotDriveType)_driveTypeIndex);
+	float rollerAngle;
+	switch ((RobotDriveType)_driveTypeIndex) {
+	case RobotDriveType::DIFFERENTIAL:	rollerAngle = 0.0f;						break;
+	case RobotDriveType::OMNI_WHEEL:	rollerAngle = DegreesToRadians(90.0f);	break;
+	case RobotDriveType::MECANUM:		rollerAngle = DegreesToRadians(45.0f);	break;
+	default:							rollerAngle = 0.0f;						break;
 	}
 
-	for (const auto& axel : _axles) {
-		config.AddAxle(axel);
+	for (auto& axel : _axles) {
+		RobotParts::DriveAxle_t copy = axel;
+		if ((RobotDriveType)_driveTypeIndex != RobotDriveType::CUSTOM)
+			copy.wheel.roller_angle = rollerAngle;
+		config.AddAxle(copy);
 	}
 
 	return config;
 }
 
-void RobotDesignerWindow::renderAxleEditor(int index) {
+void RobotDesignerWindow::renderAxleEditor(int index, bool renderRollerAngle) {
 	RobotParts::DriveAxle_t& axle = _axles[index];
 	std::string id = std::to_string(index);
 
@@ -180,7 +182,8 @@ void RobotDesignerWindow::renderAxleEditor(int index) {
 	ImGui::InputFloat("X Position (mm)", &axle.wheel.x_position, 1.0f, 10.0f, "%.1f");
 	ImGui::InputFloat("Y Position (mm)", &axle.wheel.y_position, 1.0f, 10.0f, "%.1f");
 	ImGui::InputFloat("Wheel Angle (deg)", &wheelAngleDeg, 1.0f, 15.0f, "%.1f");
-	ImGui::InputFloat("Roller Angle (deg)", &rollerAngleDeg, 1.0f, 15.0f, "%.1f");
+	if (renderRollerAngle)
+		ImGui::InputFloat("Roller Angle (deg)", &rollerAngleDeg, 1.0f, 15.0f, "%.1f");
 	axle.wheel.roller_angle = DegreesToRadians(rollerAngleDeg);
 	axle.wheel.wheel_angle = DegreesToRadians(wheelAngleDeg);
 
@@ -213,8 +216,8 @@ void RobotDesignerWindow::renderPreview() {
 	auto texW = static_cast<unsigned int>(availWidth);
 	auto texH = static_cast<unsigned int>(availHeight);
 
-	if (!_previewTexture || _previewTexture->getSize() != sf::Vector2u{texW, texH}) {
-		_previewTexture = std::make_unique<sf::RenderTexture>(sf::Vector2u{texW, texH});
+	if (!_previewTexture || _previewTexture->getSize() != sf::Vector2u{ texW, texH }) {
+		_previewTexture = std::make_unique<sf::RenderTexture>(sf::Vector2u{ texW, texH });
 		_previewTexture->setSmooth(true);
 	}
 
@@ -233,19 +236,20 @@ void RobotDesignerWindow::renderPreview() {
 	float boundsAspect = viewW / viewH;
 	if (boundsAspect > aspect) {
 		viewH = viewW / aspect;
-	} else {
+	}
+	else {
 		viewW = viewH * aspect;
 	}
 
 	sf::Vector2f center = bounds.position + bounds.size / 2.0f;
-	sf::View view(center, {viewW, viewH});
+	sf::View view(center, { viewW, viewH });
 	_previewTexture->setView(view);
 
 	_previewTexture->clear(sf::Color(20, 20, 20));
 	_previewTexture->draw(shape);
 	_previewTexture->display();
 
-	ImGui::Image(*_previewTexture, sf::Vector2f{availWidth, availHeight});
+	ImGui::Image(*_previewTexture, sf::Vector2f{ availWidth, availHeight });
 }
 
 void RobotDesignerWindow::renderContent() {
@@ -277,14 +281,14 @@ void RobotDesignerWindow::renderContent() {
 	ImGui::Spacing();
 
 	for (int i = 0; i < (int)_axles.size(); i++) {
-		renderAxleEditor(i);
+		renderAxleEditor(i, _driveTypeIndex == (int)RobotDriveType::CUSTOM);
 		if (i < (int)_axles.size() - 1) {
 			ImGui::Separator();
 		}
 	}
 
 	ImGui::Spacing();
-	if (ImGui::Button("+ Add Axle")) {
+	if ((_driveTypeIndex != 0 || _axles.size() < 1) && ImGui::Button("+ Add Axle")) {
 		_axles.push_back(RobotParts::DriveAxle_t{});
 	}
 
@@ -309,7 +313,9 @@ void RobotDesignerWindow::renderContent() {
 
 	if (ImGui::Button("Apply to Simulation", ImVec2(-FLT_MIN, 30))) {
 		if (_onRobotConfigApplied) {
-			_onRobotConfigApplied(buildRobotConfig());
+			RobotConfig config = buildRobotConfig();
+
+			_onRobotConfigApplied(config);
 			_statusMessage = "Config applied to simulation.";
 		}
 	}

@@ -31,7 +31,7 @@ private:
 	void renderPreview();
 	void loadFromRobotConfig(const RobotConfig& config);
 	RobotConfig buildRobotConfig() const;
-	void renderAxleEditor(int index);
+	void renderAxleEditor(int index, bool renderRollerAngle);
 
 	std::unique_ptr<sf::RenderWindow> _window;
 	WindowConfig _windowConfig;

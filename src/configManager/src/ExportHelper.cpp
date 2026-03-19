@@ -48,6 +48,7 @@ std::string ExportHelper::exportToConfig(RobotDriveType type) {
 	case RobotDriveType::DIFFERENTIAL: return "DIFFERENTIAL";
 	case RobotDriveType::OMNI_WHEEL: return "OMNI_WHEEL";
 	case RobotDriveType::MECANUM: return "MECANUM";
+	case RobotDriveType::CUSTOM: return "CUSTOM";
 	default: throw std::invalid_argument("Unknown RobotDriveType");
 	}
 }

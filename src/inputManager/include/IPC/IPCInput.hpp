@@ -1,3 +1,4 @@
+#ifndef IPC_INPUT_HPP
 #define IPC_INPUT_HPP
 #include "AppConfig.hpp"
 #include "RobotState.hpp"

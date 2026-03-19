@@ -128,6 +128,7 @@ RobotDriveType ImportHelper::createFromConfigDriveType(const std::string& str) {
 
 	if (lower == "differential") return RobotDriveType::DIFFERENTIAL;
 	if (lower == "omni_wheel" || lower == "omniwheel") return RobotDriveType::OMNI_WHEEL;
+	if (lower == "custom") return RobotDriveType::CUSTOM;
 	if (lower == "mecanum") return RobotDriveType::MECANUM;
 
 	throw std::invalid_argument("Invalid RobotDriveType: " + str);
