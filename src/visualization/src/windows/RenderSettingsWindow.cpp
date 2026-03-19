@@ -155,14 +155,22 @@ void RenderSettingsWindow::renderContent() {
 	ImGui::Spacing();
 
 	GridSettings& gridSettings = _settings.gridSettings;
-
-	ImGui::Text("Grid Spacing (mm)");
-	changed |= ImGui::Checkbox("Auto Grid Spacing", &gridSettings.autoSpacing);
-	if (!gridSettings.autoSpacing) {
-		changed |= ImGui::SliderInt("##GridSpacing", &gridSettings.spacing, 10, 2000, "%d", sliderFlags);
-	}
+	ImGui::Spacing();
+	ImGui::Text("Grid Settings");
+	ImGui::Spacing();
 	changed |= ImGui::Checkbox("Show Grid", &_settings.showGrid);
-	changed |= ImGui::SliderInt("##GridSubdivision", &gridSettings.subdivisionsCount, 0, 10, "%d", sliderFlags);
+	if (_settings.showGrid) {
+		changed |= ImGui::Checkbox("Auto Grid Spacing", &gridSettings.autoSpacing);
+		if (!gridSettings.autoSpacing) {
+			ImGui::Spacing();
+			ImGui::Text("Grid Spacing (mm)");
+			changed |= ImGui::SliderInt("##GridSpacing", &gridSettings.spacing, 10, 2000, "%d", sliderFlags);
+		}
+		ImGui::Spacing();
+		ImGui::Text("Grid subdivision count");
+		changed |= ImGui::SliderInt("##GridSubdivision", &gridSettings.subdivisionsCount, 0, 10, "%d", sliderFlags);
+	}
+
 	ImGui::Spacing();
 	ImGui::Separator();
 	ImGui::Spacing();
