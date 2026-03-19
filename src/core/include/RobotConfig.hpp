@@ -1,7 +1,9 @@
 #ifndef ROBO_CONFIG_H
 #define ROBO_CONFIG_H
 
+#include <optional>
 #include <ranges>
+#include <string>
 #include <vector>
 #include "MathUtils.hpp"
 namespace RobotParts {
@@ -61,6 +63,11 @@ public:
 	void AddAxle(RobotParts::DriveAxle_t axle) {_axles.push_back(axle); }
 	void ChangeDriveType(RobotDriveType type) { _driveType = type; }
 	int getWheelCount() const { return static_cast<int>(_axles.size()); }
+
+	// Returns error message if config is invalid, empty optional if valid.
+	// CUSTOM drive type skips all validation.
+	std::optional<std::string> validateConfig() const;
+
 private:
 	std::vector<RobotParts::DriveAxle_t> _axles;
 	RobotDriveType _driveType = RobotDriveType::DIFFERENTIAL;
