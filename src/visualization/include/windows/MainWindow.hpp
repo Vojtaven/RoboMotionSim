@@ -46,6 +46,7 @@ private:
 	std::vector<std::string> _errorMessages;
 	std::function<void()> _onInputSettingsChanged;
 	std::function<void(const RobotConfig&)> _onRobotConfigChanged;
+	sf::Image _icon;
 	// Other windows management
 	void initializeOtherWindows(const RobotConfig& robotConfig);
 	void closeOtherWindows();

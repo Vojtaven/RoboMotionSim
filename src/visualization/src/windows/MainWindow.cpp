@@ -4,6 +4,7 @@
 #include <imgui.h>
 #include <imgui-SFML.h>
 #include "embeddedFont.h"
+#include "embeddedIcon.h"
 #include "windows/WindowHelper.hpp"
 #include "windows/RenderSettingsWindow.hpp"
 #include "windows/InputSettingsWindow.hpp"
@@ -23,6 +24,10 @@ void MainWindow::open(const RobotConfig& robotConfig)
 		_windowConfig.resizable ? sf::Style::Default : sf::Style::Titlebar | sf::Style::Close);
 
 	_window->setPosition(ToSFMLVector2i(_windowConfig.position));
+
+	if (_icon.loadFromMemory(APP_ICON_DATA, APP_ICON_DATA_SIZE))
+		_window->setIcon(_icon);
+
 	initImGui();
 	_renderEngine = std::make_unique<RenderEngine>(*_window, _appConfig.renderSettings);
 	setRobotConfig(robotConfig, RobotState(robotConfig.getWheelCount()));
@@ -164,8 +169,8 @@ void MainWindow::renderErrorMessages() {
 	ImGui::SetNextWindowSize(ImVec2(windowWidth, 0), ImGuiCond_Always);
 	ImGui::SetNextWindowBgAlpha(0.92f);
 
-	ImGui::PushStyleColor(ImGuiCol_TitleBg,       Colors::ErrorTitleBg);
-	ImGui::PushStyleColor(ImGuiCol_TitleBgActive,  Colors::ErrorTitleBgActive);
+	ImGui::PushStyleColor(ImGuiCol_TitleBg, Colors::ErrorTitleBg);
+	ImGui::PushStyleColor(ImGuiCol_TitleBgActive, Colors::ErrorTitleBgActive);
 
 	ImGui::Begin("Errors", nullptr,
 		ImGuiWindowFlags_NoResize |
@@ -190,8 +195,10 @@ void MainWindow::renderErrorMessages() {
 }
 
 void MainWindow::initImGui() {
+	if (!ImGui::SFML::Init(*_window)) {
+		throw std::runtime_error("Failed to initialize ImGui-SFML");
+	}
 
-	ImGui::SFML::Init(*_window);
 	ImGuiIO& io = ImGui::GetIO();
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 	io.IniFilename = nullptr; // Disable automatic .ini saving/loading
@@ -235,7 +242,7 @@ void MainWindow::update(const float dt, const RobotState& robotState, const std:
 	sf::Time deltaTime = sf::seconds(dt);
 	_renderEngine->update(robotState, dt);
 	updateAllOtherWindows(deltaTime, robotState);
-	
+
 	ImGui::SFML::SetCurrentWindow(*_window);
 	ImGui::SFML::Update(*_window, deltaTime);
 
@@ -301,7 +308,7 @@ void MainWindow::saveConfig() {
 // Other Windows management
 void MainWindow::initializeOtherWindows(const RobotConfig& robotConfig) {
 	// === SETTINGS WINDOW ===
-	_settingsWindow = std::make_unique<RenderSettingsWindow>(_appConfig);
+	_settingsWindow = std::make_unique<RenderSettingsWindow>(_appConfig,_icon);
 	_settingsWindow->setOnSettingsChanged([this](const RenderSettings& newSettings) {
 		this->_appConfig.renderSettings = newSettings;
 		_renderEngine->updateAfterSettingsChange();
@@ -311,17 +318,17 @@ void MainWindow::initializeOtherWindows(const RobotConfig& robotConfig) {
 		});
 
 	// === INPUT SETTINGS WINDOW ===
-	_inputSettingsWindow = std::make_unique<InputSettingsWindow>(_appConfig);
+	_inputSettingsWindow = std::make_unique<InputSettingsWindow>(_appConfig, _icon);
 	_inputSettingsWindow->setOnSettingsChanged([this](const InputSettings& newSettings) {
 		this->_appConfig.inputSettings = newSettings;
 		_onInputSettingsChanged();
 		});
 
 	// === ROBOT STATISTICS WINDOW ===
-	_robotStatWindow = std::make_unique<RobotStatWindow>(_appConfig);
+	_robotStatWindow = std::make_unique<RobotStatWindow>(_appConfig, _icon);
 
 	// === ROBOT DESIGNER WINDOW ===
-	_robotDesignerWindow = std::make_unique<RobotDesignerWindow>(_appConfig, robotConfig);
+	_robotDesignerWindow = std::make_unique<RobotDesignerWindow>(_appConfig, robotConfig, _icon);
 }
 
 void MainWindow::closeOtherWindows() {

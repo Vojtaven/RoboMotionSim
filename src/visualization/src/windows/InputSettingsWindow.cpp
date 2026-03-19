@@ -54,7 +54,8 @@ static void updateControllerList(std::vector<std::string>& controllerNames, int&
 
 }
 
-InputSettingsWindow::InputSettingsWindow(const AppConfig& config)
+InputSettingsWindow::InputSettingsWindow(const AppConfig& config, const sf::Image& icon)
+	: _icon(icon)
 {
 	_windowConfig = config.inputSettingsWindow;
 	_settings = config.inputSettings;
@@ -90,7 +91,8 @@ void InputSettingsWindow::open() {
 		"Input Settings",
 		sf::Style::Titlebar | sf::Style::Close | sf::Style::Resize);
 	_window->setPosition({ _windowConfig.position.x, _windowConfig.position.y });
-
+	if (_icon.getSize().x > 0 && _icon.getSize().y > 0)
+		_window->setIcon(_icon);
 	if (!ImGui::SFML::Init(*_window)) {
 		_window.reset();
 		return;

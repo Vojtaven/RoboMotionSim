@@ -118,7 +118,7 @@ namespace {
     }
 } // anonymous namespace
 
-RobotStatWindow::RobotStatWindow(const AppConfig& config) : _logFolder(getExecutableDir() / "logs")
+RobotStatWindow::RobotStatWindow(const AppConfig& config, const sf::Image& icon) : _icon(icon), _logFolder(getExecutableDir() / "logs")
 {
 	_windowConfig = config.robotStatWindow;
 	if (_windowConfig.open) {
@@ -148,7 +148,8 @@ void RobotStatWindow::open() {
 		"Robot Stats",
 		sf::Style::Titlebar | sf::Style::Close | sf::Style::Resize);
 	_window->setPosition({ _windowConfig.position.x, _windowConfig.position.y });
-
+    if (_icon.getSize().x > 0 && _icon.getSize().y > 0)
+        _window->setIcon(_icon);
 	if (!ImGui::SFML::Init(*_window)) {
 		_window.reset();
 		return;

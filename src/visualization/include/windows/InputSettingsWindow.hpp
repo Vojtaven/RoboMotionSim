@@ -10,7 +10,7 @@ class InputSettingsWindow {
 public:
 	using OnSettingsChanged = std::function<void(const InputSettings&)>;
 
-	InputSettingsWindow(const AppConfig& config);
+	InputSettingsWindow(const AppConfig& config, const sf::Image& icon);
 	~InputSettingsWindow();
 
 	void open(const InputSettings& settings);
@@ -33,6 +33,7 @@ private:
 	bool renderSerialMapping();
 
 	std::unique_ptr<sf::RenderWindow> _window;
+	const sf::Image& _icon;
 	WindowConfig _windowConfig;
 	InputSettings _settings;
 	KeyboardMapping _keyboardMapping;
@@ -49,7 +50,6 @@ private:
 
 	std::vector<std::string> _controllerNames;
 	sf::Time _controllerRefreshAccumulator;
-
 	const InputSettings _defaultSettings;
 };
 

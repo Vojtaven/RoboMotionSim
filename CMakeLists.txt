@@ -47,7 +47,10 @@ include (${CMAKE_CURRENT_LIST_DIR}/cmake/dependencies.cmake)
 # ============================================================================
 # Create executable
 # ============================================================================
-add_executable(${PROJECT_NAME} ${project_sources})
+if(WIN32)
+    set(APP_ICON_RC "${CMAKE_CURRENT_SOURCE_DIR}/src/assets/app.rc")
+endif()
+add_executable(${PROJECT_NAME} ${project_sources} ${APP_ICON_RC})
 add_subdirectory(src/configManager)
 add_subdirectory(src/visualization)
 add_subdirectory(src/physicsEngine)

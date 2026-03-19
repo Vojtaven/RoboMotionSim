@@ -13,7 +13,8 @@
 #include "nfd.hpp"
 #include "shapes/RobotShape.hpp"
 
-RobotDesignerWindow::RobotDesignerWindow(const AppConfig& config, const RobotConfig& robotConfig)
+RobotDesignerWindow::RobotDesignerWindow(const AppConfig& config, const RobotConfig& robotConfig, const sf::Image& icon)
+	: _icon(icon)
 {
 	_windowConfig = config.robotDesignerWindow;
 	// Start with one default axle
@@ -49,7 +50,8 @@ void RobotDesignerWindow::open() {
 		"Robot Designer",
 		sf::Style::Titlebar | sf::Style::Close | sf::Style::Resize);
 	_window->setPosition({ _windowConfig.position.x, _windowConfig.position.y });
-
+	if (_icon.getSize().x > 0 && _icon.getSize().y > 0)
+		_window->setIcon(_icon);
 	if (!ImGui::SFML::Init(*_window)) {
 		_window.reset();
 		return;

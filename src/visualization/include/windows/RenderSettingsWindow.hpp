@@ -10,7 +10,7 @@ class RenderSettingsWindow{
 public:
 	using OnSettingsChanged = std::function<void(const RenderSettings&)>;
 
-	RenderSettingsWindow(const AppConfig& config);
+	RenderSettingsWindow(const AppConfig& config, const sf::Image& icon);
 	~RenderSettingsWindow();
 
 	void open(const RenderSettings& settings);
@@ -26,6 +26,7 @@ private:
 	void firstTimeSetup();
 	void saveConfig();
 	std::unique_ptr<sf::RenderWindow> _window;
+	const sf::Image& _icon;
 	void renderContent();
 	WindowConfig _windowConfig;
 	RenderSettings _settings;

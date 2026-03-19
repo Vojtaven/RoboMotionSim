@@ -13,7 +13,7 @@ class RobotDesignerWindow {
 public:
 	using OnRobotConfigApplied = std::function<void(const RobotConfig&)>;
 
-	RobotDesignerWindow(const AppConfig& config,const RobotConfig& robotConfig);
+	RobotDesignerWindow(const AppConfig& config,const RobotConfig& robotConfig, const sf::Image& icon);
 	~RobotDesignerWindow();
 
 	void open(const RobotConfig& robotConfig);
@@ -34,6 +34,7 @@ private:
 	void renderAxleEditor(int index, bool renderRollerAngle);
 
 	std::unique_ptr<sf::RenderWindow> _window;
+	const sf::Image& _icon;
 	WindowConfig _windowConfig;
 	OnRobotConfigApplied _onRobotConfigApplied;
 	bool _pendingClose = false;
@@ -53,7 +54,6 @@ private:
 	};
 
 	StatusMessage _statusMessage;
-
 	bool _showPreview = true;
 	std::unique_ptr<sf::RenderTexture> _previewTexture;
 };

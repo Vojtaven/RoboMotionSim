@@ -11,7 +11,7 @@
 
 class RobotStatWindow {
 public:
-	RobotStatWindow(const AppConfig& config);
+	RobotStatWindow(const AppConfig& config, const sf::Image& icon);
 	~RobotStatWindow();
 
 	void open();
@@ -31,6 +31,7 @@ private:
 	void renderLoggingSection(const RobotState& robotState);
 
 	std::unique_ptr<sf::RenderWindow> _window;
+	const sf::Image& _icon;
 	RobotStatLogger _logger;
 	WindowConfig _windowConfig;
 	bool _pendingClose = false;

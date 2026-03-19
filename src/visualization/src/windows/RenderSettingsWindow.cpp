@@ -7,7 +7,8 @@
 #include "embeddedFont.h"
 #include "windows/WindowHelper.hpp"
 #include "ColorConstants.hpp"
-RenderSettingsWindow::RenderSettingsWindow(const AppConfig& config)
+RenderSettingsWindow::RenderSettingsWindow(const AppConfig& config, const sf::Image& icon)
+	: _icon(icon)
 {
 	_windowConfig = config.renderSettingsWindow;
 	_settings = config.renderSettings;
@@ -43,7 +44,8 @@ void RenderSettingsWindow::open() {
 		"Render Settings",
 		sf::Style::Titlebar | sf::Style::Close | sf::Style::Resize);
 	_window->setPosition({ _windowConfig.position.x, _windowConfig.position.y });
-
+	if (_icon.getSize().x > 0 && _icon.getSize().y > 0)
+		_window->setIcon(_icon);
 	if (!ImGui::SFML::Init(*_window)) {
 		_window.reset();
 		return;
