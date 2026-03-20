@@ -1,4 +1,6 @@
 cmake_minimum_required(VERSION 3.24)
+# Ensure MSVC runtime library is controlled per-target (required for static runtime)
+cmake_policy(SET CMP0091 NEW)
 set(APP_NAME "RoboMotionSim")
 set(APP_VERSION "0.6.0")
 
@@ -13,6 +15,10 @@ endif()
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
+
+# Static linking - produce a single .exe with no DLL dependencies
+set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
+set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>" CACHE STRING "" FORCE)
 
 # Useful variables
 add_compile_definitions(
@@ -34,9 +40,6 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 # Platform-specific settings
-if(WIN32)
-    set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
-endif()
 
 # ============================================================================
 # Dependencies
@@ -85,15 +88,6 @@ endif()
 # Platform-specific configurations
 # ============================================================================
 if(WIN32)
-    # Copy SFML DLLs to output directory on Windows
-    add_custom_command(
-        TARGET ${PROJECT_NAME} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        $<TARGET_FILE:sfml-graphics>
-        $<TARGET_FILE:sfml-window>
-        $<TARGET_FILE:sfml-system>
-        $<TARGET_FILE_DIR:${PROJECT_NAME}>
-    )
     set_target_properties(${PROJECT_NAME} PROPERTIES WIN32_EXECUTABLE TRUE)
     if(NOT MSVC)
         target_link_options(${PROJECT_NAME} PRIVATE -mwindows)

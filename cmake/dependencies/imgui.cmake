@@ -24,6 +24,8 @@ target_include_directories(imgui PUBLIC
     ${imgui_SOURCE_DIR}/misc/cpp
 )
 set_target_properties(
-    imgui 
-    PROPERTIES FOLDER "Dependencies/ImGui"
+    imgui
+    PROPERTIES
+        FOLDER "Dependencies/ImGui"
+        MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>"
 )
