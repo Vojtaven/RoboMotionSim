@@ -14,6 +14,10 @@ ConfigManager::ConfigManager(const Vec2i screenSize) : _systemConfigDir(getUserC
 
 
 void ConfigManager::loadDefaultConfigs(const Vec2i screenSize) {
+	if (!std::filesystem::exists(_systemConfigDir)) {
+        std::filesystem::create_directories(_systemConfigDir);
+    }
+
 	const std::filesystem::path robotConfigPath = _systemConfigDir / "robot_config.ini";
 	const std::filesystem::path appConfigPath = _systemConfigDir / "app_config.json";
     try {

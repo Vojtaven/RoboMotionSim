@@ -1,7 +1,14 @@
 #include "RobotStatLogger.hpp"
 #include <fstream>
+#include <filesystem>
 
 void RobotStatLogger::startLogging(const std::string& filename, int wheelCount, bool overwrite) {
+    std::filesystem::path path = filename;
+
+	if (!std::filesystem::exists(path.parent_path())) {
+        std::filesystem::create_directories(path.parent_path());
+    }
+
     if (overwrite) {
         _logFile = std::ofstream(filename, std::ios::out | std::ios::trunc);
 		writeHeader(wheelCount);
