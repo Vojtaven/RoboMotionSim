@@ -1,14 +1,8 @@
-message(STATUS "Making: ${CMAKE_CURRENT_SOURCE_DIR}")
+gather_module_sources()
 
 set (CONFIG_FOLDER "${CMAKE_CURRENT_SOURCE_DIR}/ConfigFiles")
 set (ASSET_FOLDER "${CMAKE_CURRENT_SOURCE_DIR}/../assets")
 set(ROBOT_DEFAULT_CONFIG_OUT ${CMAKE_CURRENT_BINARY_DIR}/RobotDefaultConfig.h)
-
-file(GLOB_RECURSE LIBRARY_SOURCES
-    CONFIGURE_DEPENDS
-    "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/*.hpp"
-)
 
 set(CONFIG_FILES
     "${CONFIG_FOLDER}/outTestConfig.ini"
@@ -36,17 +30,16 @@ add_library(${MODULE_NAME} STATIC
     ${ROBOT_DEFAULT_CONFIG_OUT}
 )
 
-target_include_directories(${MODULE_NAME} PUBLIC 
-    ${CMAKE_CURRENT_SOURCE_DIR}   
-    ${CMAKE_CURRENT_SOURCE_DIR}/include  
-    ${CMAKE_CURRENT_BINARY_DIR} 
+target_include_directories(${MODULE_NAME} PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+    ${CMAKE_CURRENT_BINARY_DIR}
 )
 target_link_libraries(${MODULE_NAME} PUBLIC exprtk)
 target_link_libraries(${MODULE_NAME} PUBLIC core)
 target_link_libraries(${MODULE_NAME} PRIVATE nlohmann_json)
-set_target_properties(${MODULE_NAME} PROPERTIES FOLDER "Project Modules")
-source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${LIBRARY_SOURCES})
+finalize_module(${MODULE_NAME})
 source_group("Config Files" FILES ${CONFIG_FILES})
-source_group("Generated Config Headers" FILES 
+source_group("Generated Config Headers" FILES
     ${ROBOT_DEFAULT_CONFIG_OUT}
 )

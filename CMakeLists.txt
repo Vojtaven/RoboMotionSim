@@ -89,9 +89,6 @@ endif()
 # ============================================================================
 if(WIN32)
     set_target_properties(${PROJECT_NAME} PROPERTIES WIN32_EXECUTABLE TRUE)
-    if(NOT MSVC)
-        target_link_options(${PROJECT_NAME} PRIVATE -mwindows)
-    endif()
 endif()
 
 # Linux-specific settings

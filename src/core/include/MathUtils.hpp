@@ -31,6 +31,17 @@ struct Vec2 {
     // Helper for distances/physics
     float length() const { return std::hypot(x, y); }
     float* data() { return &x; }
+
+    // 2D rotation (forward: counterclockwise by angle)
+    Vec2 rotated(float angle) const {
+        T c = (T)std::cos(angle), s = (T)std::sin(angle);
+        return { x * c - y * s, x * s + y * c };
+    }
+    // Inverse 2D rotation (clockwise by angle, i.e. transpose of rotation matrix)
+    Vec2 rotatedInverse(float angle) const {
+        T c = (T)std::cos(angle), s = (T)std::sin(angle);
+        return { x * c + y * s, -x * s + y * c };
+    }
 };
 
 using Vec2i = Vec2<int>;

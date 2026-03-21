@@ -1,13 +1,8 @@
-message(STATUS "Making: ${CMAKE_CURRENT_SOURCE_DIR}")
+gather_module_sources()
+
 set(ASSET_FOLDER "${CMAKE_CURRENT_SOURCE_DIR}/../assets")
 set(FONT_OUT_FILE ${CMAKE_CURRENT_BINARY_DIR}/embeddedFont.h)
 set(ICON_OUT_FILE ${CMAKE_CURRENT_BINARY_DIR}/embeddedIcon.h)
-
-file(GLOB_RECURSE LIBRARY_SOURCES
-    CONFIGURE_DEPENDS
-    "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/*.hpp"
-)
 
 add_custom_command(
     OUTPUT ${FONT_OUT_FILE}
@@ -52,12 +47,11 @@ target_link_libraries(${MODULE_NAME} PRIVATE
 target_link_libraries(${MODULE_NAME} PUBLIC
     core
 )
- 
-target_include_directories(${MODULE_NAME} PUBLIC 
+
+target_include_directories(${MODULE_NAME} PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/include
     ${CMAKE_CURRENT_BINARY_DIR}
 )
-source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${LIBRARY_SOURCES})
+finalize_module(${MODULE_NAME})
 source_group("Generated headers" FILES ${FONT_OUT_FILE} ${ICON_OUT_FILE})
-set_target_properties(${MODULE_NAME} PROPERTIES FOLDER "Project Modules")

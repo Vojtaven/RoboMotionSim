@@ -1,5 +1,7 @@
 include_guard(GLOBAL)
 
+include(${CMAKE_CURRENT_LIST_DIR}/module_helpers.cmake)
+
 include(FetchContent)
 
 # Libraries versions

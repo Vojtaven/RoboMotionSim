@@ -55,7 +55,7 @@ static void updateControllerList(std::vector<std::string>& controllerNames, int&
 }
 
 InputSettingsWindow::InputSettingsWindow(const AppConfig& config, const sf::Image& icon)
-	: _icon(icon)
+	: SettingsWindowBase(icon)
 {
 	_windowConfig = config.inputSettingsWindow;
 	_settings = config.inputSettings;
@@ -64,76 +64,20 @@ InputSettingsWindow::InputSettingsWindow(const AppConfig& config, const sf::Imag
 	}
 }
 
-InputSettingsWindow::~InputSettingsWindow() {
-	close();
-}
-
 void InputSettingsWindow::open(const InputSettings& settings) {
 	_settings = settings;
 	open();
 }
 
 void InputSettingsWindow::open() {
-	if (isOpen()) {
-		_window->requestFocus();
-		return;
-	}
-
 	if (!_windowConfig.wasOpenedBefore) {
-		firstTimeSetup();
+		firstTimeSetup({420, 600});
 	}
-
-
-	_pendingClose = false;
-
-	_window = std::make_unique<sf::RenderWindow>(
-		sf::VideoMode({ (uint32_t)_windowConfig.size.x, (uint32_t)_windowConfig.size.y }),
-		"Input Settings",
-		sf::Style::Titlebar | sf::Style::Close | sf::Style::Resize);
-	_window->setPosition({ _windowConfig.position.x, _windowConfig.position.y });
-	if (_icon.getSize().x > 0 && _icon.getSize().y > 0)
-		_window->setIcon(_icon);
-	if (!ImGui::SFML::Init(*_window)) {
-		_window.reset();
-		return;
-	}
-
-	ImGuiIO& io = ImGui::GetIO();
-	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-	io.IniFilename = nullptr;
-	WindowHelper::SetScaledFont(io, DEFAULT_FONT_DATA, DEFAULT_FONT_DATA_SIZE, _windowConfig.defaultFontSize);
-	_windowConfig.open = true;
-	_isOpen = true;
+	openWindow("Input Settings");
 }
 
-void InputSettingsWindow::firstTimeSetup() {
-	auto screenSize = sf::VideoMode::getDesktopMode().size;
-
-	_windowConfig.size = { 420, 600 };
-	_windowConfig.position = { ((int)screenSize.x - _windowConfig.size.x) / 2, ((int)screenSize.y - _windowConfig.size.y) / 2 };
-	_windowConfig.resizable = true;
-	_windowConfig.open = false;
-	_windowConfig.wasOpenedBefore = true;
-}
-
-// Close the settings window. 
-// If closeFromRoot is true, it indicates that the close action was initiated from the main window,
-// so we should not set open to false in the config to allow reopening the settings window without issues.
 void InputSettingsWindow::close(bool closeFromRoot) {
-	if (!isOpen()) return;
-
-	saveConfig();
-	_windowConfig.open = closeFromRoot;
-	ImGui::SFML::SetCurrentWindow(*_window);
-	ImGui::SFML::Shutdown(*_window);
-	_window->close();
-	_window.reset();
-	_pendingClose = false;
-	_isOpen = false;
-}
-
-bool InputSettingsWindow::isOpen() const {
-	return _isOpen;
+	closeWindow(closeFromRoot);
 }
 
 void InputSettingsWindow::update(sf::Time dt) {
@@ -146,6 +90,8 @@ void InputSettingsWindow::update(sf::Time dt) {
 	ImGui::SFML::SetCurrentWindow(*_window);
 
 	// Process events BEFORE starting the ImGui frame
+	// InputSettingsWindow has custom event interception for key/button/axis binding,
+	// so it cannot use the base processEvents() method.
 	while (const std::optional event = _window->pollEvent()) {
 		// Intercept key press for keyboard key binding
 		if (_waitingForKey) {
@@ -204,28 +150,13 @@ void InputSettingsWindow::update(sf::Time dt) {
 	}
 
 	if (_pendingClose) {
-		close();
+		closeWindow();
 		return;
 	}
 
 	ImGui::SFML::Update(*_window, dt);
 
 	renderContent();
-}
-
-void InputSettingsWindow::draw() {
-	if (!isOpen()) return;
-
-	ImGui::SFML::SetCurrentWindow(*_window);
-	_window->clear(Colors::WindowClearColor);
-	ImGui::SFML::Render(*_window);
-	_window->display();
-}
-
-void InputSettingsWindow::saveConfig() {
-	_windowConfig.position = FromSFMLVector(_window->getPosition());
-	_windowConfig.size = FromSFMLVector(_window->getSize());
-	_windowConfig.resizable = true;
 }
 
 void InputSettingsWindow::renderContent() {

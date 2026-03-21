@@ -27,5 +27,4 @@ set_target_properties(
     imgui
     PROPERTIES
         FOLDER "Dependencies/ImGui"
-        MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>"
 )

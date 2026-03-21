@@ -198,51 +198,25 @@ void MotorCommandWrapper::execute(RobotState& state) {
 // COMMAND FACTORY
 // ================================================
 
-MoveAtSpeedRawParams CommandFactory::recalculateToRawValues(const MoveAtSpeedParams& params) {
-	MoveAtSpeedRawParams rawParams;
-	rawParams.x_speed = params.x_speed - params.rotation_speed * params.center_y_mm;
-	rawParams.y_speed = params.y_speed + params.rotation_speed * params.center_x_mm;
-	rawParams.rotation_speed = params.rotation_speed;
-	rawParams.front_rotation_speed = params.rotate_chassis ? 0.0f: -params.rotation_speed;
-	return rawParams;
-}
-MoveByTimeRawParams CommandFactory::recalculateToRawValues(const MoveByTimeParams& params) {
-	MoveByTimeRawParams rawParams;
-	rawParams.x_speed = params.x_speed - params.rotation_speed * params.center_y_mm;
-	rawParams.y_speed = params.y_speed + params.rotation_speed * params.center_x_mm;
-	rawParams.rotation_speed = params.rotation_speed;
-	rawParams.front_rotation_speed = params.rotate_chassis ? 0.0f : -params.rotation_speed;
-	rawParams.time_s = params.time_s;
-	return rawParams;
-}
-MoveByDistanceRawParams CommandFactory::recalculateToRawValues(const MoveByDistanceParams& params) {
-	MoveByDistanceRawParams rawParams;
-	rawParams.x_speed = params.x_speed - params.rotation_speed * params.center_y_mm;
-	rawParams.y_speed = params.y_speed + params.rotation_speed * params.center_x_mm;
-	rawParams.rotation_speed = params.rotation_speed;
-	rawParams.front_rotation_speed = params.rotate_chassis ? 0.0f : -params.rotation_speed;
-	rawParams.distance_mm = params.distance_mm;
-	return rawParams;
-}
-MoveByAngleRawParams CommandFactory::recalculateToRawValues(const MoveByAngleParams& params) {
-	MoveByAngleRawParams rawParams;
-	rawParams.x_speed = params.x_speed - params.rotation_speed * params.center_y_mm;
-	rawParams.y_speed = params.y_speed + params.rotation_speed * params.center_x_mm;
-	rawParams.rotation_speed = params.rotation_speed;
-	rawParams.front_rotation_speed = params.rotate_chassis ? 0.0f : -params.rotation_speed;
-	rawParams.angle_rad = params.angle_rad;
-	return rawParams;
-}
-
 std::unique_ptr<MoveByDistanceRaw> CommandFactory::createMoveByDistance(uint32_t id, const uint8_t* data, size_t size) {
-	return std::make_unique<MoveByDistanceRaw>(id, recalculateToRawValues(CommandParameters::ParseParams<MoveByDistanceParams>(data, size)));
+	auto params = CommandParameters::ParseParams<MoveByDistanceParams>(data, size);
+	auto raw = applyPivotTransform<MoveByDistanceRawParams>(params);
+	raw.distance_mm = params.distance_mm;
+	return std::make_unique<MoveByDistanceRaw>(id, raw);
 }
 std::unique_ptr<MoveByTimeRaw> CommandFactory::createMoveByTime(uint32_t id, const uint8_t* data, size_t size) {
-	return std::make_unique<MoveByTimeRaw>(id, recalculateToRawValues(CommandParameters::ParseParams<MoveByTimeParams>(data, size)));
+	auto params = CommandParameters::ParseParams<MoveByTimeParams>(data, size);
+	auto raw = applyPivotTransform<MoveByTimeRawParams>(params);
+	raw.time_s = params.time_s;
+	return std::make_unique<MoveByTimeRaw>(id, raw);
 }
 std::unique_ptr<MoveAtSpeedRaw> CommandFactory::createMoveAtSpeed(uint32_t id, const uint8_t* data, size_t size) {
-	return std::make_unique<MoveAtSpeedRaw>(id, recalculateToRawValues(CommandParameters::ParseParams<MoveAtSpeedParams>(data, size)));
+	auto params = CommandParameters::ParseParams<MoveAtSpeedParams>(data, size);
+	return std::make_unique<MoveAtSpeedRaw>(id, applyPivotTransform<MoveAtSpeedRawParams>(params));
 }
 std::unique_ptr<MoveByAngleRaw> CommandFactory::createTurnRelative(uint32_t id, const uint8_t* data, size_t size) {
-	return std::make_unique<MoveByAngleRaw>(id, recalculateToRawValues(CommandParameters::ParseParams<MoveByAngleParams>(data, size)));
+	auto params = CommandParameters::ParseParams<MoveByAngleParams>(data, size);
+	auto raw = applyPivotTransform<MoveByAngleRawParams>(params);
+	raw.angle_rad = params.angle_rad;
+	return std::make_unique<MoveByAngleRaw>(id, raw);
 }

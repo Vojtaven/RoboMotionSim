@@ -14,7 +14,7 @@
 #include "shapes/RobotShape.hpp"
 
 RobotDesignerWindow::RobotDesignerWindow(const AppConfig& config, const RobotConfig& robotConfig, const sf::Image& icon)
-	: _icon(icon)
+	: SettingsWindowBase(icon)
 {
 	_windowConfig = config.robotDesignerWindow;
 	// Start with one default axle
@@ -24,110 +24,30 @@ RobotDesignerWindow::RobotDesignerWindow(const AppConfig& config, const RobotCon
 	}
 }
 
-RobotDesignerWindow::~RobotDesignerWindow() {
-	close();
-}
-
 void RobotDesignerWindow::open(const RobotConfig& robotConfig) {
 	loadFromRobotConfig(robotConfig);
 	open();
 }
 
 void RobotDesignerWindow::open() {
-	if (isOpen()) {
-		_window->requestFocus();
-		return;
-	}
-
 	if (!_windowConfig.wasOpenedBefore) {
-		firstTimeSetup();
+		firstTimeSetup({480, 700});
 	}
-
-	_pendingClose = false;
-
-	_window = std::make_unique<sf::RenderWindow>(
-		sf::VideoMode({ (uint32_t)_windowConfig.size.x, (uint32_t)_windowConfig.size.y }),
-		"Robot Designer",
-		sf::Style::Titlebar | sf::Style::Close | sf::Style::Resize);
-	_window->setPosition({ _windowConfig.position.x, _windowConfig.position.y });
-	if (_icon.getSize().x > 0 && _icon.getSize().y > 0)
-		_window->setIcon(_icon);
-	if (!ImGui::SFML::Init(*_window)) {
-		_window.reset();
-		return;
-	}
-
-	ImGuiIO& io = ImGui::GetIO();
-	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-	io.IniFilename = nullptr; // Disable automatic .ini saving/loading
-	WindowHelper::SetScaledFont(io, DEFAULT_FONT_DATA, DEFAULT_FONT_DATA_SIZE, _windowConfig.defaultFontSize);
-	_windowConfig.open = true;
-	_isOpen = true;
-}
-
-void RobotDesignerWindow::firstTimeSetup() {
-	auto screenSize = sf::VideoMode::getDesktopMode().size;
-
-	_windowConfig.size = { 480, 700 };
-	_windowConfig.position = { ((int)screenSize.x - _windowConfig.size.x) / 2, ((int)screenSize.y - _windowConfig.size.y) / 2 };
-	_windowConfig.resizable = true;
-	_windowConfig.open = false;
-	_windowConfig.wasOpenedBefore = true;
+	openWindow("Robot Designer");
 }
 
 void RobotDesignerWindow::close(bool closeFromRoot) {
-	if (!isOpen()) return;
-
-	saveConfig();
-	_windowConfig.open = closeFromRoot;
-	ImGui::SFML::SetCurrentWindow(*_window);
-	ImGui::SFML::Shutdown(*_window);
-	_window->close();
-	_window.reset();
-	_pendingClose = false;
-	_isOpen = false;
-}
-
-bool RobotDesignerWindow::isOpen() const {
-	return _isOpen;
+	closeWindow(closeFromRoot);
 }
 
 void RobotDesignerWindow::update(sf::Time dt) {
 	if (!isOpen()) return;
 
-	ImGui::SFML::SetCurrentWindow(*_window);
-
-	while (const std::optional event = _window->pollEvent()) {
-		ImGui::SFML::ProcessEvent(*_window, *event);
-
-		if (event->is<sf::Event::Closed>()) {
-			_pendingClose = true;
-		}
-	}
-
-	if (_pendingClose) {
-		close();
-		return;
-	}
+	if (!processEvents()) return;
 
 	ImGui::SFML::Update(*_window, dt);
 
 	renderContent();
-}
-
-void RobotDesignerWindow::draw() {
-	if (!isOpen()) return;
-
-	ImGui::SFML::SetCurrentWindow(*_window);
-	_window->clear(Colors::WindowClearColor);
-	ImGui::SFML::Render(*_window);
-	_window->display();
-}
-
-void RobotDesignerWindow::saveConfig() {
-	_windowConfig.position = FromSFMLVector(_window->getPosition());
-	_windowConfig.size = FromSFMLVector(_window->getSize());
-	_windowConfig.resizable = true;
 }
 
 void RobotDesignerWindow::loadFromRobotConfig(const RobotConfig& config) {

@@ -15,5 +15,4 @@ FetchContent_MakeAvailable(imgui-sfml)
 set_target_properties(ImGui-SFML
     PROPERTIES
         FOLDER "Dependencies/ImGui-SFML"
-        MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>"
 )

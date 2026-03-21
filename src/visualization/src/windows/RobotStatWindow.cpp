@@ -118,7 +118,8 @@ namespace {
     }
 } // anonymous namespace
 
-RobotStatWindow::RobotStatWindow(const AppConfig& config, const sf::Image& icon) : _icon(icon), _logFolder(getExecutableDir() / "logs")
+RobotStatWindow::RobotStatWindow(const AppConfig& config, const sf::Image& icon)
+	: SettingsWindowBase(icon), _logFolder(getExecutableDir() / "logs")
 {
 	_windowConfig = config.robotStatWindow;
 	if (_windowConfig.open) {
@@ -126,92 +127,21 @@ RobotStatWindow::RobotStatWindow(const AppConfig& config, const sf::Image& icon)
 	}
 }
 
-RobotStatWindow::~RobotStatWindow() {
-	close();
-}
-
 void RobotStatWindow::open() {
-	if (isOpen()) {
-		_window->requestFocus();
-		return;
-	}
-
 	if (!_windowConfig.wasOpenedBefore) {
-		firstTimeSetup();
+		firstTimeSetup({420, 600});
 	}
-
-
-	_pendingClose = false;
-
-	_window = std::make_unique<sf::RenderWindow>(
-		sf::VideoMode({ (uint32_t)_windowConfig.size.x, (uint32_t)_windowConfig.size.y }),
-		"Robot Stats",
-		sf::Style::Titlebar | sf::Style::Close | sf::Style::Resize);
-	_window->setPosition({ _windowConfig.position.x, _windowConfig.position.y });
-    if (_icon.getSize().x > 0 && _icon.getSize().y > 0)
-        _window->setIcon(_icon);
-	if (!ImGui::SFML::Init(*_window)) {
-		_window.reset();
-		return;
-	}
-
-	ImGuiIO& io = ImGui::GetIO();
-	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-    io.IniFilename = nullptr;
-	WindowHelper::SetScaledFont(io, DEFAULT_FONT_DATA, DEFAULT_FONT_DATA_SIZE, _windowConfig.defaultFontSize);
-	_windowConfig.open = true;
-	_isOpen = true;
+	openWindow("Robot Stats");
 }
 
-void RobotStatWindow::firstTimeSetup() {
-	auto screenSize = sf::VideoMode::getDesktopMode().size;
-
-	_windowConfig.size = { 420, 600 };
-	_windowConfig.position = { ((int)screenSize.x - _windowConfig.size.x) / 2, ((int)screenSize.y - _windowConfig.size.y) / 2 };
-	_windowConfig.resizable = true;
-	_windowConfig.open = false;
-	_windowConfig.wasOpenedBefore = true;
-}
-
-// Close the settings window. 
-// If closeFromRoot is true, it indicates that the close action was initiated from the main window,
-// so we should not set open to false in the config to allow reopening the settings window without issues.
 void RobotStatWindow::close(bool closeFromRoot) {
-	if (!isOpen()) return;
-
-	saveConfig();
-	_windowConfig.open = closeFromRoot;
-	ImGui::SFML::SetCurrentWindow(*_window);
-	ImGui::SFML::Shutdown(*_window);
-	_window->close();
-	_window.reset();
-	_pendingClose = false;
-	_isOpen = false;
-}
-
-bool RobotStatWindow::isOpen() const {
-	return _isOpen;
+	closeWindow(closeFromRoot);
 }
 
 void RobotStatWindow::update(sf::Time dt, const RobotState& robotState) {
 	if (!isOpen()) return;
 
-	// Switch to settings window context
-	ImGui::SFML::SetCurrentWindow(*_window);
-
-	// Process events BEFORE starting the ImGui frame
-	while (const std::optional event = _window->pollEvent()) {
-		ImGui::SFML::ProcessEvent(*_window, *event);
-
-		if (event->is<sf::Event::Closed>()) {
-			_pendingClose = true;
-		}
-	}
-
-	if (_pendingClose) {
-		close();
-		return;
-	}
+	if (!processEvents()) return;
 
 	ImGui::SFML::Update(*_window, dt);
 
@@ -219,21 +149,6 @@ void RobotStatWindow::update(sf::Time dt, const RobotState& robotState) {
 		_logger.logStats(std::chrono::system_clock::now(), robotState);
 
 	renderContent(robotState);
-}
-
-void RobotStatWindow::draw() {
-	if (!isOpen()) return;
-
-	ImGui::SFML::SetCurrentWindow(*_window);
-	_window->clear(Colors::WindowClearColor);
-	ImGui::SFML::Render(*_window);
-	_window->display();
-}
-
-void RobotStatWindow::saveConfig() {
-	_windowConfig.position = FromSFMLVector(_window->getPosition());
-	_windowConfig.size = FromSFMLVector(_window->getSize());
-	_windowConfig.resizable = true;
 }
 
 void RobotStatWindow::renderContent(const RobotState& robotState) {

@@ -31,7 +31,8 @@ void RobotStatLogger::writeHeader(int wheelCount)
     {
         _logFile << ",w" << i << "_speed"
             << ",w" << i << "_roller_speed"
-            << ",w" << i << "_distance";
+            << ",w" << i << "_distance"
+            << ",w" << i << "_last_displacement";
     }
 
     _logFile << "\n";

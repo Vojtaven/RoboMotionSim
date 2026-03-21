@@ -214,10 +214,16 @@ public:
 
 class CommandFactory
 {
-	static MoveAtSpeedRawParams recalculateToRawValues(const MoveAtSpeedParams& params);
-	static MoveByTimeRawParams recalculateToRawValues(const MoveByTimeParams& params);
-	static MoveByDistanceRawParams recalculateToRawValues(const MoveByDistanceParams& params);
-	static MoveByAngleRawParams recalculateToRawValues(const MoveByAngleParams& params);
+	// Applies pivot-point transformation common to all high-level move commands
+	template<typename TRaw, typename TParams>
+	static TRaw applyPivotTransform(const TParams& params) {
+		TRaw raw{};
+		raw.x_speed = params.x_speed - params.rotation_speed * params.center_y_mm;
+		raw.y_speed = params.y_speed + params.rotation_speed * params.center_x_mm;
+		raw.rotation_speed = params.rotation_speed;
+		raw.front_rotation_speed = params.rotate_chassis ? 0.0f : -params.rotation_speed;
+		return raw;
+	}
 public:
 	static std::unique_ptr<MoveByDistanceRaw> createMoveByDistance(uint32_t id, const uint8_t* data, size_t size);
 	static std::unique_ptr<MoveByTimeRaw> createMoveByTime(uint32_t id, const uint8_t* data, size_t size);

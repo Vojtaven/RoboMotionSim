@@ -6,22 +6,24 @@ static inline std::string trim(std::string s);
 std::vector<std::pair<std::string, std::string>> getByPrefix(
 	const std::vector<std::pair<std::string, std::string>>& vec, const std::string& prefix);
 
+// Lookup a required key in a parsed config, throw if missing
+static const std::string& getRequiredValue(
+	const std::vector<std::pair<std::string, std::string>>& config,
+	const std::string& key,
+	const std::string& errorMsg)
+{
+	auto it = std::find_if(config.begin(), config.end(),
+		[&key](const std::pair<std::string, std::string>& i) { return i.first == key; });
+	if (it == config.end())
+		throw std::runtime_error(errorMsg);
+	return it->second;
+}
+
 RobotConfig ImportHelper::loadRobotConfigFrom(const std::string& path) {
 	auto parsedConfig = readIni(path);
-	int wheelCount;
-	std::string type;
 
-	if (auto numberOfWheels = std::find_if(parsedConfig.begin(), parsedConfig.end(),
-		[](std::pair<std::string, std::string> i) { return i.first == "WHEELS"; }); numberOfWheels == parsedConfig.end())
-		throw std::runtime_error("Config doesn't contain number of wheels");
-	else
-		wheelCount = std::stoi(numberOfWheels->second);
-
-	if (auto driveType = std::find_if(parsedConfig.begin(), parsedConfig.end(),
-		[](std::pair<std::string, std::string> i) { return i.first == "DRIVE_TYPE"; }); driveType == parsedConfig.end())
-		throw std::runtime_error("Config doesn't contain drive type");
-	else
-		type = driveType->second;
+	int wheelCount = std::stoi(getRequiredValue(parsedConfig, "WHEELS", "Config doesn't contain number of wheels"));
+	std::string type = getRequiredValue(parsedConfig, "DRIVE_TYPE", "Config doesn't contain drive type");
 
 	auto wheels = getByPrefix(parsedConfig, "WHEEL_");
 	auto motors = getByPrefix(parsedConfig, "MOTOR_");
