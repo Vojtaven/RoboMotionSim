@@ -58,9 +58,9 @@ void RobotStatLogger::logStats(
     _logFile << ","
         << robotState.position.x << ","
         << robotState.position.y << ","
+        << robotState.chassisAngle << ","
         << robotState.globalVelocity.x << ","
         << robotState.globalVelocity.y << ","
-        << robotState.chassisAngle << ","
         << robotState.angularVelocity << ","
         << robotState.distanceTraveled.x << ","
 		<< robotState.distanceTraveled.y;

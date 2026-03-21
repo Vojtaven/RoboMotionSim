@@ -1,6 +1,6 @@
 #include "windows/RobotStatWindow.hpp"
 #include <imgui.h>
-#include <imgui_stdlib.h>
+#include "MathUtils.hpp"
 #include <imgui-SFML.h>
 #include <algorithm>
 #include <chrono>
@@ -283,8 +283,8 @@ void RobotStatWindow::renderMotionSection(const RobotState& robotState, float pa
     ImGui::TextColored(Colors::MotionSectionTitle, "  Motion");
     ImGui::Spacing();
 
-    StatRow("Angular Vel", robotState.angularVelocity, "rad/s");
-    StatRow("Front Angular Vel", robotState.frontAngularVelocity, "rad/s");
+    StatRow("Angular Vel", RadiansToDegrees(robotState.angularVelocity), "deg/s");
+    StatRow("Front Angular Vel", RadiansToDegrees(robotState.frontAngularVelocity), "deg/s");
     ImGui::Spacing();
     VelocityBar("Local Vel X", robotState.localVelocity.x, panelW);
     VelocityBar("Local Vel Y", robotState.localVelocity.y, panelW);
@@ -311,8 +311,8 @@ void RobotStatWindow::renderPoseSection(const RobotState& robotState) {
     ImGui::SameLine();
     ImGui::TextColored(Colors::ActiveValue, "%.1f) mm", robotState.position.y);
 
-    StatRow("Chassis Angle", robotState.chassisAngle, "deg");
-    StatRow("Front Angle", robotState.frontAngle, "deg");
+    StatRow("Chassis Angle", RadiansToDegrees(robotState.chassisAngle), "deg");
+    StatRow("Front Angle", RadiansToDegrees(robotState.frontAngle), "deg");
     ImGui::Spacing();
 
     ImVec2 cardEnd = ImGui::GetCursorScreenPos();
