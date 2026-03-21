@@ -1,19 +1,26 @@
 #include "PhysicsEngine.hpp"
 #include "RobotState.hpp"
 #include "RobotConfig.hpp"
-#include <iostream>
-#include <algorithm> // For std::abs
+#include <algorithm>
+#include <cmath>
+#include <numbers>
 void PhysicsEngine::update(const float dt, RobotState& state, const RobotConfig& config)
 {
 	limitMovement(state, config);
 
-	if (state.fromWheelSpeeds)
+	if (state.fromWheelSpeeds) {
+		if (_limitMotorSpeed)
+			limitMotorSpeeds(state, config);
 		calculateLocalVelocityFromWheelSpeed(state, config);
-
-	toGlobalFrame(state);
-
-	if (!state.fromWheelSpeeds)
+	}
+	else {
 		toWheelSpeed(state, config, dt);
+		if (_limitMotorSpeed) {
+			limitMotorSpeeds(state, config);
+			calculateLocalVelocityFromWheelSpeed(state, config);
+		}
+	}
+	toGlobalFrame(state);
 
 	updatePosition(dt, state);
 	updateDirectionVectors(state);
@@ -41,7 +48,7 @@ void PhysicsEngine::toWheelSpeed(RobotState& state, const RobotConfig& config, c
 	const auto wheels = config.GetRobotWheels();
 	const RobotDriveType driveType = config.GetRobotDriveType();
 	// Convert global velocity to chassis-front-relative velocity
-	const Vec2f chassisVel = state.globalVelocity.rotatedInverse(state.chassisAngle);
+	const Vec2f chassisVel = state.localVelocity.rotated(state.frontAngle);
 	const float chassis_vx = chassisVel.x;
 	const float chassis_vy = chassisVel.y;
 
@@ -82,6 +89,29 @@ void PhysicsEngine::limitMovement(RobotState& state, const RobotConfig& config) 
 		state.frontAngularVelocity = 0;
 	}
 
+}
+
+void PhysicsEngine::limitMotorSpeeds(RobotState& state, const RobotConfig& config) {
+	const auto& axles = config.GetRobotDriveAxles();
+	float maxRatio = 1.0f;
+
+	for (int i = 0; i < (int)state.wheels.size() && i < (int)axles.size(); i++) {
+		const auto& wheel = axles[i].wheel;
+		const auto& motor = axles[i].motor;
+		const float circumference = std::numbers::pi_v<float> * wheel.diameter;
+		if (circumference <= 0.0f || motor.stepsPerRotation <= 0.0f) continue;
+
+		const float speedInSteps = std::fabs(state.wheels[i].speed) * motor.stepsPerRotation / circumference;
+		if (speedInSteps > motor.hardwareMaxSpeedLimit)
+			maxRatio = std::max(maxRatio, speedInSteps / motor.hardwareMaxSpeedLimit);
+	}
+
+	if (maxRatio > 1.0f) {
+		for (auto& wheel : state.wheels) {
+			wheel.speed /= maxRatio;
+			wheel.rollerSpeed /= maxRatio;
+		}
+	}
 }
 
 void PhysicsEngine::updateDirectionVectors(RobotState& state) {

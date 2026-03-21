@@ -26,9 +26,12 @@ AppEngine::AppEngine()
 	centerPoint.position = Vec2f{ 0.0f, 0.0f };
 	robotState->directionVectors.push_back(centerPoint);
 	inputManager = std::make_unique<InputManager>(appConfig.inputSettings);
+	physicsEngine->setLimitMotorSpeed(appConfig.inputSettings.limitMotorSpeed);
 
 	vizEngine->SetOnInputSettingsChanged([this]() {
 		this->inputManager->updateAfterSettingsChange();
+		const auto& settings = this->vizEngine->getSavedAppConfig().inputSettings;
+		this->physicsEngine->setLimitMotorSpeed(settings.limitMotorSpeed);
 		});
 
 	vizEngine->SetOnRobotConfigChanged([this](const RobotConfig& newConfig) {

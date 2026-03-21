@@ -246,6 +246,7 @@ bool InputSettingsWindow::renderCommonSettings() {
 	ImGui::Spacing();
 
 	changed |= ImGui::Checkbox("Register Input Without Focus", &_settings.registerInputWithoutFocus);
+	changed |= ImGui::Checkbox("Limit Motor Speed", &_settings.limitMotorSpeed);
 	ImGui::Spacing();
 	ImGui::Spacing();
 	return changed;

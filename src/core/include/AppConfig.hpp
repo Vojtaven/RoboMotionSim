@@ -105,6 +105,7 @@ struct InputSettings {
 	float maxSpeed = 200; // Max speed in mm/s, used to scale input values to real speeds
 	float maxRotationSpeed = 60; // Max rotation speed in degrees/s, used to scale input values to real speeds
 	bool registerInputWithoutFocus = true;
+	bool limitMotorSpeed = false;
 };
 
 struct AppConfig {
