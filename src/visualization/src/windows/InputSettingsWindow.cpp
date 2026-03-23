@@ -71,7 +71,7 @@ void InputSettingsWindow::open(const InputSettings& settings) {
 
 void InputSettingsWindow::open() {
 	if (!_windowConfig.wasOpenedBefore) {
-		firstTimeSetup({420, 600});
+		firstTimeSetup({ 420, 600 });
 	}
 	openWindow("Input Settings");
 }
@@ -190,6 +190,9 @@ void InputSettingsWindow::renderContent() {
 		changed = true;
 	}
 	ImGui::Spacing();
+	changed |= ImGui::Checkbox("Limit Motor Speed", &_settings.limitMotorSpeed);
+	ImGui::Spacing();
+
 	ImGui::Separator();
 	ImGui::Spacing();
 
@@ -246,7 +249,6 @@ bool InputSettingsWindow::renderCommonSettings() {
 	ImGui::Spacing();
 
 	changed |= ImGui::Checkbox("Register Input Without Focus", &_settings.registerInputWithoutFocus);
-	changed |= ImGui::Checkbox("Limit Motor Speed", &_settings.limitMotorSpeed);
 	ImGui::Spacing();
 	ImGui::Spacing();
 	return changed;
@@ -451,7 +453,6 @@ bool InputSettingsWindow::renderIPCMapping() {
 		};
 
 	renderPort("Command Port", ipc.command_port);
-	renderPort("Response Port", ipc.response_port);
 	renderPort("Telemetry Port", ipc.telemetry_port);
 
 	ImGui::Text("Heartbeat Timeout (s)");

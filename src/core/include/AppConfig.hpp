@@ -86,8 +86,7 @@ struct ControllerMapping {
 struct IPCMapping {
 	std::string address = "tcp://127.0.0.1";
 	uint16_t command_port = 5555;
-	uint16_t response_port = 5556;
-	uint16_t telemetry_port = 5557;
+	uint16_t telemetry_port = 5556;
 	float heartbeatTimeout = 5.0f; // Time in seconds to wait without receiving a heartbeat before considering the connection lost
 };
 

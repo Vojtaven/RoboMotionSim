@@ -17,17 +17,16 @@ std::optional<std::string> InputManager::update(RobotState& state, bool hasFocus
 	state.angularVelocity = 0;
 	state.frontAngularVelocity = 0;
 
-	if (!_inputSettings.registerInputWithoutFocus && !hasFocus)
-		return std::nullopt;
-
-
 	switch (_inputSettings.inputType)
 	{
 	case InputType::Keyboard:
-		_keyboardInput->update(state, _inputSettings.maxSpeed, _maxRotationSpeedRadians);
+		if (_inputSettings.registerInputWithoutFocus || hasFocus)
+			_keyboardInput->update(state, _inputSettings.maxSpeed, _maxRotationSpeedRadians);
 		return std::nullopt;
 	case InputType::Controller:
-		return _joystickInput->update(state, _inputSettings.maxSpeed, _maxRotationSpeedRadians);
+		if (_inputSettings.registerInputWithoutFocus || hasFocus)
+			return _joystickInput->update(state, _inputSettings.maxSpeed, _maxRotationSpeedRadians);
+		return std::nullopt;
 	case InputType::IPC:
 		_ipcInput->update(state);
 		return std::nullopt;
@@ -46,7 +45,7 @@ void InputManager::checkForInputCompletion(const RobotState& state, const float 
 	case InputType::Controller:
 		break;
 	case InputType::IPC:
-		_ipcInput->checkForInputCompletion(state,dt);
+		_ipcInput->checkForInputCompletion(state, dt);
 		break;
 	case InputType::Serial:
 		break;

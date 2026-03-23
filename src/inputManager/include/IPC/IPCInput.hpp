@@ -46,8 +46,7 @@ private:
 	std::queue<std::unique_ptr<Command>> _commandQueue;
 	std::unique_ptr<Command> _currentCommand = nullptr;
     zmq::socket_t _telemetry_out;  // high freq, conflate=1
-    zmq::socket_t _response_out;  // low freq, no conflate
-    zmq::socket_t _command_in;   // commands in, router
+    zmq::socket_t _command_router;   // commands in/responses out, router
 };
 
 #endif // !IPC_INPUT_HPP

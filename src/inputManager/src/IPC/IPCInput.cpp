@@ -9,8 +9,7 @@ IPCInput::IPCInput(const IPCMapping& ipcMapping)
 	: _ipcMapping(ipcMapping),
 	_context(1),
 	_telemetry_out(_context, zmq::socket_type::pub),
-	_response_out(_context, zmq::socket_type::pub),
-	_command_in(_context, zmq::socket_type::router)
+	_command_router(_context, zmq::socket_type::router)
 {
 	updateAfterSettingsChange();
 }
@@ -28,8 +27,8 @@ void IPCInput::update(RobotState& state) {
 
 	// Poll for incoming messages (non-blocking)
 	zmq::message_t id, msg;
-	while (_command_in.recv(id, zmq::recv_flags::dontwait)) {
-		if (!_command_in.recv(msg, zmq::recv_flags::dontwait))
+	while (_command_router.recv(id, zmq::recv_flags::dontwait)) {
+		if (!_command_router.recv(msg, zmq::recv_flags::dontwait))
 			continue;
 
 		if (msg.size() < sizeof(MsgHeader))
@@ -108,18 +107,15 @@ void IPCInput::checkForInputCompletion(const RobotState& state, const float dt) 
 void IPCInput::updateAfterSettingsChange() {
 	// Close existing sockets before rebinding/reconnecting
 	_telemetry_out.close();
-	_response_out.close();
-	_command_in.close();
+	_command_router.close();
 
 	// Recreate sockets
 	_telemetry_out = zmq::socket_t(_context, zmq::socket_type::pub);
-	_response_out = zmq::socket_t(_context, zmq::socket_type::pub);
-	_command_in = zmq::socket_t(_context, zmq::socket_type::router);
+	_command_router = zmq::socket_t(_context, zmq::socket_type::router);
 	// Bind/connect to new addresses/ports
 	_telemetry_out.bind(_ipcMapping.address + ":" + std::to_string(_ipcMapping.telemetry_port));
 	_telemetry_out.set(zmq::sockopt::conflate, 1);
-	_response_out.bind(_ipcMapping.address + ":" + std::to_string(_ipcMapping.response_port));
-	_command_in.bind(_ipcMapping.address + ":" + std::to_string(_ipcMapping.command_port));
+	_command_router.bind(_ipcMapping.address + ":" + std::to_string(_ipcMapping.command_port));
 }
 
 
@@ -254,6 +250,9 @@ void IPCInput::SentTelemetry(const RobotState& state) {
 	_telemetry_out.send(zmq::buffer(buf), zmq::send_flags::none);
 }
 void IPCInput::SendResponse(MsgType type, uint32_t id, const std::vector<uint8_t>& payload) {
+	if (!_connectedClientID.has_value())
+		return;
+
 	std::vector<uint8_t> buf(sizeof(MsgHeader) + payload.size());
 	uint8_t* ptr = buf.data();
 
@@ -270,7 +269,8 @@ void IPCInput::SendResponse(MsgType type, uint32_t id, const std::vector<uint8_t
 		std::memcpy(ptr, payload.data(), payload.size());
 	}
 
-	_response_out.send(zmq::buffer(buf), zmq::send_flags::none);
+	_command_router.send(_connectedClientID.value(), zmq::send_flags::sndmore);
+	_command_router.send(zmq::buffer(buf), zmq::send_flags::none);
 }
 void IPCInput::SendMotorCount(uint32_t id, uint32_t motorCount) {
 	MsgHeader header;
@@ -286,7 +286,8 @@ void IPCInput::SendMotorCount(uint32_t id, uint32_t motorCount) {
 
 	std::memcpy(ptr, &motorCount, sizeof(uint32_t));
 
-	_response_out.send(zmq::buffer(buf), zmq::send_flags::none);
+	_command_router.send(_connectedClientID.value(), zmq::send_flags::sndmore);
+	_command_router.send(zmq::buffer(buf), zmq::send_flags::none);
 }
 
 void IPCInput::SendHandshakeAck(uint32_t id) { SendResponse(MsgType::HANDSHAKE_ACK, id); }
