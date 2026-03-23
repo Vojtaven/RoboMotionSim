@@ -158,6 +158,7 @@ void IPCInput::HandleHandshake(zmq::message_t& id, const MsgHeader& header) {
 	_connectedClientID = std::move(id);
 	SendHandshakeAck(header.id);
 	_lastID = header.id;
+	SendMotorCount(_outID++, _motorCount);
 }
 void IPCInput::HeartBeatCheck() {
 	if (_lastHeartbeatReceived + std::chrono::milliseconds(static_cast<int>(_ipcMapping.heartbeatTimeout * 1000)) < clock.now()) {
@@ -269,25 +270,13 @@ void IPCInput::SendResponse(MsgType type, uint32_t id, const std::vector<uint8_t
 		std::memcpy(ptr, payload.data(), payload.size());
 	}
 
-	_command_router.send(_connectedClientID.value(), zmq::send_flags::sndmore);
+	zmq::message_t id_copy;
+	id_copy.copy(_connectedClientID.value());
+	_command_router.send(id_copy, zmq::send_flags::sndmore);
 	_command_router.send(zmq::buffer(buf), zmq::send_flags::none);
 }
-void IPCInput::SendMotorCount(uint32_t id, uint32_t motorCount) {
-	MsgHeader header;
-	header.id = id;
-	header.type = MsgType::MOTOR_COUNT;
-	header.payload_size = sizeof(uint32_t);
-
-	std::vector<uint8_t> buf(sizeof(MsgHeader) + sizeof(uint32_t));
-	uint8_t* ptr = buf.data();
-
-	std::memcpy(ptr, &header, sizeof(MsgHeader));
-	ptr += sizeof(MsgHeader);
-
-	std::memcpy(ptr, &motorCount, sizeof(uint32_t));
-
-	_command_router.send(_connectedClientID.value(), zmq::send_flags::sndmore);
-	_command_router.send(zmq::buffer(buf), zmq::send_flags::none);
+void IPCInput::SendMotorCount(uint32_t id, uint16_t motorCount) {
+	SendResponse(MsgType::MOTOR_COUNT, id, std::vector<uint8_t>(reinterpret_cast<uint8_t*>(&motorCount), reinterpret_cast<uint8_t*>(&motorCount) + sizeof(uint16_t)));
 }
 
 void IPCInput::SendHandshakeAck(uint32_t id) { SendResponse(MsgType::HANDSHAKE_ACK, id); }
@@ -302,9 +291,9 @@ void IPCInput::DisconnectClient() {
 void IPCInput::HandleDisconnect(uint32_t id) {
 	std::cout << "Disconnecting client" << std::endl;
 	ClearCommandQueue();
+	_currentCommand = nullptr;
+	SendDisconnectAck(id);
 	_connectedClientID.reset();
 	_motorCount = -1;
-	_currentCommand = nullptr;	
-	SendDisconnectAck(id);
 }
 void IPCInput::SendDisconnectAck(uint32_t id) { SendResponse(MsgType::DISCONNECT_ACK, id); }

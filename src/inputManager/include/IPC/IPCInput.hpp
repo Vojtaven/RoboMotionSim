@@ -23,7 +23,7 @@ private:
 	void HandleCommand(const MsgHeader& header, const uint8_t* data, size_t size);
 	void SentTelemetry(const RobotState& state);
 	void SendResponse(MsgType type, uint32_t id, const std::vector<uint8_t>& payload = {});
-	void SendMotorCount(uint32_t id,uint32_t motorCount);
+	void SendMotorCount(uint32_t id,uint16_t motorCount);
 	void SendHandshakeAck(uint32_t id);
 	void SendHeartbeatAck(uint32_t id);
 	void ClearCommandQueue();
