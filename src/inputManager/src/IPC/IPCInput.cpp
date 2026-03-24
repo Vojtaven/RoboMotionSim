@@ -112,9 +112,12 @@ void IPCInput::updateAfterSettingsChange() {
 	// Recreate sockets
 	_telemetry_out = zmq::socket_t(_context, zmq::socket_type::pub);
 	_command_router = zmq::socket_t(_context, zmq::socket_type::router);
-	// Bind/connect to new addresses/ports
-	_telemetry_out.bind(_ipcMapping.address + ":" + std::to_string(_ipcMapping.telemetry_port));
+
 	_telemetry_out.set(zmq::sockopt::conflate, 1);
+	_telemetry_out.set(zmq::sockopt::sndhwm, 1);
+	_telemetry_out.set(zmq::sockopt::linger, 0);
+
+	_telemetry_out.bind(_ipcMapping.address + ":" + std::to_string(_ipcMapping.telemetry_port));
 	_command_router.bind(_ipcMapping.address + ":" + std::to_string(_ipcMapping.command_port));
 }
 
@@ -212,8 +215,8 @@ void IPCInput::SentTelemetry(const RobotState& state) {
 	size_t payload_size = sizeof(TelemetryOdometry)
 		+ sizeof(TelemetryWheelState) * wheelCount;
 
-	std::vector<uint8_t> buf(sizeof(MsgHeader) + payload_size);
-	uint8_t* ptr = buf.data();
+	_telemetryBuf.resize(sizeof(MsgHeader) + payload_size);
+	uint8_t* ptr = _telemetryBuf.data();
 
 	// Header
 	MsgHeader header;
@@ -248,7 +251,7 @@ void IPCInput::SentTelemetry(const RobotState& state) {
 		ptr += sizeof(TelemetryWheelState);
 	}
 
-	_telemetry_out.send(zmq::buffer(buf), zmq::send_flags::none);
+	_telemetry_out.send(zmq::buffer(_telemetryBuf), zmq::send_flags::dontwait);
 }
 void IPCInput::SendResponse(MsgType type, uint32_t id, const std::vector<uint8_t>& payload) {
 	if (!_connectedClientID.has_value())

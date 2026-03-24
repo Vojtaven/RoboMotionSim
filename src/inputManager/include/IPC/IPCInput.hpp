@@ -45,6 +45,7 @@ private:
 	int _motorCount =-1;
 	std::queue<std::unique_ptr<Command>> _commandQueue;
 	std::unique_ptr<Command> _currentCommand = nullptr;
+    std::vector<uint8_t> _telemetryBuf;
     zmq::socket_t _telemetry_out;  // high freq, conflate=1
     zmq::socket_t _command_router;   // commands in/responses out, router
 };
