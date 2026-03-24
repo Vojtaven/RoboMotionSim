@@ -11,8 +11,8 @@
 class Command
 {
 protected:
-	const uint32_t id = 0;
-	Command(uint32_t id) : id(id) {}
+	const uint32_t _id = 0;
+	Command(uint32_t id) : _id(id) {}
 public:
 	virtual ~Command() = default;
 
@@ -22,9 +22,9 @@ public:
 	// Returns the ID of the command that completed, or 0 if not completed yet
 
 	static CommandType getCommandType(const uint8_t* data, size_t size);
-	static std::unique_ptr<Command> Create(uint32_t id, CommandType type, const uint8_t* data, size_t size);
+	static std::unique_ptr<Command> create(uint32_t id, CommandType type, const uint8_t* data, size_t size);
 
-	uint32_t getId() const { return id; }
+	uint32_t getId() const { return _id; }
 };
 
 
@@ -59,11 +59,11 @@ public:
 class TimeCommand : public Command
 {
 protected:
-	float timeRemaining; // seconds
-	TimeCommand(uint32_t id, float time) : Command(id), timeRemaining(time) {}
+	float _timeRemaining; // seconds
+	TimeCommand(uint32_t id, float time) : Command(id), _timeRemaining(time) {}
 public:
 
-	bool isMoveCompleted() const override { return timeRemaining <= 0.0f; }
+	bool isMoveCompleted() const override { return _timeRemaining <= 0.0f; }
 	bool updateAndCheckCompletion(const RobotState& state, const float dt) override;
 	virtual ~TimeCommand() = default;
 };
@@ -98,10 +98,10 @@ public:
 class DistanceCommand : public Command
 {
 protected:
-	float distanceRemaining; // mm
-	DistanceCommand(uint32_t id, float distance) : Command(id), distanceRemaining(distance) {}
+	float _distanceRemaining; // mm
+	DistanceCommand(uint32_t id, float distance) : Command(id), _distanceRemaining(distance) {}
 public:
-	bool isMoveCompleted() const override { return distanceRemaining <= 0.0f; }
+	bool isMoveCompleted() const override { return _distanceRemaining <= 0.0f; }
 	bool updateAndCheckCompletion(const RobotState& state, const float dt) override;
 	virtual ~DistanceCommand() = default;
 };
@@ -186,11 +186,11 @@ public:
 class AngleCommand : public Command
 {
 private:
-	float targetAngle; // In radians
+	float _targetAngle; // In radians
 protected:
-	AngleCommand(uint32_t id, float targetAngle) : Command(id), targetAngle(targetAngle) {}
+	AngleCommand(uint32_t id, float targetAngle) : Command(id), _targetAngle(targetAngle) {}
 public:
-	bool isMoveCompleted() const override { return targetAngle < 0.001f; }
+	bool isMoveCompleted() const override { return _targetAngle < 0.001f; }
 	bool updateAndCheckCompletion(const RobotState& state, const float dt) override;
 	virtual ~AngleCommand() = default;
 };
@@ -238,13 +238,13 @@ public:
 class MotorCommandWrapper : public Command
 {
 private:
-	std::vector<std::unique_ptr<Command>> motorCommands;
+	std::vector<std::unique_ptr<Command>> _motorCommands;
 public:
-	MotorCommandWrapper(int motorCount) : Command(0), motorCommands(motorCount) {}
+	MotorCommandWrapper(int motorCount) : Command(0), _motorCommands(motorCount) {}
 	bool isMoveCompleted() const override;
 	bool updateAndCheckCompletion(const RobotState& state, const float dt) override;
 	void addMotorCommand(uint16_t motor_id, std::unique_ptr<Command> cmd);
-	void removeCommand(uint16_t motor_id) { if (motor_id < motorCommands.size()) motorCommands[motor_id] = nullptr; }
+	void removeCommand(uint16_t motor_id) { if (motor_id < _motorCommands.size()) _motorCommands[motor_id] = nullptr; }
 	void execute(RobotState& state) override;
 	void checkInnerCommandCompletion(std::function<void(uint32_t)> onCompletion);
 	~MotorCommandWrapper() = default;

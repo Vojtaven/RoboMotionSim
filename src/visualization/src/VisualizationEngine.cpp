@@ -8,7 +8,7 @@
 #include <imgui-SFML.h>
 #include <cstdint>
 
-void  VisualizationEngine::CreateMainWindow(AppConfig& appConfig) {
+void  VisualizationEngine::createMainWindow(AppConfig& appConfig) {
 	_mainWindow = std::make_unique<MainWindow>(appConfig);
 }
 

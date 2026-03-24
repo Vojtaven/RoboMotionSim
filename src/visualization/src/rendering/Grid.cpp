@@ -25,8 +25,8 @@ void Grid::regenerate() {
 	updateGridBounds();
 	_spacing = _settings.autoSpacing ? snapGridToNiceValues() : _settings.spacing;
 
-	startPos.x = std::floor(_bounds.left / _spacing) * _spacing;
-	startPos.y = std::floor(_bounds.top / _spacing) * _spacing;
+	_startPos.x = std::floor(_bounds.left / _spacing) * _spacing;
+	_startPos.y = std::floor(_bounds.top / _spacing) * _spacing;
 
 
 	if (_settings.subdivisionsCount > 0) {
@@ -58,13 +58,13 @@ void Grid::drawText(sf::RenderTarget& target) {
 }
 
 void Grid::addGridLines(const sf::Color& color, const float spacing) {
-	for (float x = startPos.x; x <= _bounds.right; x += spacing)
+	for (float x = _startPos.x; x <= _bounds.right; x += spacing)
 	{
 		_lines.append({ { x, _bounds.top },    color });
 		_lines.append({ { x, _bounds.bottom }, color });
 	}
 
-	for (float y = startPos.y; y <= _bounds.bottom; y += spacing)
+	for (float y = _startPos.y; y <= _bounds.bottom; y += spacing)
 	{
 		_lines.append({ { _bounds.left,  y }, color });
 		_lines.append({ { _bounds.right, y }, color });
@@ -76,13 +76,13 @@ void Grid::addGridText(unsigned int textSize) {
 	_text.clear();
 	TextLabelFactory factory(*_font, textSize, _gridColor, Colors::GridTextBackground);
 	//sf::Color(0, 0, 0, 100)
-	for (float x = startPos.x; x <= _bounds.right; x += _spacing)
+	for (float x = _startPos.x; x <= _bounds.right; x += _spacing)
 	{
 		_text.push_back(factory.createNumberLabel(x, AnchorPoint::TopCenter));
 		_text.back().setPosition(x, _bounds.top);
 	}
 
-	for (float y = startPos.y; y <= _bounds.bottom; y += _spacing)
+	for (float y = _startPos.y; y <= _bounds.bottom; y += _spacing)
 	{
 		_text.push_back(factory.createNumberLabel(y, AnchorPoint::CenterLeft));
 		_text.back().setPosition(_bounds.left, y);

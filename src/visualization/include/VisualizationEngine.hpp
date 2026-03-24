@@ -19,11 +19,11 @@ public:
 	bool hasFocus() const { return _mainWindow->getWindow().hasFocus(); }
 	// Returns in normal units
 	Vec2f getWindowCenter() const { return _mainWindow->getRenderWindowCenter(); }
-	void SetOnInputSettingsChanged(std::function<void()> callback) { _mainWindow->SetOnInputSettingsChanged(std::move(callback)); }
-	void SetOnRobotConfigChanged(std::function<void(const RobotConfig&)> callback) { _mainWindow->SetOnRobotConfigChanged(std::move(callback)); }
+	void setOnInputSettingsChanged(std::function<void()> callback) { _mainWindow->setOnInputSettingsChanged(std::move(callback)); }
+	void setOnRobotConfigChanged(std::function<void(const RobotConfig&)> callback) { _mainWindow->setOnRobotConfigChanged(std::move(callback)); }
 	void showErrorMessage(const std::string& message) { _mainWindow->showErrorMessage(message); }
 private:
-	void CreateMainWindow(AppConfig& appConfig);
+	void createMainWindow(AppConfig& appConfig);
 	std::unique_ptr<MainWindow> _mainWindow;
 };
 

@@ -12,9 +12,9 @@ void ExportHelper::saveRobotConfigTo(const RobotConfig& config, const std::strin
 	if (!file.is_open())
 		throw std::runtime_error("Output file cannot be opened.");
 
-	auto axles = config.GetRobotDriveAxles();
+	auto axles = config.getRobotDriveAxles();
 	int wheelCount = axles.size();
-	RobotDriveType type = config.GetRobotDriveType();
+	RobotDriveType type = config.getRobotDriveType();
 	writeConfigLine("DRIVE_TYPE", exportToConfig(type), file);
 	writeConfigLine("WHEELS", std::to_string(wheelCount), file);
 

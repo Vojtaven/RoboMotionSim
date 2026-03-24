@@ -25,7 +25,7 @@ private:
 	RenderSettings _settings;
 	std::function<void()> _clearRobotTrail;
 	OnSettingsChanged _onSettingsChanged;
-	int colorTypeIndex = 0; // 0 for grid color, 1 for subgrid color, 2 for trail color
+	int _colorTypeIndex = 0; // 0 for grid color, 1 for subgrid color, 2 for trail color
 };
 
 #endif // !RENDER_SETTINGS_WINDOW_HPP

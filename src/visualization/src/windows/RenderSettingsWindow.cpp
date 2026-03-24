@@ -98,9 +98,9 @@ void RenderSettingsWindow::renderContent() {
 		ImGuiColorEditFlags_InputRGB;
 
 	const char* colorTypeItems[] = { "Grid color", "SubGrid color", "TrailColor" };
-	ImGui::Combo("##ColorSelecterType", &colorTypeIndex, colorTypeItems, IM_ARRAYSIZE(colorTypeItems));
+	ImGui::Combo("##ColorSelecterType", &_colorTypeIndex, colorTypeItems, IM_ARRAYSIZE(colorTypeItems));
 	float* dataToUse = nullptr;
-	switch (colorTypeIndex)
+	switch (_colorTypeIndex)
 	{
 	case 0:
 		dataToUse = gridSettings.color.data();

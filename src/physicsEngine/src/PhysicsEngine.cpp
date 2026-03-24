@@ -45,26 +45,26 @@ void PhysicsEngine::toGlobalFrame(RobotState& state) {
 }
 
 void PhysicsEngine::toWheelSpeed(RobotState& state, const RobotConfig& config, const float dt) {
-	const auto wheels = config.GetRobotWheels();
-	const RobotDriveType driveType = config.GetRobotDriveType();
+	const auto wheels = config.getRobotWheels();
+	const RobotDriveType driveType = config.getRobotDriveType();
 	// Convert global velocity to chassis-front-relative velocity
 	const Vec2f chassisVel = state.localVelocity.rotated(state.frontAngle);
-	const float chassis_vx = chassisVel.x;
-	const float chassis_vy = chassisVel.y;
+	const float chassisVx = chassisVel.x;
+	const float chassisVy = chassisVel.y;
 
 	const auto omega = state.angularVelocity;
 	int i = 0;
 	for (const auto& wheel : wheels) {
 		float finalWheelSpeed = 0.0f;
 
-		float local_vx = chassis_vx - (omega * wheel.y_position);
-		float local_vy = chassis_vy + (omega * wheel.x_position);
+		float localVx = chassisVx - (omega * wheel.y_position);
+		float localVy = chassisVy + (omega * wheel.x_position);
 
 		float cos_w = std::cos(wheel.wheel_angle);
 		float sin_w = std::sin(wheel.wheel_angle);
 
-		float v_long = local_vx * cos_w + local_vy * sin_w;
-		float v_tran = -local_vx * sin_w + local_vy * cos_w;
+		float v_long = localVx * cos_w + localVy * sin_w;
+		float v_tran = -localVx * sin_w + localVy * cos_w;
 
 		float cos_roller = cos(wheel.roller_angle);
 
@@ -83,7 +83,7 @@ void PhysicsEngine::toWheelSpeed(RobotState& state, const RobotConfig& config, c
 }
 
 void PhysicsEngine::limitMovement(RobotState& state, const RobotConfig& config) {
-	if (config.GetRobotDriveType() == RobotDriveType::DIFFERENTIAL) {
+	if (config.getRobotDriveType() == RobotDriveType::DIFFERENTIAL) {
 		state.localVelocity.y = 0;
 		state.frontAngle = 0;
 		state.frontAngularVelocity = 0;
@@ -92,7 +92,7 @@ void PhysicsEngine::limitMovement(RobotState& state, const RobotConfig& config) 
 }
 
 void PhysicsEngine::limitMotorSpeeds(RobotState& state, const RobotConfig& config) {
-	const auto& axles = config.GetRobotDriveAxles();
+	const auto& axles = config.getRobotDriveAxles();
 	float maxRatio = 1.0f;
 
 	for (int i = 0; i < (int)state.wheels.size() && i < (int)axles.size(); i++) {
@@ -134,7 +134,7 @@ void PhysicsEngine::updateDirectionVectors(RobotState& state) {
 }
 
 void PhysicsEngine::calculateLocalVelocityFromWheelSpeed(RobotState& state, const RobotConfig& config) {
-	const auto wheels = config.GetRobotWheels();
+	const auto wheels = config.getRobotWheels();
 
 	float A[3][3] = {};
 	float rhs[3] = {};
@@ -191,10 +191,10 @@ void PhysicsEngine::calculateLocalVelocityFromWheelSpeed(RobotState& state, cons
 		}
 	}
 
-	const float chassis_vx = (std::abs(aug[0][0]) > 1e-9f) ? aug[0][3] / aug[0][0] : 0.0f;
-	const float chassis_vy = (std::abs(aug[1][1]) > 1e-9f) ? aug[1][3] / aug[1][1] : 0.0f;
+	const float chassisVx = (std::abs(aug[0][0]) > 1e-9f) ? aug[0][3] / aug[0][0] : 0.0f;
+	const float chassisVy = (std::abs(aug[1][1]) > 1e-9f) ? aug[1][3] / aug[1][1] : 0.0f;
 	const float omega = (std::abs(aug[2][2]) > 1e-9f) ? aug[2][3] / aug[2][2] : 0.0f;
 
-	state.localVelocity = Vec2f{chassis_vx, chassis_vy}.rotatedInverse(state.frontAngle);
+	state.localVelocity = Vec2f{chassisVx, chassisVy}.rotatedInverse(state.frontAngle);
 	state.angularVelocity = omega;
 }

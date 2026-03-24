@@ -53,9 +53,9 @@ void RobotDesignerWindow::update(sf::Time dt) {
 void RobotDesignerWindow::loadFromRobotConfig(const RobotConfig& config) {
 	_axles.clear();
 
-	_driveTypeIndex = (int)config.GetRobotDriveType();
+	_driveTypeIndex = (int)config.getRobotDriveType();
 
-	for (const auto& axle : config.GetRobotDriveAxles()) {
+	for (const auto& axle : config.getRobotDriveAxles()) {
 		_axles.push_back(axle);
 	}
 
@@ -67,7 +67,7 @@ void RobotDesignerWindow::loadFromRobotConfig(const RobotConfig& config) {
 RobotConfig RobotDesignerWindow::buildRobotConfig() const {
 	RobotConfig config;
 
-	config.ChangeDriveType((RobotDriveType)_driveTypeIndex);
+	config.changeDriveType((RobotDriveType)_driveTypeIndex);
 	float rollerAngle;
 	switch ((RobotDriveType)_driveTypeIndex) {
 	case RobotDriveType::DIFFERENTIAL:	rollerAngle = 0.0f;						break;
@@ -80,7 +80,7 @@ RobotConfig RobotDesignerWindow::buildRobotConfig() const {
 		RobotParts::DriveAxle_t copy = axel;
 		if ((RobotDriveType)_driveTypeIndex != RobotDriveType::CUSTOM)
 			copy.wheel.roller_angle = rollerAngle;
-		config.AddAxle(copy);
+		config.addAxle(copy);
 	}
 
 	return config;

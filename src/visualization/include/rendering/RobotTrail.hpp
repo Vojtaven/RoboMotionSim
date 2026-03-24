@@ -16,6 +16,6 @@ private:
 	sf::Color _color;
 	std::deque<sf::CircleShape> _trail = {};
 	const TrailSettings& _settings;
-	float interval = 0;
+	float _interval = 0;
 };
 #endif // !ROBOT_TRAIL_HPP

@@ -85,7 +85,7 @@ void MainWindow::renderImGuiMenu() {
 
 		if (ImGui::MenuItem("Render Settings")) {
 			const RenderSettings& current = _renderEngine->getCurrentRenderSettings();
-			_settingsWindow->open(current);
+			_renderSettingsWindow->open(current);
 			_showMenu = false;
 		}
 		else if (ImGui::MenuItem("Input Settings")) {
@@ -274,7 +274,7 @@ void MainWindow::update(const float dt, const RobotState& robotState, const std:
 	}
 }
 
-void MainWindow::SetOnInputSettingsChanged(std::function<void()> callback) {
+void MainWindow::setOnInputSettingsChanged(std::function<void()> callback) {
 	_onInputSettingsChanged = std::move(callback);
 	_inputSettingsWindow->setOnSettingsChanged([this](const InputSettings& newSettings) {
 		this->_appConfig.inputSettings = newSettings;
@@ -282,7 +282,7 @@ void MainWindow::SetOnInputSettingsChanged(std::function<void()> callback) {
 		});
 }
 
-void MainWindow::SetOnRobotConfigChanged(std::function<void(const RobotConfig&)> callback) {
+void MainWindow::setOnRobotConfigChanged(std::function<void(const RobotConfig&)> callback) {
 	_onRobotConfigChanged = std::move(callback);
 	_robotDesignerWindow->setOnRobotConfigApplied([this](const RobotConfig& newConfig) {
 		setRobotConfig(newConfig, true);
@@ -298,7 +298,7 @@ void MainWindow::showErrorMessage(const std::string& message) {
 
 void MainWindow::saveConfig() {
 	_appConfig.mainWindow = _windowConfig;
-	_appConfig.renderSettingsWindow = _settingsWindow->getSavedConfig();
+	_appConfig.renderSettingsWindow = _renderSettingsWindow->getSavedConfig();
 	_appConfig.renderSettings = _renderEngine->getCurrentRenderSettings();
 	_appConfig.inputSettingsWindow = _inputSettingsWindow->getSavedConfig();
 	_appConfig.robotStatWindow = _robotStatWindow->getSavedConfig();
@@ -308,12 +308,12 @@ void MainWindow::saveConfig() {
 // Other Windows management
 void MainWindow::initializeOtherWindows(const RobotConfig& robotConfig) {
 	// === SETTINGS WINDOW ===
-	_settingsWindow = std::make_unique<RenderSettingsWindow>(_appConfig,_icon);
-	_settingsWindow->setOnSettingsChanged([this](const RenderSettings& newSettings) {
+	_renderSettingsWindow = std::make_unique<RenderSettingsWindow>(_appConfig,_icon);
+	_renderSettingsWindow->setOnSettingsChanged([this](const RenderSettings& newSettings) {
 		this->_appConfig.renderSettings = newSettings;
 		_renderEngine->updateAfterSettingsChange();
 		});
-	_settingsWindow->setClearRobotTrail([this]() {
+	_renderSettingsWindow->setClearRobotTrail([this]() {
 		_renderEngine->clearRobotTrail();
 		});
 
@@ -332,21 +332,21 @@ void MainWindow::initializeOtherWindows(const RobotConfig& robotConfig) {
 }
 
 void MainWindow::closeOtherWindows() {
-	_settingsWindow->close(true);
+	_renderSettingsWindow->close(true);
 	_inputSettingsWindow->close(true);
 	_robotStatWindow->close(true);
 	_robotDesignerWindow->close(true);
 }
 
 void MainWindow::updateAllOtherWindows(sf::Time dt, const RobotState& robotState) {
-	_settingsWindow->update(dt);
+	_renderSettingsWindow->update(dt);
 	_inputSettingsWindow->update(dt);
 	_robotStatWindow->update(dt, robotState);
 	_robotDesignerWindow->update(dt);
 }
 
 void MainWindow::drawAllOtherWindows() {
-	_settingsWindow->draw();
+	_renderSettingsWindow->draw();
 	_inputSettingsWindow->draw();
 	_robotStatWindow->draw();
 	_robotDesignerWindow->draw();

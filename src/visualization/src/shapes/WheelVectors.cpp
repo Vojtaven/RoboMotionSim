@@ -23,7 +23,7 @@ void WheelVectors::setForwardLength(float length) {
 	_forwardVector->setLength(length);
 }
 void WheelVectors::setRollerLength(float length) {
-	_rollerLenght = length;
+	_rollerLength = length;
 	_rollerVector->setLength(length);
 }
 
@@ -45,15 +45,15 @@ void WheelVectors::draw(sf::RenderTarget& target, sf::RenderStates states) const
 }
 
 void WheelVectors::updateDirectionVector() {
-	const float directionVectorLength = std::sqrtf(_rollerLenght * _rollerLenght
+	const float directionVectorLength = std::sqrtf(_rollerLength * _rollerLength
 		+ _forwardLength * _forwardLength
-		+ 2 * _forwardLength * _rollerLenght * std::cos(_rollerAngle));
+		+ 2 * _forwardLength * _rollerLength * std::cos(_rollerAngle));
 
 
 	_directionVector->setLength(directionVectorLength);
 
-	const float directionVectorAngle = std::atan2f(_rollerLenght * std::sinf(_rollerAngle), 
-		_forwardLength + _rollerLenght * std::cosf(_rollerAngle));
+	const float directionVectorAngle = std::atan2f(_rollerLength * std::sinf(_rollerAngle), 
+		_forwardLength + _rollerLength * std::cosf(_rollerAngle));
 
 	_directionVector->setRotation(directionVectorAngle + _wheelAngle);
 }

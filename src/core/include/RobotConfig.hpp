@@ -49,19 +49,19 @@ enum class RobotDriveType {
 
 class RobotConfig {
 public:
-	const std::vector<RobotParts::DriveAxle_t>& GetRobotDriveAxles() const { return _axles; }
-	std::vector<RobotParts::DriveAxle_t>& GetRobotDriveAxles() { return _axles; }
-	auto GetRobotWheels() const {
+	const std::vector<RobotParts::DriveAxle_t>& getRobotDriveAxles() const { return _axles; }
+	std::vector<RobotParts::DriveAxle_t>& getRobotDriveAxles() { return _axles; }
+	auto getRobotWheels() const {
 		return _axles |
 			std::ranges::views::transform([](const auto& axle) -> const RobotParts::Wheel& { return axle.wheel; });
 	}
-	auto GetRobotWheels() {
+	auto getRobotWheels() {
 		return _axles |
 			std::ranges::views::transform([](auto& axle) -> RobotParts::Wheel& { return axle.wheel; });
 	}
-	RobotDriveType GetRobotDriveType() const { return _driveType; }
-	void AddAxle(RobotParts::DriveAxle_t axle) {_axles.push_back(axle); }
-	void ChangeDriveType(RobotDriveType type) { _driveType = type; }
+	RobotDriveType getRobotDriveType() const { return _driveType; }
+	void addAxle(RobotParts::DriveAxle_t axle) {_axles.push_back(axle); }
+	void changeDriveType(RobotDriveType type) { _driveType = type; }
 	int getWheelCount() const { return static_cast<int>(_axles.size()); }
 
 	// Returns error message if config is invalid, empty optional if valid.

@@ -13,22 +13,22 @@ public:
 template<typename T = float>
 class ExprEvaluator {
 private:
-	exprtk::symbol_table<T> g_symbol_table;
-	exprtk::expression<T> g_expression;
-	exprtk::parser<T> g_parser;
+	exprtk::symbol_table<T> _symbolTable;
+	exprtk::expression<T> _expression;
+	exprtk::parser<T> _parser;
 public:
 	ExprEvaluator() {
 		// Register standard constants (like 'pi', 'e')
-		g_symbol_table.add_constants();
-		g_expression.register_symbol_table(g_symbol_table);
+		_symbolTable.add_constants();
+		_expression.register_symbol_table(_symbolTable);
 	}
 
-	T EvaluateExpressions(const std::string& formula) {
-		if (!g_parser.compile(formula, g_expression)) {
+	T evaluateExpressions(const std::string& formula) {
+		if (!_parser.compile(formula, _expression)) {
 			std::string error_message = "ExprTk Parsing Error in formula: '" + formula + "'. Details:\n";
 
-			for (std::size_t i = 0; i < g_parser.error_count(); ++i) {
-				const auto& error = g_parser.get_error(i);
+			for (std::size_t i = 0; i < _parser.error_count(); ++i) {
+				const auto& error = _parser.get_error(i);
 				error_message += "  - Error at position " + std::to_string(error.token.position) +
 					": " + error.diagnostic + "\n";
 			}
@@ -36,7 +36,7 @@ public:
 			throw std::invalid_argument(error_message);
 		}
 
-		return g_expression.value();
+		return _expression.value();
 	}
 };
 #endif // !UTILS_HPP

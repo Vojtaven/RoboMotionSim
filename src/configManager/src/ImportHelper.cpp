@@ -35,12 +35,12 @@ RobotConfig ImportHelper::loadRobotConfigFrom(const std::string& path) {
 		throw std::runtime_error("Number of wheels and number of motors in list doesn't match");
 
 	RobotConfig config;
-	config.ChangeDriveType(createFromConfigDriveType(type));
+	config.changeDriveType(createFromConfigDriveType(type));
 	ExprEvaluator<float> evaluator;
 
 	for (size_t i = 0; i < wheelCount; i++)
 	{
-		config.AddAxle(RobotParts::DriveAxle_t{
+		config.addAxle(RobotParts::DriveAxle_t{
 		createFromConfigWheel(wheels[i].second,evaluator),
 		createFromConfigMotor(motors[i].second,evaluator)
 			});
@@ -112,13 +112,13 @@ RobotParts::Wheel ImportHelper::createFromConfigWheel(const std::string& values,
 	if (splittedValues.size() != 5)
 		throw std::runtime_error("Wrong number of values for motor constructor");
 
-	float diameter = evaluator.EvaluateExpressions(splittedValues[0]);
-	float x = evaluator.EvaluateExpressions(splittedValues[1]);
-	float y = evaluator.EvaluateExpressions(splittedValues[2]);
+	float diameter = evaluator.evaluateExpressions(splittedValues[0]);
+	float x = evaluator.evaluateExpressions(splittedValues[1]);
+	float y = evaluator.evaluateExpressions(splittedValues[2]);
 	float angle =
-		DegreesToRadians(evaluator.EvaluateExpressions(splittedValues[3]));
+		DegreesToRadians(evaluator.evaluateExpressions(splittedValues[3]));
 	float roller =
-		DegreesToRadians(evaluator.EvaluateExpressions(splittedValues[4]));
+		DegreesToRadians(evaluator.evaluateExpressions(splittedValues[4]));
 
 	return RobotParts::Wheel{ diameter, x, y, angle, roller };
 }
@@ -143,10 +143,10 @@ RobotParts::Motor ImportHelper::createFromConfigMotor(const std::string& values,
 	if (splittedValues.size() != 4)
 		throw std::runtime_error("Wrong number of values for motor constructor");
 
-	int pin1 = (int)evaluator.EvaluateExpressions(splittedValues[0]);
-	int pin2 = (int)evaluator.EvaluateExpressions(splittedValues[1]);
-	float maxSpeed = evaluator.EvaluateExpressions(splittedValues[2]);
-	float steps = evaluator.EvaluateExpressions(splittedValues[3]);
+	int pin1 = (int)evaluator.evaluateExpressions(splittedValues[0]);
+	int pin2 = (int)evaluator.evaluateExpressions(splittedValues[1]);
+	float maxSpeed = evaluator.evaluateExpressions(splittedValues[2]);
+	float steps = evaluator.evaluateExpressions(splittedValues[3]);
 
 	return RobotParts::Motor{ maxSpeed, steps, pin1, pin2 };
 }

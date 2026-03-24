@@ -11,7 +11,7 @@ struct CommandParameters {
 	virtual ~CommandParameters() = default;
 
 	template<typename T>
-	static T ParseParams(const uint8_t* data, size_t size)
+	static T parseParams(const uint8_t* data, size_t size)
 		requires requires { typename T::command_parameters_tag; }
 	{
 		if (size != sizeof(T))

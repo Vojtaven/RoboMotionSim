@@ -40,7 +40,7 @@ private:
 		float top;
 		float bottom;
 	};
-	Vec2f startPos;
+	Vec2f _startPos;
 	const sf::Font* _font;
 	GridBounds _bounds;
 	const sf::View& _worldView;

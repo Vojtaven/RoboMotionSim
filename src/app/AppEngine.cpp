@@ -11,39 +11,39 @@ AppEngine::AppEngine()
 	_wallTime = std::chrono::system_clock::now();
 	int screenWidth = sf::VideoMode::getDesktopMode().size.x;
 	int screenHeight = sf::VideoMode::getDesktopMode().size.y;
-	physicsEngine = std::make_unique<PhysicsEngine>();
+	_physicsEngine = std::make_unique<PhysicsEngine>();
 
-	configManager = std::make_unique<ConfigManager>(Vec2i{ screenWidth,screenHeight });
-	auto& robotConfig = configManager->getConstRobotConfig();
-	auto& appConfig = configManager->getAppConfig();
-	vizEngine = std::make_unique<VisualizationEngine>(appConfig, robotConfig);
+	_configManager = std::make_unique<ConfigManager>(Vec2i{ screenWidth,screenHeight });
+	auto& robotConfig = _configManager->getConstRobotConfig();
+	auto& appConfig = _configManager->getAppConfig();
+	_vizEngine = std::make_unique<VisualizationEngine>(appConfig, robotConfig);
 
-	robotState = std::make_unique<RobotState>(robotConfig.getWheelCount());
-	robotState->position = { 0,0 };
-	robotState->frontAngle = DegreesToRadians(-90);
+	_robotState = std::make_unique<RobotState>(robotConfig.getWheelCount());
+	_robotState->position = { 0,0 };
+	_robotState->frontAngle = DegreesToRadians(-90);
 
 	DirectionVector centerPoint;
 	centerPoint.position = Vec2f{ 0.0f, 0.0f };
-	robotState->directionVectors.push_back(centerPoint);
-	inputManager = std::make_unique<InputManager>(appConfig.inputSettings);
-	physicsEngine->setLimitMotorSpeed(appConfig.inputSettings.limitMotorSpeed);
+	_robotState->directionVectors.push_back(centerPoint);
+	_inputManager = std::make_unique<InputManager>(appConfig.inputSettings);
+	_physicsEngine->setLimitMotorSpeed(appConfig.inputSettings.limitMotorSpeed);
 
-	vizEngine->SetOnInputSettingsChanged([this]() {
-		this->inputManager->updateAfterSettingsChange();
-		const auto& settings = this->vizEngine->getSavedAppConfig().inputSettings;
-		this->physicsEngine->setLimitMotorSpeed(settings.limitMotorSpeed);
+	_vizEngine->setOnInputSettingsChanged([this]() {
+		this->_inputManager->updateAfterSettingsChange();
+		const auto& settings = this->_vizEngine->getSavedAppConfig().inputSettings;
+		this->_physicsEngine->setLimitMotorSpeed(settings.limitMotorSpeed);
 		});
 
-	vizEngine->SetOnRobotConfigChanged([this](const RobotConfig& newConfig) {
-		configManager->getRobotConfig() = newConfig;
-		robotState->wheelCount = newConfig.getWheelCount();
-		robotState->wheels.resize(newConfig.getWheelCount());
-		if (newConfig.GetRobotDriveType() == RobotDriveType::DIFFERENTIAL) {
-			robotState->chassisAngle += robotState->frontAngle;
-			robotState->frontAngle = 0;
+	_vizEngine->setOnRobotConfigChanged([this](const RobotConfig& newConfig) {
+		_configManager->getRobotConfig() = newConfig;
+		_robotState->wheelCount = newConfig.getWheelCount();
+		_robotState->wheels.resize(newConfig.getWheelCount());
+		if (newConfig.getRobotDriveType() == RobotDriveType::DIFFERENTIAL) {
+			_robotState->chassisAngle += _robotState->frontAngle;
+			_robotState->frontAngle = 0;
 		}
 
-		vizEngine->setRobotConfig(newConfig, *robotState);
+		_vizEngine->setRobotConfig(newConfig, *_robotState);
 		});
 
 }
@@ -52,13 +52,13 @@ void AppEngine::run() {
 	auto lastFrame = Clock::now();
 	auto lastPhysicsTick = lastFrame;
 
-	while (vizEngine->isWindowOpen()) {
+	while (_vizEngine->isWindowOpen()) {
 		auto frameStart = Clock::now();
 		const std::chrono::duration<float> frameDelta = frameStart - lastFrame;
 		lastFrame = frameStart;
 		_wallTime += std::chrono::duration_cast<std::chrono::system_clock::duration>(frameDelta);
 
-		const auto& appConfig = vizEngine->getSavedAppConfig();
+		const auto& appConfig = _vizEngine->getSavedAppConfig();
 		const float targetFrameTime = appConfig.renderSettings.frameRateLimit > 0
 			? 1.0f / appConfig.renderSettings.frameRateLimit
 			: 0.0f;
@@ -69,20 +69,20 @@ void AppEngine::run() {
 			const std::chrono::duration<float> physicsDelta = now - lastPhysicsTick;
 			lastPhysicsTick = now;
 
-			auto inputResult = inputManager->update(*robotState, vizEngine->hasFocus());
+			auto inputResult = _inputManager->update(*_robotState, _vizEngine->hasFocus());
 			if (inputResult.has_value()) {
-				vizEngine->showErrorMessage(inputResult.value());
+				_vizEngine->showErrorMessage(inputResult.value());
 			}
-			physicsEngine->update(physicsDelta.count(), *robotState, configManager->getConstRobotConfig());
-			inputManager->checkForInputCompletion(*robotState, physicsDelta.count());
+			_physicsEngine->update(physicsDelta.count(), *_robotState, _configManager->getConstRobotConfig());
+			_inputManager->checkForInputCompletion(*_robotState, physicsDelta.count());
 			physicsTimeSpent += physicsDelta.count();
 		} while (physicsTimeSpent < targetFrameTime);
 
-		vizEngine->update(frameDelta.count(), *robotState, _wallTime);
-		vizEngine->draw();
+		_vizEngine->update(frameDelta.count(), *_robotState, _wallTime);
+		_vizEngine->draw();
 	}
-	auto& appConfig = vizEngine->getSavedAppConfig();
-	configManager->setAppConfig(appConfig);
-	configManager->saveDefaultAppConfig();
+	auto& appConfig = _vizEngine->getSavedAppConfig();
+	_configManager->setAppConfig(appConfig);
+	_configManager->saveDefaultAppConfig();
 
 }

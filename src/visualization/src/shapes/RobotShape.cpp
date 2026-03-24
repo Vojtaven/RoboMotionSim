@@ -89,7 +89,7 @@ RobotShape::RobotShape(const RobotConfig& config, bool drawCenter, bool showSpee
 	_showSpeed(showSpeed),
 	_drawCenter(drawCenter)
 {
-	auto axles = config.GetRobotDriveAxles();
+	auto axles = config.getRobotDriveAxles();
 
 	std::transform(axles.begin(), axles.end(), std::back_inserter(_wheelMountingPoints),
 		[](const RobotParts::DriveAxle_t& axle) {
@@ -107,7 +107,7 @@ RobotShape::RobotShape(const RobotConfig& config, bool drawCenter, bool showSpee
 	auto frontVec = std::make_unique<PointVector>(sf::Vector2f{0,0}, 0.0f, distanceFromCenter, Colors::FrontVector);
 	_frontVector = frontVec.get();
 
-	for (const auto& wheel : config.GetRobotWheels())
+	for (const auto& wheel : config.getRobotWheels())
 		addWheel(wheel);
 
 	add(std::move(frontVec));

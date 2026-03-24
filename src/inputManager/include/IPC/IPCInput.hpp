@@ -16,23 +16,23 @@ public:
 	void updateAfterSettingsChange();
 
 private:
-	void HandleCommandStart();
-	std::unique_ptr<Command> StackMotorCommands();
-	void HandleHandshake(zmq::message_t& id, const MsgHeader& header);
-	void HeartBeatCheck();
-	void HandleCommand(const MsgHeader& header, const uint8_t* data, size_t size);
-	void SentTelemetry(const RobotState& state);
-	void SendResponse(MsgType type, uint32_t id, const std::vector<uint8_t>& payload = {});
-	void SendMotorCount(uint32_t id,uint16_t motorCount);
-	void SendHandshakeAck(uint32_t id);
-	void SendHeartbeatAck(uint32_t id);
-	void ClearCommandQueue();
-	void HandleDisconnect(uint32_t id);
-	void DisconnectClient();
-	void SendDisconnectAck(uint32_t id);                                              
-	void SendCommandAck(uint32_t id) { SendResponse(MsgType::CMD_ACK, id); }
-	void SendCommandError(uint32_t id) { SendResponse(MsgType::CMD_ERROR, id); }
-	void SendCommandComplete(uint32_t id) { SendResponse(MsgType::CMD_COMPLETE, id); }
+	void handleCommandStart();
+	std::unique_ptr<Command> stackMotorCommands();
+	void handleHandshake(zmq::message_t& id, const MsgHeader& header);
+	void heartbeatCheck();
+	void handleCommand(const MsgHeader& header, const uint8_t* data, size_t size);
+	void sendTelemetry(const RobotState& state);
+	void sendResponse(MsgType type, uint32_t id, const std::vector<uint8_t>& payload = {});
+	void sendMotorCount(uint32_t id,uint16_t motorCount);
+	void sendHandshakeAck(uint32_t id);
+	void sendHeartbeatAck(uint32_t id);
+	void clearCommandQueue();
+	void handleDisconnect(uint32_t id);
+	void disconnectClient();
+	void sendDisconnectAck(uint32_t id);
+	void sendCommandAck(uint32_t id) { sendResponse(MsgType::CMD_ACK, id); }
+	void sendCommandError(uint32_t id) { sendResponse(MsgType::CMD_ERROR, id); }
+	void sendCommandComplete(uint32_t id) { sendResponse(MsgType::CMD_COMPLETE, id); }
 
 
 	std::chrono::steady_clock clock;

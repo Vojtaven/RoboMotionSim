@@ -37,7 +37,7 @@ CommandType Command::getCommandType(const uint8_t* data, size_t size)
 	return type;
 }
 
-std::unique_ptr<Command> Command::Create(uint32_t id, CommandType type, const uint8_t* data, size_t size) {
+std::unique_ptr<Command> Command::create(uint32_t id, CommandType type, const uint8_t* data, size_t size) {
 	auto it = parsers.find(type);
 	if (it == parsers.end())
 		throw std::exception("Invalid command payload: unknown CommandType");
@@ -72,37 +72,37 @@ void RawMotorCommand::execute(RobotState& state) {
 // TIME-BASED COMMANDS
 // ================================================
 bool TimeCommand::updateAndCheckCompletion(const RobotState& state, const float dt) {
-	timeRemaining -= dt;
+	_timeRemaining -= dt;
 	return isMoveCompleted();
 }
 
 std::unique_ptr<Command> MoveByTimeRaw::create(uint32_t id, const uint8_t* data, size_t size) {
-	return std::make_unique<MoveByTimeRaw>(id, CommandParameters::ParseParams<MoveByTimeRawParams>(data, size));
+	return std::make_unique<MoveByTimeRaw>(id, CommandParameters::parseParams<MoveByTimeRawParams>(data, size));
 }
 
 std::unique_ptr<Command> RunMotorForTime::create(uint32_t id, const uint8_t* data, size_t size) {
-	return std::make_unique<RunMotorForTime>(id, CommandParameters::ParseParams<RunMotorForTimeParams>(data, size));
+	return std::make_unique<RunMotorForTime>(id, CommandParameters::parseParams<RunMotorForTimeParams>(data, size));
 }
 
 // ================================================
 // DISTANCE-BASED COMMANDS
 // ================================================
 bool DistanceCommand::updateAndCheckCompletion(const RobotState& state, const float dt) {
-	distanceRemaining -= state.lastDistanceDisplacement.length();
+	_distanceRemaining -= state.lastDistanceDisplacement.length();
 	return isMoveCompleted();
 }
 
 
 std::unique_ptr<Command> MoveByDistanceRaw::create(uint32_t id, const uint8_t* data, size_t size) {
-	return std::make_unique<MoveByDistanceRaw>(id, CommandParameters::ParseParams<MoveByDistanceRawParams>(data, size));
+	return std::make_unique<MoveByDistanceRaw>(id, CommandParameters::parseParams<MoveByDistanceRawParams>(data, size));
 }
 
 std::unique_ptr<Command> RunMotorForDistance::create(uint32_t id, const uint8_t* data, size_t size) {
-	return std::make_unique<RunMotorForDistance>(id, CommandParameters::ParseParams<RunMotorForDistanceParams>(data, size));
+	return std::make_unique<RunMotorForDistance>(id, CommandParameters::parseParams<RunMotorForDistanceParams>(data, size));
 }
 
 bool RunMotorForDistance::updateAndCheckCompletion(const RobotState& state, const float dt) {
-	distanceRemaining -= state.wheels[motor_id].lastDistanceDisplacement;
+	_distanceRemaining -= state.wheels[motor_id].lastDistanceDisplacement;
 	return isMoveCompleted();
 }
 
@@ -111,11 +111,11 @@ bool RunMotorForDistance::updateAndCheckCompletion(const RobotState& state, cons
 // SPEED-BASED COMMANDS
 // ================================================
 std::unique_ptr<Command> MoveAtSpeedRaw::create(uint32_t id, const uint8_t* data, size_t size) {
-	return std::make_unique<MoveAtSpeedRaw>(id, CommandParameters::ParseParams<MoveAtSpeedRawParams>(data, size));
+	return std::make_unique<MoveAtSpeedRaw>(id, CommandParameters::parseParams<MoveAtSpeedRawParams>(data, size));
 }
 
 std::unique_ptr<Command> StartMotorCommand::create(uint32_t id, const uint8_t* data, size_t size) {
-	return std::make_unique<StartMotorCommand>(id, CommandParameters::ParseParams<StartMotorParams>(data, size));
+	return std::make_unique<StartMotorCommand>(id, CommandParameters::parseParams<StartMotorParams>(data, size));
 }
 
 void MultipleMotorCommand::execute(RobotState& state) {
@@ -127,14 +127,14 @@ void MultipleMotorCommand::execute(RobotState& state) {
 std::unique_ptr<Command> MultipleMotorCommand::create(uint32_t id, const uint8_t* data, size_t size) {
 	if (size < sizeof(uint16_t))
 		throw std::exception("Invalid command payload: too small for motor count");
-	uint16_t motor_count;
-	std::memcpy(&motor_count, data, sizeof(uint16_t));
+	uint16_t motorCount;
+	std::memcpy(&motorCount, data, sizeof(uint16_t));
 	data += sizeof(uint16_t);
 	size -= sizeof(uint16_t);
-	if (size != motor_count * sizeof(float))
+	if (size != motorCount * sizeof(float))
 		throw std::exception("Invalid command payload: size does not match motor count for MoveAtSpeedMotorsParams");
-	std::vector<float> speeds(motor_count);
-	std::memcpy(speeds.data(), data, motor_count * sizeof(float));
+	std::vector<float> speeds(motorCount);
+	std::memcpy(speeds.data(), data, motorCount * sizeof(float));
 
 	return std::make_unique<MultipleMotorCommand>(id, speeds);
 }
@@ -145,11 +145,11 @@ std::unique_ptr<Command> MultipleMotorCommand::create(uint32_t id, const uint8_t
 // ===============================================
 
 std::unique_ptr<Command>  MoveByAngleRaw::create(uint32_t id, const uint8_t* data, size_t size) {
-	return std::make_unique<MoveByAngleRaw>(id, CommandParameters::ParseParams<MoveByAngleRawParams>(data, size));
+	return std::make_unique<MoveByAngleRaw>(id, CommandParameters::parseParams<MoveByAngleRawParams>(data, size));
 }
 
 bool AngleCommand::updateAndCheckCompletion(const RobotState& state, const float dt) {
-	targetAngle -= state.lastFrontDisplacement + state.lastChassisDisplacement;
+	_targetAngle -= state.lastFrontDisplacement + state.lastChassisDisplacement;
 	return this->isMoveCompleted();
 }
 
@@ -159,23 +159,23 @@ bool AngleCommand::updateAndCheckCompletion(const RobotState& state, const float
 
 
 bool MotorCommandWrapper::isMoveCompleted() const {
-	return std::all_of(motorCommands.begin(), motorCommands.end(), [](const std::unique_ptr<Command>& cmd) {
+	return std::all_of(_motorCommands.begin(), _motorCommands.end(), [](const std::unique_ptr<Command>& cmd) {
 		return !cmd || cmd->isMoveCompleted();
 		});
 }
 
 bool MotorCommandWrapper::updateAndCheckCompletion(const RobotState& state, const float dt) {
 	bool allCompleted = false;
-	for (auto& cmd : motorCommands) {
+	for (auto& cmd : _motorCommands) {
 		allCompleted |= cmd && !cmd->updateAndCheckCompletion(state, dt);
 	}
 	return allCompleted;
 }
 void MotorCommandWrapper::addMotorCommand(uint16_t motor_id, std::unique_ptr<Command> cmd) {
-	motorCommands[motor_id] = std::move(cmd);
+	_motorCommands[motor_id] = std::move(cmd);
 }
 void MotorCommandWrapper::checkInnerCommandCompletion(std::function<void(uint32_t)> onCompletion) {
-	for (auto& cmd : motorCommands) {
+	for (auto& cmd : _motorCommands) {
 		if (cmd && cmd->isMoveCompleted()) {
 			onCompletion(cmd->getId());
 			cmd = nullptr; // Clear completed command
@@ -186,7 +186,7 @@ void MotorCommandWrapper::checkInnerCommandCompletion(std::function<void(uint32_
 
 void MotorCommandWrapper::execute(RobotState& state) {
 	state.fromWheelSpeeds = true;
-	for (const auto& cmd : motorCommands) {
+	for (const auto& cmd : _motorCommands) {
 		if (cmd) {
 			cmd->execute(state);
 		}
@@ -199,23 +199,23 @@ void MotorCommandWrapper::execute(RobotState& state) {
 // ================================================
 
 std::unique_ptr<MoveByDistanceRaw> CommandFactory::createMoveByDistance(uint32_t id, const uint8_t* data, size_t size) {
-	auto params = CommandParameters::ParseParams<MoveByDistanceParams>(data, size);
+	auto params = CommandParameters::parseParams<MoveByDistanceParams>(data, size);
 	auto raw = applyPivotTransform<MoveByDistanceRawParams>(params);
 	raw.distance_mm = params.distance_mm;
 	return std::make_unique<MoveByDistanceRaw>(id, raw);
 }
 std::unique_ptr<MoveByTimeRaw> CommandFactory::createMoveByTime(uint32_t id, const uint8_t* data, size_t size) {
-	auto params = CommandParameters::ParseParams<MoveByTimeParams>(data, size);
+	auto params = CommandParameters::parseParams<MoveByTimeParams>(data, size);
 	auto raw = applyPivotTransform<MoveByTimeRawParams>(params);
 	raw.time_s = params.time_s;
 	return std::make_unique<MoveByTimeRaw>(id, raw);
 }
 std::unique_ptr<MoveAtSpeedRaw> CommandFactory::createMoveAtSpeed(uint32_t id, const uint8_t* data, size_t size) {
-	auto params = CommandParameters::ParseParams<MoveAtSpeedParams>(data, size);
+	auto params = CommandParameters::parseParams<MoveAtSpeedParams>(data, size);
 	return std::make_unique<MoveAtSpeedRaw>(id, applyPivotTransform<MoveAtSpeedRawParams>(params));
 }
 std::unique_ptr<MoveByAngleRaw> CommandFactory::createTurnRelative(uint32_t id, const uint8_t* data, size_t size) {
-	auto params = CommandParameters::ParseParams<MoveByAngleParams>(data, size);
+	auto params = CommandParameters::parseParams<MoveByAngleParams>(data, size);
 	auto raw = applyPivotTransform<MoveByAngleRawParams>(params);
 	raw.angle_rad = params.angle_rad;
 	return std::make_unique<MoveByAngleRaw>(id, raw);

@@ -17,7 +17,7 @@ void IPCInput::update(RobotState& state) {
 	if (_motorCount < 0 || _motorCount != state.wheelCount) {
 		_motorCount = state.wheelCount;
 		if (_connectedClientID.has_value())
-			SendMotorCount(_outID++, _motorCount);
+			sendMotorCount(_outID++, _motorCount);
 	}
 
 	// Reset motor state each frame - active commands will set values during execute
@@ -42,7 +42,7 @@ void IPCInput::update(RobotState& state) {
 
 		if (header.type == MsgType::HANDSHAKE)
 		{
-			HandleHandshake(id, header);
+			handleHandshake(id, header);
 			continue;
 		}
 
@@ -52,16 +52,16 @@ void IPCInput::update(RobotState& state) {
 		switch (header.type) {
 		case MsgType::HEARTBEAT:
 			_lastHeartbeatReceived = clock.now();
-			SendHeartbeatAck(header.id);
+			sendHeartbeatAck(header.id);
 			break;
 		case MsgType::COMMAND:
-			HandleCommand(header, payload, payloadSize);
+			handleCommand(header, payload, payloadSize);
 			break;
 		case MsgType::DISCONNECT:
-			HandleDisconnect(header.id);
+			handleDisconnect(header.id);
 			break;
 		case MsgType::CLEAR_COMMAND_QUEUE:
-			ClearCommandQueue();
+			clearCommandQueue();
 			_currentCommand = nullptr;
 			break;
 		default:
@@ -73,10 +73,10 @@ void IPCInput::update(RobotState& state) {
 	if (!_connectedClientID.has_value())
 		return;
 
-	HeartBeatCheck();
+	heartbeatCheck();
 
 	// Start next command from queue if no current command
-	HandleCommandStart();
+	handleCommandStart();
 
 	// Execute and update current command
 	if (_currentCommand) {
@@ -84,7 +84,7 @@ void IPCInput::update(RobotState& state) {
 	}
 
 	// Send telemetry
-	SentTelemetry(state);
+	sendTelemetry(state);
 }
 
 void IPCInput::checkForInputCompletion(const RobotState& state, const float dt) {
@@ -92,13 +92,13 @@ void IPCInput::checkForInputCompletion(const RobotState& state, const float dt) 
 		if (auto* wrapper = dynamic_cast<MotorCommandWrapper*>(_currentCommand.get()))
 		{
 			wrapper->checkInnerCommandCompletion([this](uint32_t cmdId) {
-				SendCommandComplete(cmdId);
+				sendCommandComplete(cmdId);
 				});
 			if (wrapper->isMoveCompleted())
 				_currentCommand = nullptr;
 		}
 		else {
-			SendCommandComplete(_currentCommand->getId());
+			sendCommandComplete(_currentCommand->getId());
 			_currentCommand = nullptr;
 		}
 	}
@@ -122,14 +122,14 @@ void IPCInput::updateAfterSettingsChange() {
 }
 
 
-void IPCInput::HandleCommandStart() {
+void IPCInput::handleCommandStart() {
 	if (_commandQueue.empty())
 		return;
 
 	if (!_currentCommand) {
 		if (dynamic_cast<RawMotorCommand*>(_commandQueue.front().get()))
 		{
-			_currentCommand = StackMotorCommands();
+			_currentCommand = stackMotorCommands();
 		}
 		else {
 			auto temp = std::move(_commandQueue.front());
@@ -140,7 +140,7 @@ void IPCInput::HandleCommandStart() {
 
 }
 
-std::unique_ptr<Command> IPCInput::StackMotorCommands() {
+std::unique_ptr<Command> IPCInput::stackMotorCommands() {
 	auto wrapper = std::make_unique<MotorCommandWrapper>(_motorCount);
 	while (!_commandQueue.empty() && dynamic_cast<RawMotorCommand*>(_commandQueue.front().get()))
 	{
@@ -153,27 +153,27 @@ std::unique_ptr<Command> IPCInput::StackMotorCommands() {
 }
 
 
-void IPCInput::HandleHandshake(zmq::message_t& id, const MsgHeader& header) {
+void IPCInput::handleHandshake(zmq::message_t& id, const MsgHeader& header) {
 	if (_connectedClientID.has_value())
 		return; // Ignore handshake if already complete
 
 	_lastHeartbeatReceived = clock.now();
 	_connectedClientID = std::move(id);
-	SendHandshakeAck(header.id);
+	sendHandshakeAck(header.id);
 	_lastID = header.id;
-	SendMotorCount(_outID++, _motorCount);
+	sendMotorCount(_outID++, _motorCount);
 }
-void IPCInput::HeartBeatCheck() {
+void IPCInput::heartbeatCheck() {
 	if (_lastHeartbeatReceived + std::chrono::milliseconds(static_cast<int>(_ipcMapping.heartbeatTimeout * 1000)) < clock.now()) {
 		// Heartbeat timeout, consider connection lost
 		std::cout << "Heartbeat timeout, disconnecting client" << std::endl;
-		ClearCommandQueue();
+		clearCommandQueue();
 		_currentCommand = nullptr;
 		_connectedClientID.reset();
 		_motorCount = -1;
 	}
 }
-void IPCInput::HandleCommand(const MsgHeader& header, const uint8_t* data, size_t size) {
+void IPCInput::handleCommand(const MsgHeader& header, const uint8_t* data, size_t size) {
 	try {
 		CommandType cmdType = Command::getCommandType(data, size);
 		const uint8_t* cmdData = data + sizeof(CommandType);
@@ -182,35 +182,35 @@ void IPCInput::HandleCommand(const MsgHeader& header, const uint8_t* data, size_
 		// STOP: skip queue, cancel current command immediately
 		if (cmdType == CommandType::STOP) {
 			_currentCommand = nullptr;
-			SendCommandAck(header.id);
-			SendCommandComplete(header.id);
+			sendCommandAck(header.id);
+			sendCommandComplete(header.id);
 			return;
 		}
 
 		// STOP_MOTOR: skip queue, stop specific motor in active wrapper
 		if (cmdType == CommandType::STOP_MOTOR) {
-			auto params = CommandParameters::ParseParams<StopMotorParams>(cmdData, cmdSize);
+			auto params = CommandParameters::parseParams<StopMotorParams>(cmdData, cmdSize);
 			auto* wrapper = dynamic_cast<MotorCommandWrapper*>(_currentCommand.get());
 			if (wrapper)
 				wrapper->removeCommand(params.motor_id);
-			SendCommandAck(header.id);
-			SendCommandComplete(header.id);
+			sendCommandAck(header.id);
+			sendCommandComplete(header.id);
 			return;
 		}
 
 		// Regular command: create and queue
-		auto cmd = Command::Create(header.id, cmdType, cmdData, cmdSize);
-		SendCommandAck(header.id);
+		auto cmd = Command::create(header.id, cmdType, cmdData, cmdSize);
+		sendCommandAck(header.id);
 		_commandQueue.push(std::move(cmd));
 	}
 	catch (const std::exception&) {
-		SendCommandError(header.id);
+		sendCommandError(header.id);
 	}
 }
 
 
 
-void IPCInput::SentTelemetry(const RobotState& state) {
+void IPCInput::sendTelemetry(const RobotState& state) {
 	uint8_t wheelCount = state.wheelCount;
 	size_t payload_size = sizeof(TelemetryOdometry)
 		+ sizeof(TelemetryWheelState) * wheelCount;
@@ -253,7 +253,7 @@ void IPCInput::SentTelemetry(const RobotState& state) {
 
 	_telemetry_out.send(zmq::buffer(_telemetryBuf), zmq::send_flags::dontwait);
 }
-void IPCInput::SendResponse(MsgType type, uint32_t id, const std::vector<uint8_t>& payload) {
+void IPCInput::sendResponse(MsgType type, uint32_t id, const std::vector<uint8_t>& payload) {
 	if (!_connectedClientID.has_value())
 		return;
 
@@ -278,25 +278,25 @@ void IPCInput::SendResponse(MsgType type, uint32_t id, const std::vector<uint8_t
 	_command_router.send(id_copy, zmq::send_flags::sndmore);
 	_command_router.send(zmq::buffer(buf), zmq::send_flags::none);
 }
-void IPCInput::SendMotorCount(uint32_t id, uint16_t motorCount) {
-	SendResponse(MsgType::MOTOR_COUNT, id, std::vector<uint8_t>(reinterpret_cast<uint8_t*>(&motorCount), reinterpret_cast<uint8_t*>(&motorCount) + sizeof(uint16_t)));
+void IPCInput::sendMotorCount(uint32_t id, uint16_t motorCount) {
+	sendResponse(MsgType::MOTOR_COUNT, id, std::vector<uint8_t>(reinterpret_cast<uint8_t*>(&motorCount), reinterpret_cast<uint8_t*>(&motorCount) + sizeof(uint16_t)));
 }
 
-void IPCInput::SendHandshakeAck(uint32_t id) { SendResponse(MsgType::HANDSHAKE_ACK, id); }
-void IPCInput::SendHeartbeatAck(uint32_t id) { SendResponse(MsgType::HEARTBEAT_ACK, id); }
-void IPCInput::ClearCommandQueue() {
+void IPCInput::sendHandshakeAck(uint32_t id) { sendResponse(MsgType::HANDSHAKE_ACK, id); }
+void IPCInput::sendHeartbeatAck(uint32_t id) { sendResponse(MsgType::HEARTBEAT_ACK, id); }
+void IPCInput::clearCommandQueue() {
 	_commandQueue = std::queue<std::unique_ptr<Command>>();
 }
-void IPCInput::DisconnectClient() {
-	SendResponse(MsgType::DISCONNECT, _outID++);
+void IPCInput::disconnectClient() {
+	sendResponse(MsgType::DISCONNECT, _outID++);
 }
 
-void IPCInput::HandleDisconnect(uint32_t id) {
+void IPCInput::handleDisconnect(uint32_t id) {
 	std::cout << "Disconnecting client" << std::endl;
-	ClearCommandQueue();
+	clearCommandQueue();
 	_currentCommand = nullptr;
-	SendDisconnectAck(id);
+	sendDisconnectAck(id);
 	_connectedClientID.reset();
 	_motorCount = -1;
 }
-void IPCInput::SendDisconnectAck(uint32_t id) { SendResponse(MsgType::DISCONNECT_ACK, id); }
+void IPCInput::sendDisconnectAck(uint32_t id) { sendResponse(MsgType::DISCONNECT_ACK, id); }
