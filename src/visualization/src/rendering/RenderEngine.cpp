@@ -53,7 +53,6 @@ void RenderEngine::updateRobotShape(const RobotConfig& config, const RobotState&
 }
 
 void RenderEngine::updateAfterSettingsChange() {
-	_window.setFramerateLimit(_settings.frameRateLimit);
 	sf::Vector2f windowSize = (sf::Vector2f)_window.getSize();
 	_worldView->setSize(windowSize / _settings.scaleFactor);
 	_window.setView(*_worldView);

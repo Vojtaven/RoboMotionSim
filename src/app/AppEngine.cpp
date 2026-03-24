@@ -49,21 +49,36 @@ AppEngine::AppEngine()
 }
 void AppEngine::run() {
 
-	auto last = Clock::now();
+	auto lastFrame = Clock::now();
+	auto lastPhysicsTick = lastFrame;
 
+	while (vizEngine->isWindowOpen()) {
+		auto frameStart = Clock::now();
+		const std::chrono::duration<float> frameDelta = frameStart - lastFrame;
+		lastFrame = frameStart;
+		_wallTime += std::chrono::duration_cast<std::chrono::system_clock::duration>(frameDelta);
 
-	while (vizEngine->isWindowOpen()) { 
-		auto now = Clock::now();
-		const std::chrono::duration<float> delta = now - last;
-		_wallTime += std::chrono::duration_cast<std::chrono::system_clock::duration>(delta);
-		auto inputResult = inputManager->update(*robotState, vizEngine->hasFocus());
-		if (inputResult.has_value()) {
-			vizEngine->showErrorMessage(inputResult.value());
-		}
-		physicsEngine->update(delta.count(), *robotState, configManager->getConstRobotConfig());
-		last = now;
-		vizEngine->update(delta.count(), *robotState, _wallTime);
-		inputManager->checkForInputCompletion(*robotState, delta.count());
+		const auto& appConfig = vizEngine->getSavedAppConfig();
+		const float targetFrameTime = appConfig.renderSettings.frameRateLimit > 0
+			? 1.0f / appConfig.renderSettings.frameRateLimit
+			: 0.0f;
+		float physicsTimeSpent = 0.0f;
+
+		do {
+			auto now = Clock::now();
+			const std::chrono::duration<float> physicsDelta = now - lastPhysicsTick;
+			lastPhysicsTick = now;
+
+			auto inputResult = inputManager->update(*robotState, vizEngine->hasFocus());
+			if (inputResult.has_value()) {
+				vizEngine->showErrorMessage(inputResult.value());
+			}
+			physicsEngine->update(physicsDelta.count(), *robotState, configManager->getConstRobotConfig());
+			inputManager->checkForInputCompletion(*robotState, physicsDelta.count());
+			physicsTimeSpent += physicsDelta.count();
+		} while (physicsTimeSpent < targetFrameTime);
+
+		vizEngine->update(frameDelta.count(), *robotState, _wallTime);
 		vizEngine->draw();
 	}
 	auto& appConfig = vizEngine->getSavedAppConfig();
