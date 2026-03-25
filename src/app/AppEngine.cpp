@@ -54,7 +54,7 @@ void AppEngine::run() {
 
 	while (_vizEngine->isWindowOpen()) {
 		auto frameStart = Clock::now();
-		const std::chrono::duration<float> frameDelta = frameStart - lastFrame;
+		const std::chrono::duration<double> frameDelta = frameStart - lastFrame;
 		lastFrame = frameStart;
 		_wallTime += std::chrono::duration_cast<std::chrono::system_clock::duration>(frameDelta);
 
@@ -62,11 +62,11 @@ void AppEngine::run() {
 		const float targetFrameTime = appConfig.renderSettings.frameRateLimit > 0
 			? 1.0f / appConfig.renderSettings.frameRateLimit
 			: 0.0f;
-		float physicsTimeSpent = 0.0f;
+		double physicsTimeSpent = 0.0;
 
 		do {
 			auto now = Clock::now();
-			const std::chrono::duration<float> physicsDelta = now - lastPhysicsTick;
+			const std::chrono::duration<double> physicsDelta = now - lastPhysicsTick;
 			lastPhysicsTick = now;
 
 			auto inputResult = _inputManager->update(*_robotState, _vizEngine->hasFocus());
@@ -78,7 +78,7 @@ void AppEngine::run() {
 			physicsTimeSpent += physicsDelta.count();
 		} while (physicsTimeSpent < targetFrameTime);
 
-		_vizEngine->update(frameDelta.count(), *_robotState, _wallTime);
+		_vizEngine->update(static_cast<float>(frameDelta.count()), *_robotState, _wallTime);
 		_vizEngine->draw();
 	}
 	auto& appConfig = _vizEngine->getSavedAppConfig();

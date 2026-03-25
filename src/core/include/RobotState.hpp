@@ -7,7 +7,7 @@
 struct WheelState {
 	float speed = 0; // mm/s
 	float rollerSpeed = 0; // mm/s
-	float distanceTraveled = 0; // mm
+	double distanceTraveled = 0; // mm
 	float lastDistanceDisplacement = 0; // mm
 };
 
@@ -19,17 +19,17 @@ struct DirectionVector {
 
 struct RobotState {
 	RobotState(int wheelCount) : wheelCount(wheelCount), wheels(wheelCount) {}
-	Vec2f position; //mm
-	Vec2f distanceTraveled = { 0,0 }; //mm
-	Vec2f lastDistanceDisplacement = { 0,0 }; //mm
-	Vec2f localVelocity; // mm/s
-	Vec2f globalVelocity; // mm/s
-	float chassisAngle = 0; //Rad
-	float lastChassisDisplacement = 0; //Rad
-	float frontAngle = 0; //Rad
-	float lastFrontDisplacement = 0; //Rad
-	float angularVelocity = 0; //  Rad/s
-	float frontAngularVelocity = 0; //  Rad/s
+	Vec2d position; //mm
+	Vec2d distanceTraveled = { 0,0 }; //mm
+	Vec2d lastDistanceDisplacement = { 0,0 }; //mm
+	Vec2d localVelocity; // mm/s
+	Vec2d globalVelocity; // mm/s
+	double chassisAngle = 0; //Rad
+	double lastChassisDisplacement = 0; //Rad
+	double frontAngle = 0; //Rad
+	double lastFrontDisplacement = 0; //Rad
+	double angularVelocity = 0; //  Rad/s
+	double frontAngularVelocity = 0; //  Rad/s
 	
 	int wheelCount;
 	std::vector<WheelState> wheels;

@@ -55,7 +55,7 @@ RawMoveCommand::RawMoveCommand(Vec2f speed, float rotationSpeed, float frontRota
 	_frontRotationSpeed(frontRotationSpeed) {
 }
 void RawMoveCommand::execute(RobotState& state) {
-	state.localVelocity = _speed;
+	state.localVelocity = { static_cast<double>(_speed.x), static_cast<double>(_speed.y) };
 	state.angularVelocity = _rotationSpeed;
 	state.frontAngularVelocity = _frontRotationSpeed;
 }
@@ -71,7 +71,7 @@ void RawMotorCommand::execute(RobotState& state) {
 // ================================================
 // TIME-BASED COMMANDS
 // ================================================
-bool TimeCommand::updateAndCheckCompletion(const RobotState& state, const float dt) {
+bool TimeCommand::updateAndCheckCompletion(const RobotState& state, const double dt) {
 	_timeRemaining -= dt;
 	return isMoveCompleted();
 }
@@ -87,7 +87,7 @@ std::unique_ptr<Command> RunMotorForTime::create(uint32_t id, const uint8_t* dat
 // ================================================
 // DISTANCE-BASED COMMANDS
 // ================================================
-bool DistanceCommand::updateAndCheckCompletion(const RobotState& state, const float dt) {
+bool DistanceCommand::updateAndCheckCompletion(const RobotState& state, const double dt) {
 	_distanceRemaining -= state.lastDistanceDisplacement.length();
 	return isMoveCompleted();
 }
@@ -101,7 +101,7 @@ std::unique_ptr<Command> RunMotorForDistance::create(uint32_t id, const uint8_t*
 	return std::make_unique<RunMotorForDistance>(id, CommandParameters::parseParams<RunMotorForDistanceParams>(data, size));
 }
 
-bool RunMotorForDistance::updateAndCheckCompletion(const RobotState& state, const float dt) {
+bool RunMotorForDistance::updateAndCheckCompletion(const RobotState& state, const double dt) {
 	_distanceRemaining -= state.wheels[motor_id].lastDistanceDisplacement;
 	return isMoveCompleted();
 }
@@ -122,6 +122,7 @@ void MultipleMotorCommand::execute(RobotState& state) {
 	for (size_t i = 0; i < _motorSpeeds.size(); i++) {
 		state.wheels[i].speed = _motorSpeeds[i];
 	}
+	state.fromWheelSpeeds = true;
 }
 
 std::unique_ptr<Command> MultipleMotorCommand::create(uint32_t id, const uint8_t* data, size_t size) {
@@ -148,7 +149,7 @@ std::unique_ptr<Command>  MoveByAngleRaw::create(uint32_t id, const uint8_t* dat
 	return std::make_unique<MoveByAngleRaw>(id, CommandParameters::parseParams<MoveByAngleRawParams>(data, size));
 }
 
-bool AngleCommand::updateAndCheckCompletion(const RobotState& state, const float dt) {
+bool AngleCommand::updateAndCheckCompletion(const RobotState& state, const double dt) {
 	_targetAngle -= state.lastFrontDisplacement + state.lastChassisDisplacement;
 	return this->isMoveCompleted();
 }
@@ -164,10 +165,10 @@ bool MotorCommandWrapper::isMoveCompleted() const {
 		});
 }
 
-bool MotorCommandWrapper::updateAndCheckCompletion(const RobotState& state, const float dt) {
+bool MotorCommandWrapper::updateAndCheckCompletion(const RobotState& state, const double dt) {
 	bool allCompleted = false;
 	for (auto& cmd : _motorCommands) {
-		allCompleted |= cmd && !cmd->updateAndCheckCompletion(state, dt);
+		allCompleted |= !cmd || cmd->updateAndCheckCompletion(state, dt);
 	}
 	return allCompleted;
 }

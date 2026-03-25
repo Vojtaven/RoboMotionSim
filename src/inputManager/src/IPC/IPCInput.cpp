@@ -87,7 +87,7 @@ void IPCInput::update(RobotState& state) {
 	sendTelemetry(state);
 }
 
-void IPCInput::checkForInputCompletion(const RobotState& state, const float dt) {
+void IPCInput::checkForInputCompletion(const RobotState& state, const double dt) {
 	if (_currentCommand && _currentCommand->updateAndCheckCompletion(state, dt)) {
 		if (auto* wrapper = dynamic_cast<MotorCommandWrapper*>(_currentCommand.get()))
 		{
@@ -230,13 +230,13 @@ void IPCInput::sendTelemetry(const RobotState& state) {
 	TelemetryOdometry odo{};
 	odo.timestamp_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
 		clock.now().time_since_epoch()).count();
-	odo.distanceTraveledX = state.distanceTraveled.x;
-	odo.distanceTraveledY = state.distanceTraveled.y;
-	odo.localVelocityX = state.localVelocity.x;
-	odo.localVelocityY = state.localVelocity.y;
-	odo.frontAngle = state.frontAngle;
-	odo.chassisAngle = state.chassisAngle;
-	odo.chassisAngularVelocity = state.angularVelocity;
+	odo.distanceTraveledX = static_cast<float>(state.distanceTraveled.x);
+	odo.distanceTraveledY = static_cast<float>(state.distanceTraveled.y);
+	odo.localVelocityX = static_cast<float>(state.localVelocity.x);
+	odo.localVelocityY = static_cast<float>(state.localVelocity.y);
+	odo.frontAngle = static_cast<float>(state.frontAngle);
+	odo.chassisAngle = static_cast<float>(state.chassisAngle);
+	odo.chassisAngularVelocity = static_cast<float>(state.angularVelocity);
 	odo.wheelCount = wheelCount;
 	std::memcpy(ptr, &odo, sizeof(TelemetryOdometry));
 	ptr += sizeof(TelemetryOdometry);
@@ -246,7 +246,7 @@ void IPCInput::sendTelemetry(const RobotState& state) {
 	{
 		TelemetryWheelState ws;
 		ws.speed = state.wheels[i].speed;
-		ws.distanceTraveled = state.wheels[i].distanceTraveled;
+		ws.distanceTraveled = static_cast<float>(state.wheels[i].distanceTraveled);
 		std::memcpy(ptr, &ws, sizeof(TelemetryWheelState));
 		ptr += sizeof(TelemetryWheelState);
 	}

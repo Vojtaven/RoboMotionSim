@@ -71,8 +71,8 @@ RobotConfig RobotDesignerWindow::buildRobotConfig() const {
 	float rollerAngle;
 	switch ((RobotDriveType)_driveTypeIndex) {
 	case RobotDriveType::DIFFERENTIAL:	rollerAngle = 0.0f;						break;
-	case RobotDriveType::OMNI_WHEEL:	rollerAngle = DegreesToRadians(90.0f);	break;
-	case RobotDriveType::MECANUM:		rollerAngle = DegreesToRadians(45.0f);	break;
+	case RobotDriveType::OMNI_WHEEL:	rollerAngle = static_cast<float>(DegreesToRadians(90.0));	break;
+	case RobotDriveType::MECANUM:		rollerAngle = static_cast<float>(DegreesToRadians(45.0));	break;
 	default:							rollerAngle = 0.0f;						break;
 	}
 
@@ -90,8 +90,8 @@ void RobotDesignerWindow::renderAxleEditor(int index, bool renderRollerAngle) {
 	RobotParts::DriveAxle_t& axle = _axles[index];
 	std::string id = std::to_string(index);
 
-	float wheelAngleDeg = RadiansToDegrees(axle.wheel.wheel_angle);
-	float rollerAngleDeg = RadiansToDegrees(axle.wheel.roller_angle);
+	float wheelAngleDeg = static_cast<float>(RadiansToDegrees(axle.wheel.wheel_angle));
+	float rollerAngleDeg = static_cast<float>(RadiansToDegrees(axle.wheel.roller_angle));
 
 	if (!ImGui::TreeNode(("Axle " + id).c_str())) return;
 
@@ -104,8 +104,8 @@ void RobotDesignerWindow::renderAxleEditor(int index, bool renderRollerAngle) {
 	ImGui::InputFloat("Wheel Angle (deg)", &wheelAngleDeg, 1.0f, 15.0f, "%.1f");
 	if (renderRollerAngle)
 		ImGui::InputFloat("Roller Angle (deg)", &rollerAngleDeg, 1.0f, 15.0f, "%.1f");
-	axle.wheel.roller_angle = DegreesToRadians(rollerAngleDeg);
-	axle.wheel.wheel_angle = DegreesToRadians(wheelAngleDeg);
+	axle.wheel.roller_angle = static_cast<float>(DegreesToRadians(rollerAngleDeg));
+	axle.wheel.wheel_angle = static_cast<float>(DegreesToRadians(wheelAngleDeg));
 
 	ImGui::Spacing();
 	ImGui::TextColored(Colors::MotorLabel, "Motor");

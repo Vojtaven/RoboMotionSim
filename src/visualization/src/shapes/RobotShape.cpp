@@ -129,7 +129,7 @@ void RobotShape::draw(sf::RenderTarget& target, sf::RenderStates states) const {
 void RobotShape::update(const RobotState& state) {
 	setPosition(ToSFMLVector2f(state.position));
 	setRotation(ToSFMLAngle(state.chassisAngle));
-	_frontVector->setRotation(state.frontAngle);
+	_frontVector->setRotation(static_cast<float>(state.frontAngle));
 
 	for (int i = 0; i < state.wheelCount;i++) {
 		_speedOfWheels[i]->update(state.wheels[i]);

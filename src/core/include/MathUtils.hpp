@@ -11,10 +11,8 @@ struct Vec2 {
     // Basic vector math (Operator Overloading)
     Vec2 operator+(const Vec2& other) const { return { x + other.x, y + other.y }; }
     Vec2 operator-(const Vec2& other) const { return { x - other.x, y - other.y }; }
-    Vec2 operator*(float scalar) const { return { x * (T)scalar, y * (T)scalar }; }
-    Vec2 operator*(int scalar) const { return { x * (T)scalar, y * (T)scalar }; }
-    Vec2 operator/(float scalar) const { return { x / (T)scalar, y / (T)scalar }; }
-    Vec2 operator/(int scalar) const { return { x / (T)scalar, y / (T)scalar }; }
+    Vec2 operator*(T scalar) const { return { x * scalar, y * scalar }; }
+    Vec2 operator/(T scalar) const { return { x / scalar, y / scalar }; }
     Vec2& operator+=(const Vec2& other) {
         x += other.x;
         y += other.y;
@@ -29,30 +27,31 @@ struct Vec2 {
 	bool operator==(const Vec2& other) const { return x == other.x && y == other.y; }
     bool operator!=(const Vec2& other) const { return !(*this == other); }
     // Helper for distances/physics
-    float length() const { return std::hypot(x, y); }
-    float* data() { return &x; }
+    T length() const { return std::hypot(x, y); }
+    T* data() { return &x; }
 
     // 2D rotation (forward: counterclockwise by angle)
-    Vec2 rotated(float angle) const {
-        T c = (T)std::cos(angle), s = (T)std::sin(angle);
+    Vec2 rotated(T angle) const {
+        T c = std::cos(angle), s = std::sin(angle);
         return { x * c - y * s, x * s + y * c };
     }
     // Inverse 2D rotation (clockwise by angle, i.e. transpose of rotation matrix)
-    Vec2 rotatedInverse(float angle) const {
-        T c = (T)std::cos(angle), s = (T)std::sin(angle);
+    Vec2 rotatedInverse(T angle) const {
+        T c = std::cos(angle), s = std::sin(angle);
         return { x * c + y * s, -x * s + y * c };
     }
 };
 
 using Vec2i = Vec2<int>;
 using Vec2f =  Vec2<float>;
+using Vec2d = Vec2<double>;
 
-static inline float DegreesToRadians(float degrees) {
-    return (float)(degrees * (std::numbers::pi / 180));
+static inline double DegreesToRadians(double degrees) {
+    return degrees * (std::numbers::pi / 180.0);
 }
 
-static inline float RadiansToDegrees(float radians) {
-    return (float)(radians / (std::numbers::pi / 180));
+static inline double RadiansToDegrees(double radians) {
+    return radians / (std::numbers::pi / 180.0);
 }
 
 #endif // !MATHUTILS_HPP

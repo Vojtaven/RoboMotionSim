@@ -198,13 +198,13 @@ void RobotStatWindow::renderMotionSection(const RobotState& robotState, float pa
     ImGui::TextColored(Colors::MotionSectionTitle, "  Motion");
     ImGui::Spacing();
 
-    StatRow("Angular Vel", RadiansToDegrees(robotState.angularVelocity), "deg/s");
-    StatRow("Front Angular Vel", RadiansToDegrees(robotState.frontAngularVelocity), "deg/s");
+    StatRow("Angular Vel", static_cast<float>(RadiansToDegrees(robotState.angularVelocity)), "deg/s");
+    StatRow("Front Angular Vel", static_cast<float>(RadiansToDegrees(robotState.frontAngularVelocity)), "deg/s");
     ImGui::Spacing();
-    VelocityBar("Local Vel X", robotState.localVelocity.x, panelW);
-    VelocityBar("Local Vel Y", robotState.localVelocity.y, panelW);
-    VelocityBar("Global Vel X", robotState.globalVelocity.x, panelW);
-    VelocityBar("Global Vel Y", robotState.globalVelocity.y, panelW);
+    VelocityBar("Local Vel X", static_cast<float>(robotState.localVelocity.x), panelW);
+    VelocityBar("Local Vel Y", static_cast<float>(robotState.localVelocity.y), panelW);
+    VelocityBar("Global Vel X", static_cast<float>(robotState.globalVelocity.x), panelW);
+    VelocityBar("Global Vel Y", static_cast<float>(robotState.globalVelocity.y), panelW);
     ImGui::Spacing();
 
     ImVec2 cardEnd = ImGui::GetCursorScreenPos();
@@ -226,8 +226,8 @@ void RobotStatWindow::renderPoseSection(const RobotState& robotState) {
     ImGui::SameLine();
     ImGui::TextColored(Colors::ActiveValue, "%.1f) mm", robotState.position.y);
 
-    StatRow("Chassis Angle", RadiansToDegrees(robotState.chassisAngle), "deg");
-    StatRow("Front Angle", RadiansToDegrees(robotState.frontAngle), "deg");
+    StatRow("Chassis Angle", static_cast<float>(RadiansToDegrees(robotState.chassisAngle)), "deg");
+    StatRow("Front Angle", static_cast<float>(RadiansToDegrees(robotState.frontAngle)), "deg");
     ImGui::Spacing();
 
     ImVec2 cardEnd = ImGui::GetCursorScreenPos();

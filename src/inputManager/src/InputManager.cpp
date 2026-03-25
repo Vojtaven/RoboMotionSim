@@ -37,7 +37,7 @@ std::optional<std::string> InputManager::update(RobotState& state, bool hasFocus
 	}
 }
 
-void InputManager::checkForInputCompletion(const RobotState& state, const float dt) {
+void InputManager::checkForInputCompletion(const RobotState& state, const double dt) {
 	switch (_inputSettings.inputType)
 	{
 	case InputType::Keyboard:
@@ -60,5 +60,5 @@ void InputManager::updateAfterSettingsChange() {
 	_joystickInput->updateAfterSettingsChange();
 	_ipcInput->updateAfterSettingsChange();
 	_serialInput->updateAfterSettingsChange();
-	_maxRotationSpeedRadians = DegreesToRadians(_inputSettings.maxRotationSpeed);
+	_maxRotationSpeedRadians = static_cast<float>(DegreesToRadians(_inputSettings.maxRotationSpeed));
 }

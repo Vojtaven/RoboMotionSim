@@ -8,9 +8,9 @@ KeyboardInput::KeyboardInput(const KeyboardMapping& keyboardMapping)
 	updateAfterSettingsChange();
 }
 void KeyboardInput::update(RobotState& state, const float maxSpeed, const float maxRotationSpeed) const{
-	Vec2f& speed = state.localVelocity;
-	float& rotationSpeed = state.angularVelocity;
-	float& frontRotationSpeed = state.frontAngularVelocity;
+	Vec2d& speed = state.localVelocity;
+	double& rotationSpeed = state.angularVelocity;
+	double& frontRotationSpeed = state.frontAngularVelocity;
 
 	if (sf::Keyboard::isKeyPressed(_leftKey))
 		speed.y -= maxSpeed;

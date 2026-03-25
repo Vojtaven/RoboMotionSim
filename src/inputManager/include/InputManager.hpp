@@ -14,7 +14,7 @@ class InputManager {
 public :
 	InputManager(const InputSettings& inputSettings);
 	std::optional<std::string> update(RobotState& state, bool hasFocus) const;
-	void checkForInputCompletion(const RobotState& state, const float dt);
+	void checkForInputCompletion(const RobotState& state, const double dt);
 	void updateAfterSettingsChange();
 private:
 	const InputSettings& _inputSettings;

@@ -4,13 +4,13 @@
 #include "RobotState.hpp"
 class PhysicsEngine {
 public:
-	void update(const float dt, RobotState& state,const RobotConfig& config);
+	void update(const double dt, RobotState& state,const RobotConfig& config);
 	void setLimitMotorSpeed(bool limit) { _limitMotorSpeed = limit; }
 private:
 	bool _limitMotorSpeed = false;
 	void calculateLocalVelocityFromWheelSpeed(RobotState& state, const RobotConfig& config);
-	void updatePosition(const float dt, RobotState& state);
-	void toWheelSpeed(RobotState& state, const RobotConfig& config, const float dt);
+	void updatePosition(const double dt, RobotState& state);
+	void toWheelSpeed(RobotState& state, const RobotConfig& config, const double dt);
 	void toGlobalFrame(RobotState& state);
 	void limitMovement(RobotState& state, const RobotConfig& config);
 	void limitMotorSpeeds(RobotState& state, const RobotConfig& config);

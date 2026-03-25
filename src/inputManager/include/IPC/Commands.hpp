@@ -16,7 +16,7 @@ protected:
 public:
 	virtual ~Command() = default;
 
-	virtual bool updateAndCheckCompletion(const RobotState& state, const float dt) = 0;
+	virtual bool updateAndCheckCompletion(const RobotState& state, const double dt) = 0;
 	virtual void execute(RobotState& state) = 0;
 	virtual bool isMoveCompleted() const = 0;
 	// Returns the ID of the command that completed, or 0 if not completed yet
@@ -59,12 +59,12 @@ public:
 class TimeCommand : public Command
 {
 protected:
-	float _timeRemaining; // seconds
+	double _timeRemaining; // seconds
 	TimeCommand(uint32_t id, float time) : Command(id), _timeRemaining(time) {}
 public:
 
-	bool isMoveCompleted() const override { return _timeRemaining <= 0.0f; }
-	bool updateAndCheckCompletion(const RobotState& state, const float dt) override;
+	bool isMoveCompleted() const override { return _timeRemaining <= 0.0; }
+	bool updateAndCheckCompletion(const RobotState& state, const double dt) override;
 	virtual ~TimeCommand() = default;
 };
 
@@ -98,11 +98,11 @@ public:
 class DistanceCommand : public Command
 {
 protected:
-	float _distanceRemaining; // mm
+	double _distanceRemaining; // mm
 	DistanceCommand(uint32_t id, float distance) : Command(id), _distanceRemaining(distance) {}
 public:
-	bool isMoveCompleted() const override { return _distanceRemaining <= 0.0f; }
-	bool updateAndCheckCompletion(const RobotState& state, const float dt) override;
+	bool isMoveCompleted() const override { return _distanceRemaining <= 0.0; }
+	bool updateAndCheckCompletion(const RobotState& state, const double dt) override;
 	virtual ~DistanceCommand() = default;
 };
 
@@ -126,7 +126,7 @@ class RunMotorForDistance : public DistanceCommand, public RawMotorCommand
 public:
 	RunMotorForDistance(uint32_t id, RunMotorForDistanceParams params) : DistanceCommand(id, params.distance_mm), RawMotorCommand(params.motor_id, params.speed) {}
 	void execute(RobotState& state) override { RawMotorCommand::execute(state); }
-	bool updateAndCheckCompletion(const RobotState& state, const float dt) override;
+	bool updateAndCheckCompletion(const RobotState& state, const double dt) override;
 	static std::unique_ptr<Command> create(uint32_t id, const uint8_t* data, size_t size);
 	~RunMotorForDistance() = default;
 };
@@ -143,7 +143,7 @@ protected:
 public:
 	// Moving at speed until stopeed by another command 
 	bool isMoveCompleted() const override { return false; }
-	bool updateAndCheckCompletion(const RobotState&, const float) override { return false; }
+	bool updateAndCheckCompletion(const RobotState&, const double) override { return false; }
 	virtual ~SpeedCommand() = default;
 };
 
@@ -186,12 +186,12 @@ public:
 class AngleCommand : public Command
 {
 private:
-	float _targetAngle; // In radians
+	double _targetAngle; // In radians
 protected:
 	AngleCommand(uint32_t id, float targetAngle) : Command(id), _targetAngle(targetAngle) {}
 public:
-	bool isMoveCompleted() const override { return _targetAngle < 0.001f; }
-	bool updateAndCheckCompletion(const RobotState& state, const float dt) override;
+	bool isMoveCompleted() const override { return _targetAngle < 0.001; }
+	bool updateAndCheckCompletion(const RobotState& state, const double dt) override;
 	virtual ~AngleCommand() = default;
 };
 
@@ -242,7 +242,7 @@ private:
 public:
 	MotorCommandWrapper(int motorCount) : Command(0), _motorCommands(motorCount) {}
 	bool isMoveCompleted() const override;
-	bool updateAndCheckCompletion(const RobotState& state, const float dt) override;
+	bool updateAndCheckCompletion(const RobotState& state, const double dt) override;
 	void addMotorCommand(uint16_t motor_id, std::unique_ptr<Command> cmd);
 	void removeCommand(uint16_t motor_id) { if (motor_id < _motorCommands.size()) _motorCommands[motor_id] = nullptr; }
 	void execute(RobotState& state) override;

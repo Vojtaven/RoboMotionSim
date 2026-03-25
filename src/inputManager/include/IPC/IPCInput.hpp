@@ -12,7 +12,7 @@ class IPCInput {
 public:
 	IPCInput(const IPCMapping& ipcMapping);
 	void update(RobotState& state);
-	void checkForInputCompletion(const RobotState& state, const float dt);
+	void checkForInputCompletion(const RobotState& state, const double dt);
 	void updateAfterSettingsChange();
 
 private:

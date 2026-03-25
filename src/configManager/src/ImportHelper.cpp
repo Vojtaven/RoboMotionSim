@@ -116,9 +116,9 @@ RobotParts::Wheel ImportHelper::createFromConfigWheel(const std::string& values,
 	float x = evaluator.evaluateExpressions(splittedValues[1]);
 	float y = evaluator.evaluateExpressions(splittedValues[2]);
 	float angle =
-		DegreesToRadians(evaluator.evaluateExpressions(splittedValues[3]));
+		static_cast<float>(DegreesToRadians(evaluator.evaluateExpressions(splittedValues[3])));
 	float roller =
-		DegreesToRadians(evaluator.evaluateExpressions(splittedValues[4]));
+		static_cast<float>(DegreesToRadians(evaluator.evaluateExpressions(splittedValues[4])));
 
 	return RobotParts::Wheel{ diameter, x, y, angle, roller };
 }
