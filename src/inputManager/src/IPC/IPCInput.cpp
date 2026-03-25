@@ -190,6 +190,8 @@ void IPCInput::handleCommand(const MsgHeader& header, const uint8_t* data, size_
 		// STOP_MOTOR: skip queue, stop specific motor in active wrapper
 		if (cmdType == CommandType::STOP_MOTOR) {
 			auto params = CommandParameters::parseParams<StopMotorParams>(cmdData, cmdSize);
+			if (params.motor_id >= _motorCount)
+				throw std::runtime_error("Motor ID out of range");
 			auto* wrapper = dynamic_cast<MotorCommandWrapper*>(_currentCommand.get());
 			if (wrapper)
 				wrapper->removeCommand(params.motor_id);
@@ -198,8 +200,9 @@ void IPCInput::handleCommand(const MsgHeader& header, const uint8_t* data, size_
 			return;
 		}
 
-		// Regular command: create and queue
+		// Regular command: create, validate and queue
 		auto cmd = Command::create(header.id, cmdType, cmdData, cmdSize);
+		cmd->validate(_motorCount);
 		sendCommandAck(header.id);
 		_commandQueue.push(std::move(cmd));
 	}

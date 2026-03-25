@@ -19,7 +19,8 @@ public:
 	virtual bool updateAndCheckCompletion(const RobotState& state, const double dt) = 0;
 	virtual void execute(RobotState& state) = 0;
 	virtual bool isMoveCompleted() const = 0;
-	// Returns the ID of the command that completed, or 0 if not completed yet
+	// Validates command parameters against robot configuration. Throws on failure.
+	virtual void validate(int /*wheelCount*/) const {}
 
 	static CommandType getCommandType(const uint8_t* data, size_t size);
 	static std::unique_ptr<Command> create(uint32_t id, CommandType type, const uint8_t* data, size_t size);
@@ -86,6 +87,7 @@ class RunMotorForTime : public TimeCommand, public RawMotorCommand
 public:
 	RunMotorForTime(uint32_t id, RunMotorForTimeParams params) : TimeCommand(id, params.time_s), RawMotorCommand(params.motor_id, params.speed) {}
 	void execute(RobotState& state) override { RawMotorCommand::execute(state); }
+	void validate(int wheelCount) const override;
 	static std::unique_ptr<Command> create(uint32_t id, const uint8_t* data, size_t size);
 	~RunMotorForTime() = default;
 };
@@ -126,6 +128,7 @@ class RunMotorForDistance : public DistanceCommand, public RawMotorCommand
 public:
 	RunMotorForDistance(uint32_t id, RunMotorForDistanceParams params) : DistanceCommand(id, params.distance_mm), RawMotorCommand(params.motor_id, params.speed) {}
 	void execute(RobotState& state) override { RawMotorCommand::execute(state); }
+	void validate(int wheelCount) const override;
 	bool updateAndCheckCompletion(const RobotState& state, const double dt) override;
 	static std::unique_ptr<Command> create(uint32_t id, const uint8_t* data, size_t size);
 	~RunMotorForDistance() = default;
@@ -165,6 +168,7 @@ class StartMotorCommand : public SpeedCommand, public RawMotorCommand
 public:
 	StartMotorCommand(uint32_t id, StartMotorParams params) : SpeedCommand(id), RawMotorCommand(params.motor_id, params.speed) {}
 	void execute(RobotState& state) override { RawMotorCommand::execute(state); }
+	void validate(int wheelCount) const override;
 	static std::unique_ptr<Command> create(uint32_t id, const uint8_t* data, size_t size);
 	~StartMotorCommand() = default;
 };
@@ -176,6 +180,7 @@ private:
 public:
 	MultipleMotorCommand(uint32_t, std::vector<float> motorSpeeds) : SpeedCommand(0), _motorSpeeds(motorSpeeds) {}
 	void execute(RobotState& state) override;
+	void validate(int wheelCount) const override;
 	static std::unique_ptr<Command> create(uint32_t id, const uint8_t* data, size_t size);
 	~MultipleMotorCommand() = default;
 };

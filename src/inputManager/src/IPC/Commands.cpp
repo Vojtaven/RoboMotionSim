@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <exception>
 #include <stdexcept>
+#include <string>
 //Priority commads
 // Stop
 // Stop motor
@@ -60,6 +61,11 @@ void RawMoveCommand::execute(RobotState& state) {
 	state.frontAngularVelocity = _frontRotationSpeed;
 }
 
+static void validateMotorId(uint16_t motor_id, int wheelCount) {
+	if (motor_id >= wheelCount)
+		throw std::runtime_error("Motor ID " + std::to_string(motor_id) + " out of range (wheel count " + std::to_string(wheelCount) + ")");
+}
+
 RawMotorCommand::RawMotorCommand(uint16_t motor_id, float speed) :
 	motor_id(motor_id),
 	speed(speed) {
@@ -83,6 +89,7 @@ std::unique_ptr<Command> MoveByTimeRaw::create(uint32_t id, const uint8_t* data,
 std::unique_ptr<Command> RunMotorForTime::create(uint32_t id, const uint8_t* data, size_t size) {
 	return std::make_unique<RunMotorForTime>(id, CommandParameters::parseParams<RunMotorForTimeParams>(data, size));
 }
+void RunMotorForTime::validate(int wheelCount) const { validateMotorId(motor_id, wheelCount); }
 
 // ================================================
 // DISTANCE-BASED COMMANDS
@@ -101,6 +108,7 @@ std::unique_ptr<Command> RunMotorForDistance::create(uint32_t id, const uint8_t*
 	return std::make_unique<RunMotorForDistance>(id, CommandParameters::parseParams<RunMotorForDistanceParams>(data, size));
 }
 
+void RunMotorForDistance::validate(int wheelCount) const { validateMotorId(motor_id, wheelCount); }
 bool RunMotorForDistance::updateAndCheckCompletion(const RobotState& state, const double dt) {
 	_distanceRemaining -= state.wheels[motor_id].lastDistanceDisplacement;
 	return isMoveCompleted();
@@ -117,6 +125,7 @@ std::unique_ptr<Command> MoveAtSpeedRaw::create(uint32_t id, const uint8_t* data
 std::unique_ptr<Command> StartMotorCommand::create(uint32_t id, const uint8_t* data, size_t size) {
 	return std::make_unique<StartMotorCommand>(id, CommandParameters::parseParams<StartMotorParams>(data, size));
 }
+void StartMotorCommand::validate(int wheelCount) const { validateMotorId(motor_id, wheelCount); }
 
 void MultipleMotorCommand::execute(RobotState& state) {
 	for (size_t i = 0; i < _motorSpeeds.size(); i++) {
@@ -138,6 +147,10 @@ std::unique_ptr<Command> MultipleMotorCommand::create(uint32_t id, const uint8_t
 	std::memcpy(speeds.data(), data, motorCount * sizeof(float));
 
 	return std::make_unique<MultipleMotorCommand>(id, speeds);
+}
+void MultipleMotorCommand::validate(int wheelCount) const {
+	if (static_cast<int>(_motorSpeeds.size()) > wheelCount)
+		throw std::runtime_error("Motor count " + std::to_string(_motorSpeeds.size()) + " exceeds wheel count " + std::to_string(wheelCount));
 }
 
 
