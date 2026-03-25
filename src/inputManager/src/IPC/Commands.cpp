@@ -72,6 +72,7 @@ RawMotorCommand::RawMotorCommand(uint16_t motor_id, float speed) :
 }
 void RawMotorCommand::execute(RobotState& state) {
 	state.wheels[motor_id].speed = speed;
+	state.wheels[motor_id].powered = true;
 }
 
 // ================================================
@@ -130,6 +131,7 @@ void StartMotorCommand::validate(int wheelCount) const { validateMotorId(motor_i
 void MultipleMotorCommand::execute(RobotState& state) {
 	for (size_t i = 0; i < _motorSpeeds.size(); i++) {
 		state.wheels[i].speed = _motorSpeeds[i];
+		state.wheels[i].powered = true;
 	}
 	state.fromWheelSpeeds = true;
 }

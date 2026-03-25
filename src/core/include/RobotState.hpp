@@ -9,6 +9,7 @@ struct WheelState {
 	float rollerSpeed = 0; // mm/s
 	double distanceTraveled = 0; // mm
 	float lastDistanceDisplacement = 0; // mm
+	bool powered = false; // true when wheel is actively commanded
 };
 
 struct DirectionVector {

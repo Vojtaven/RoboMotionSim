@@ -17,20 +17,30 @@ std::optional<std::string> InputManager::update(RobotState& state, bool hasFocus
 	state.angularVelocity = 0;
 	state.frontAngularVelocity = 0;
 
+	auto markAllWheelsPowered = [&state]() {
+		for (auto& wheel : state.wheels)
+			wheel.powered = true;
+	};
+
 	switch (_inputSettings.inputType)
 	{
 	case InputType::Keyboard:
 		if (_inputSettings.registerInputWithoutFocus || hasFocus)
 			_keyboardInput->update(state, _inputSettings.maxSpeed, _maxRotationSpeedRadians);
+		markAllWheelsPowered();
 		return std::nullopt;
 	case InputType::Controller:
-		if (_inputSettings.registerInputWithoutFocus || hasFocus)
-			return _joystickInput->update(state, _inputSettings.maxSpeed, _maxRotationSpeedRadians);
+		if (_inputSettings.registerInputWithoutFocus || hasFocus) {
+			auto result = _joystickInput->update(state, _inputSettings.maxSpeed, _maxRotationSpeedRadians);
+			markAllWheelsPowered();
+			return result;
+		}
 		return std::nullopt;
 	case InputType::IPC:
 		_ipcInput->update(state);
 		return std::nullopt;
 	case InputType::Serial:
+		markAllWheelsPowered();
 		return _serialInput->update(state);
 	default:
 		return "Unsupported input type";

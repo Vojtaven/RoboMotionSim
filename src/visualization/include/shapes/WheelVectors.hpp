@@ -15,6 +15,7 @@ private:
 	bool _forwardVectorVisible = true;
 	float _forwardLength = 0, _rollerLength = 0;
 	const float _rollerAngle = 0, _wheelAngle = 0;
+	sf::Color _forwardColor, _rollerColor, _directionColor;
 
 
 	void updateDirectionVector();

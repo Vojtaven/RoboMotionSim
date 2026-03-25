@@ -4,7 +4,8 @@
 WheelVectors::WheelVectors(const RobotParts::Wheel& wheel,
 	sf::Color forwardColor, sf::Color rollerColor, sf::Color directionColor,
 	float thickness, sf::Vector2f headSize)
-	: _rollerAngle(wheel.roller_angle), _wheelAngle(wheel.wheel_angle)
+	: _rollerAngle(wheel.roller_angle), _wheelAngle(wheel.wheel_angle),
+	  _forwardColor(forwardColor), _rollerColor(rollerColor), _directionColor(directionColor)
 {
 	auto position = sf::Vector2f{ wheel.x_position, wheel.y_position };
 
@@ -32,6 +33,14 @@ void WheelVectors::update(const WheelState& state) {
 	setForwardLength(state.speed);
 	setRollerLength(state.rollerSpeed);
 	updateDirectionVector();
+
+	auto applyPowered = [&](sf::Color c) -> sf::Color {
+		if (!state.powered) return sf::Color(150, 150, 150, 180);
+		return c;
+	};
+	_forwardVector->setColor(applyPowered(_forwardColor));
+	_rollerVector->setColor(applyPowered(_rollerColor));
+	_directionVector->setColor(applyPowered(_directionColor));
 }
 
 
