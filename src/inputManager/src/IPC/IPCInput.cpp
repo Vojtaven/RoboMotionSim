@@ -22,10 +22,6 @@ void IPCInput::update(RobotState& state) {
 
 	// Reset motor state each frame - active commands will set values during execute
 	state.fromWheelSpeeds = false;
-	for (auto& wheel : state.wheels) {
-		wheel.speed = 0;
-		wheel.powered = false;
-	}
 
 	// Poll for incoming messages (non-blocking)
 	zmq::message_t id, msg;

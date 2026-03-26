@@ -202,9 +202,14 @@ void MotorCommandWrapper::checkInnerCommandCompletion(std::function<void(uint32_
 
 void MotorCommandWrapper::execute(RobotState& state) {
 	state.fromWheelSpeeds = true;
-	for (const auto& cmd : _motorCommands) {
-		if (cmd) {
-			cmd->execute(state);
+	for (int i = 0; i < state.wheelCount; i++)
+	{
+		if (_motorCommands[i]) {
+			_motorCommands[i]->execute(state);
+		}
+		else {
+			state.wheels[i].powered = false; 
+			state.wheels[i].speed = 0;
 		}
 	}
 }
