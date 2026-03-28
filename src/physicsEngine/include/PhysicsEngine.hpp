@@ -10,7 +10,7 @@ private:
 	bool _limitMotorSpeed = false;
 	void calculateLocalVelocityFromWheelSpeed(RobotState& state, const RobotConfig& config);
 	void updatePosition(const double dt, RobotState& state);
-	void toWheelSpeed(RobotState& state, const RobotConfig& config, const double dt);
+	void toWheelSpeed(RobotState& state, const RobotConfig& config);
 	void toGlobalFrame(RobotState& state);
 	void limitMovement(RobotState& state, const RobotConfig& config);
 	void limitMotorSpeeds(RobotState& state, const RobotConfig& config);

@@ -14,13 +14,13 @@ void PhysicsEngine::update(const double dt, RobotState& state, const RobotConfig
 		calculateLocalVelocityFromWheelSpeed(state, config);
 	}
 	else {
-		toWheelSpeed(state, config, dt);
+		toWheelSpeed(state, config);
 		if (_limitMotorSpeed) {
 			limitMotorSpeeds(state, config);
 			calculateLocalVelocityFromWheelSpeed(state, config);
 		}
 	}
-	toWheelSpeed(state, config, dt);
+	toWheelSpeed(state, config);
 	toGlobalFrame(state);
 
 	updatePosition(dt, state);
@@ -38,6 +38,7 @@ void PhysicsEngine::updatePosition(const double dt, RobotState& state) {
 	state.lastDistanceDisplacement = state.localVelocity * dt;
 	for (size_t i = 0; i < state.wheels.size(); i++) {
 		state.wheels[i].lastDistanceDisplacement = static_cast<float>(state.wheels[i].speed * dt);
+		state.wheels[i].distanceTraveled += state.wheels[i].speed * dt;
 	}
 }
 
@@ -45,7 +46,7 @@ void PhysicsEngine::toGlobalFrame(RobotState& state) {
 	state.globalVelocity = state.localVelocity.rotated(state.frontAngle + state.chassisAngle);
 }
 
-void PhysicsEngine::toWheelSpeed(RobotState& state, const RobotConfig& config, const double dt) {
+void PhysicsEngine::toWheelSpeed(RobotState& state, const RobotConfig& config) {
 	const auto wheels = config.getRobotWheels();
 	const RobotDriveType driveType = config.getRobotDriveType();
 	// Convert global velocity to chassis-front-relative velocity
@@ -67,7 +68,7 @@ void PhysicsEngine::toWheelSpeed(RobotState& state, const RobotConfig& config, c
 		float v_long = localVx * cos_w + localVy * sin_w;
 		float v_tran = -localVx * sin_w + localVy * cos_w;
 
-		float cos_roller = cos(wheel.roller_angle);
+		float cos_roller = cos(wheel.roller_angle);	
 
 		if (std::abs(cos_roller) < 0.001f) {
 			state.wheels[i].speed = v_long;
@@ -78,7 +79,6 @@ void PhysicsEngine::toWheelSpeed(RobotState& state, const RobotConfig& config, c
 			state.wheels[i].rollerSpeed = (driveType == RobotDriveType::DIFFERENTIAL) ? 0 : v_tran / cos_roller;
 		}
 
-		state.wheels[i].distanceTraveled += state.wheels[i].speed * dt;
 		i++;
 	}
 }
