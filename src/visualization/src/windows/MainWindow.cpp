@@ -40,6 +40,8 @@ void MainWindow::close() {
 	closeOtherWindows();
 	saveWindowConfig(_windowConfig);
 	saveConfig();
+	auto defaultCursor = sf::Cursor::createFromSystem(sf::Cursor::Type::Arrow);
+	if (defaultCursor) _window->setMouseCursor(*defaultCursor);
 	ImGui::SFML::SetCurrentWindow(*_window);
 	ImGui::SFML::Shutdown(*_window);
 	_window->close();
