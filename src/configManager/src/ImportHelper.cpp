@@ -1,10 +1,13 @@
 #include "ImportHelper.hpp"
 #include "RobotConfig.hpp"
 #include "ConfigJsonSerialization.hpp"
-std::vector<std::pair<std::string, std::string>> readIni(const std::string& path);
+
+
+static std::vector<std::pair<std::string, std::string>> readIni(const std::string& path);
 static inline std::string trim(std::string s);
-std::vector<std::pair<std::string, std::string>> getByPrefix(
-	const std::vector<std::pair<std::string, std::string>>& vec, const std::string& prefix);
+static std::vector<std::pair<std::string, std::string>> getByPrefix(
+	const std::vector<std::pair<std::string, std::string>>& vec,
+	const std::string& prefix);
 
 // Lookup a required key in a parsed config, throw if missing
 static const std::string& getRequiredValue(
@@ -90,8 +93,9 @@ static std::vector<std::pair<std::string, std::string>> readIni(const std::strin
 }
 
 
-std::vector<std::pair<std::string, std::string>> getByPrefix(
-	const std::vector<std::pair<std::string, std::string>>& vec, const std::string& prefix)
+static std::vector<std::pair<std::string, std::string>> getByPrefix(
+	const std::vector<std::pair<std::string, std::string>>& vec,
+	const std::string& prefix)
 {
 	std::vector<std::pair<std::string, std::string>> result;
 

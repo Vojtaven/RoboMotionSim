@@ -1,6 +1,6 @@
 #include "rendering/Text.hpp"
 #include <SFML/Graphics.hpp>
-
+#include <cmath>
 
 TextLabel::TextLabel(const sf::Font& font,
 	const std::string& text,

@@ -3,6 +3,7 @@
 #include "MathUtils.hpp"
 #include <string>
 #include <array>
+#include <cstdint>
 
 // Here to discard configs with old version
 #define CONFIG_VERSION "0.7.0"

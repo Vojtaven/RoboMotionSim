@@ -19,9 +19,12 @@ set(SFML_BUILD_GRAPHICS ON CACHE BOOL "" FORCE)
 
 FetchContent_MakeAvailable(SFML)
 
+if(WIN32)
+    set_target_properties(sfml-main PROPERTIES FOLDER "Dependencies/SFML")
+endif()
+
 # Organize targets in IDE
 set_target_properties(
-    sfml-main
     sfml-system
     sfml-window
     sfml-graphics

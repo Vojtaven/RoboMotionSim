@@ -26,7 +26,7 @@ namespace {
 #else // Linux/Unix
         char buf[PATH_MAX];
         ssize_t count = readlink("/proc/self/exe", buf, PATH_MAX);
-        return std::filesystem::path(buf, count).parent_path();
+        return std::filesystem::path(std::string(buf, count)).parent_path();
 #endif
     }
 

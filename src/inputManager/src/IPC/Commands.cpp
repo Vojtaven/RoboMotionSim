@@ -4,7 +4,6 @@
 #include <functional>
 #include <memory>
 #include <algorithm>
-#include <exception>
 #include <stdexcept>
 #include <string>
 //Priority commads
@@ -30,7 +29,7 @@ static const std::unordered_map<CommandType, std::function<std::unique_ptr<Comma
 CommandType Command::getCommandType(const uint8_t* data, size_t size)
 {
 	if (size < sizeof(CommandType))
-		throw std::exception("Invalid command payload: too small for CommandType");
+		throw std::invalid_argument("Invalid command payload: too small for CommandType");
 	CommandType type;
 	std::memcpy(&type, data, sizeof(CommandType));
 	data += sizeof(CommandType);
@@ -41,7 +40,7 @@ CommandType Command::getCommandType(const uint8_t* data, size_t size)
 std::unique_ptr<Command> Command::create(uint32_t id, CommandType type, const uint8_t* data, size_t size) {
 	auto it = parsers.find(type);
 	if (it == parsers.end())
-		throw std::exception("Invalid command payload: unknown CommandType");
+		throw std::invalid_argument("Invalid command payload: unknown CommandType");
 
 	return it->second(id, data, size);
 }
@@ -138,13 +137,13 @@ void MultipleMotorCommand::execute(RobotState& state) {
 
 std::unique_ptr<Command> MultipleMotorCommand::create(uint32_t id, const uint8_t* data, size_t size) {
 	if (size < sizeof(uint16_t))
-		throw std::exception("Invalid command payload: too small for motor count");
+		throw std::invalid_argument("Invalid command payload: too small for motor count");
 	uint16_t motorCount;
 	std::memcpy(&motorCount, data, sizeof(uint16_t));
 	data += sizeof(uint16_t);
 	size -= sizeof(uint16_t);
 	if (size != motorCount * sizeof(float))
-		throw std::exception("Invalid command payload: size does not match motor count for MoveAtSpeedMotorsParams");
+		throw std::invalid_argument("Invalid command payload: size does not match motor count for MoveAtSpeedMotorsParams");
 	std::vector<float> speeds(motorCount);
 	std::memcpy(speeds.data(), data, motorCount * sizeof(float));
 
