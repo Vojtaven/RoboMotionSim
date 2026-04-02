@@ -16,6 +16,7 @@ class SerialInput {
 public:
 	SerialInput(ConfigSection<SerialMapping>& serialMapping);
 	~SerialInput();
+	// Copies latest wheel speeds from the reader thread into state. Returns error on serial failure.
 	std::optional<std::string> update(RobotState& state);
 
 private:

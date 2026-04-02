@@ -10,6 +10,7 @@
 class JoystickInput {
 public:
 	JoystickInput(ConfigSection<ControllerMapping>& controllerMapping);
+	// Returns error string if controller is disconnected
 	std::optional<std::string> update(RobotState& state, const float maxSpeed, const float maxRotationSpeed);
 private:
 	float getInput(const JoystickControl& control, const float maxValue);

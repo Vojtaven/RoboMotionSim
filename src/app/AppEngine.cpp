@@ -28,10 +28,12 @@ AppEngine::AppEngine()
 	_inputManager = std::make_unique<InputManager>(appConfig.inputSettings);
 	_physicsEngine->subscribeToSettings(appConfig.inputSettings);
 
+	// react to robot config changes (e.g. user adds/removes wheels in designer)
 	_robotConfigSubscription = _configManager->getRobotConfig().scopedSubscribe([this](const RobotConfig& newConfig) {
 		_robotState->wheelCount = newConfig.getWheelCount();
 		_robotState->wheels.resize(newConfig.getWheelCount());
 		if (newConfig.getRobotDriveType() == RobotDriveType::DIFFERENTIAL) {
+			// differential has no independent front angle — merge it into chassis
 			_robotState->chassisAngle += _robotState->frontAngle;
 			_robotState->frontAngle = 0;
 		}
@@ -56,6 +58,7 @@ void AppEngine::run() {
 			: 0.0f;
 		double physicsTimeSpent = 0.0;
 
+		// run physics in a tight loop until we've consumed enough time for one frame
 		do {
 			auto now = Clock::now();
 			const std::chrono::duration<double> physicsDelta = now - lastPhysicsTick;

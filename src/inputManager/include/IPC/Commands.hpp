@@ -16,7 +16,9 @@ protected:
 public:
 	virtual ~Command() = default;
 
+	// Advances internal progress (time/distance remaining). Returns true if any sub-command completed.
 	virtual bool updateAndCheckCompletion(const RobotState& state, const double dt) = 0;
+	// Writes this command's target velocities/speeds into state
 	virtual void execute(RobotState& state) = 0;
 	virtual bool isMoveCompleted() const = 0;
 	// Validates command parameters against robot configuration. Throws on failure.
@@ -219,13 +221,15 @@ public:
 
 class CommandFactory
 {
-	// Applies pivot-point transformation common to all high-level move commands
+	// Converts high-level move (with pivot point offset) to raw velocities.
+	// Linear speed is adjusted for rotation around the off-center pivot.
 	template<typename TRaw, typename TParams>
 	static TRaw applyPivotTransform(const TParams& params) {
 		TRaw raw{};
 		raw.x_speed = params.x_speed - params.rotation_speed * params.center_y_mm;
 		raw.y_speed = params.y_speed + params.rotation_speed * params.center_x_mm;
 		raw.rotation_speed = params.rotation_speed;
+		// if only the base rotates, counter-rotate front to keep it pointing the same way
 		raw.front_rotation_speed = params.rotate_chassis ? 0.0f : -params.rotation_speed;
 		return raw;
 	}

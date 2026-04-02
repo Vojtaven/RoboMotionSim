@@ -39,7 +39,7 @@ std::unique_ptr<sf::ConvexShape> makeRobotBase(const std::vector<sf::Vector2f>& 
 		return std::make_unique<sf::ConvexShape>(shape);
 	}
 
-	// Copy points and sort them
+	// Convex hull via Andrew's monotone chain algorithm
 	std::vector<sf::Vector2f> pts = points;
 	std::sort(pts.begin(), pts.end(), [](const sf::Vector2f& a, const sf::Vector2f& b) {
 		return (a.x < b.x) || (a.x == b.x && a.y < b.y);

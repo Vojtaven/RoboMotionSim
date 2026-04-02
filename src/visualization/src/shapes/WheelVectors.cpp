@@ -53,6 +53,7 @@ void WheelVectors::draw(sf::RenderTarget& target, sf::RenderStates states) const
 		_directionVector->draw(target, states);
 }
 
+// Combine forward and roller velocity vectors using the law of cosines / atan2
 void WheelVectors::updateDirectionVector() {
 	const float directionVectorLength = std::sqrtf(_rollerLength * _rollerLength
 		+ _forwardLength * _forwardLength
@@ -61,7 +62,7 @@ void WheelVectors::updateDirectionVector() {
 
 	_directionVector->setLength(directionVectorLength);
 
-	const float directionVectorAngle = std::atan2f(_rollerLength * std::sinf(_rollerAngle), 
+	const float directionVectorAngle = std::atan2f(_rollerLength * std::sinf(_rollerAngle),
 		_forwardLength + _rollerLength * std::cosf(_rollerAngle));
 
 	_directionVector->setRotation(directionVectorAngle + _wheelAngle);

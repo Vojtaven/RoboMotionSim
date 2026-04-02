@@ -21,6 +21,7 @@ std::optional<std::string> InputManager::update(RobotState& state, bool hasFocus
 	state.frontAngularVelocity = 0;
 
 
+	// assume all wheels are powered; input sources will override individually if needed
 	for (auto& wheel : state.wheels)
 		wheel.powered = true;
 

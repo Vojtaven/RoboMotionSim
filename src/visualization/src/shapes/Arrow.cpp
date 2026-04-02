@@ -31,7 +31,7 @@ void Arrow::setLength(float length) {
 	_head->setPosition({ absLength, 0 });
 
 	if (length < 0)
-		setScale({ -1.f, 1.f });
+		setScale({ -1.f, 1.f }); // flip horizontally for negative direction
 	else
 		setScale({ 1.f, 1.f });
 }

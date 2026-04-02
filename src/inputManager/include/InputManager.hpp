@@ -14,7 +14,9 @@
 class InputManager {
 public :
 	InputManager(ConfigSection<InputSettings>& inputSettings);
+	// Returns an optional error message if something went wrong (e.g. controller disconnected)
 	std::optional<std::string> update(RobotState& state, bool hasFocus) const;
+	// For input types that have action with duration (e.g. "move forward for 2 seconds"), check if any of those actions have completed and update state accordingly
 	void checkForInputCompletion(const RobotState& state, const double dt);
 private:
 	void updateAfterSettingsChange();

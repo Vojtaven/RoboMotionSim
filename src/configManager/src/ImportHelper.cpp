@@ -39,7 +39,7 @@ RobotConfig ImportHelper::loadRobotConfigFrom(const std::string& path) {
 
 	RobotConfig config;
 	config.changeDriveType(createFromConfigDriveType(type));
-	ExprEvaluator<float> evaluator;
+	ExprEvaluator<float> evaluator; // allows math expressions in config values (e.g. "pi/4")
 
 	for (size_t i = 0; i < wheelCount; i++)
 	{
@@ -119,6 +119,7 @@ RobotParts::Wheel ImportHelper::createFromConfigWheel(const std::string& values,
 	float diameter = evaluator.evaluateExpressions(splittedValues[0]);
 	float x = evaluator.evaluateExpressions(splittedValues[1]);
 	float y = evaluator.evaluateExpressions(splittedValues[2]);
+	// config stores angles in degrees, internally we use radians
 	float angle =
 		static_cast<float>(DegreesToRadians(evaluator.evaluateExpressions(splittedValues[3])));
 	float roller =

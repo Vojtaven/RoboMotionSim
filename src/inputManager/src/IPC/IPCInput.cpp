@@ -121,7 +121,7 @@ void IPCInput::updateAfterSettingsChange() {
 	_telemetry_out = zmq::socket_t(_context, zmq::socket_type::pub);
 	_command_router = zmq::socket_t(_context, zmq::socket_type::router);
 
-	_telemetry_out.set(zmq::sockopt::conflate, 1);
+	_telemetry_out.set(zmq::sockopt::conflate, 1); // only keep the latest telemetry message
 	_telemetry_out.set(zmq::sockopt::sndhwm, 1);
 	_telemetry_out.set(zmq::sockopt::linger, 0);
 
@@ -153,6 +153,7 @@ void IPCInput::handleCommandStart() {
 
 }
 
+// Merge consecutive per-motor commands into a single wrapper so they execute in parallel
 std::unique_ptr<Command> IPCInput::stackMotorCommands() {
 	auto wrapper = std::make_unique<MotorCommandWrapper>(_motorCount);
 	while (!_commandQueue.empty() && dynamic_cast<RawMotorCommand*>(_commandQueue.front().get()))

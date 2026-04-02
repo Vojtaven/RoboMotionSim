@@ -26,7 +26,7 @@ float JoystickInput::getInput(const JoystickControl& control, const float maxVal
 		float rawValue = sf::Joystick::getAxisPosition(id, static_cast<sf::Joystick::Axis>(control.axisId));
 		rawValue = (std::abs(rawValue) > deadzone) ? rawValue : 0; // Apply deadzone
 
-		result = maxValue * (rawValue / 100.0f);
+		result = maxValue * (rawValue / 100.0f); // SFML axes range is -100..100
 	}
 	else {
 		result = (sf::Joystick::isButtonPressed(id, control.buttonId1) ? maxValue : 0.0f) - (sf::Joystick::isButtonPressed(id, control.buttonId2) ? maxValue : 0.0f);

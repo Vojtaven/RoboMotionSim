@@ -9,18 +9,21 @@ void PhysicsEngine::update(const double dt, RobotState& state, const RobotConfig
 	limitMovement(state, config);
 
 	if (state.fromWheelSpeeds) {
+		// input gave us wheel speeds directly — derive robot velocity from them
 		if (_limitMotorSpeed)
 			limitMotorSpeeds(state, config);
 		calculateLocalVelocityFromWheelSpeed(state, config);
 	}
 	else {
+		// input gave us robot velocity — convert to wheel speeds first
 		toWheelSpeed(state, config);
 		if (_limitMotorSpeed) {
+			// clamp, then back-calculate the actual velocity we can achieve
 			limitMotorSpeeds(state, config);
 			calculateLocalVelocityFromWheelSpeed(state, config);
 		}
 	}
-	toWheelSpeed(state, config);
+	toWheelSpeed(state, config); // final pass to keep wheel speeds consistent with velocity
 	toGlobalFrame(state);
 
 	updatePosition(dt, state);
@@ -46,10 +49,11 @@ void PhysicsEngine::toGlobalFrame(RobotState& state) {
 	state.globalVelocity = state.localVelocity.rotated(state.frontAngle + state.chassisAngle);
 }
 
+// Forward kinematics: robot velocity + angular velocity -> individual wheel speeds
 void PhysicsEngine::toWheelSpeed(RobotState& state, const RobotConfig& config) {
 	const auto wheels = config.getRobotWheels();
 	const RobotDriveType driveType = config.getRobotDriveType();
-	// Convert global velocity to chassis-front-relative velocity
+	// rotate local velocity into chassis frame (front angle offset)
 	const Vec2d chassisVel = state.localVelocity.rotated(state.frontAngle);
 	const float chassisVx = static_cast<float>(chassisVel.x);
 	const float chassisVy = static_cast<float>(chassisVel.y);
@@ -59,18 +63,20 @@ void PhysicsEngine::toWheelSpeed(RobotState& state, const RobotConfig& config) {
 	for (const auto& wheel : wheels) {
 		float finalWheelSpeed = 0.0f;
 
+		// velocity at wheel contact point = chassis velocity + rotation contribution
 		float localVx = chassisVx - (omega * wheel.y_position);
 		float localVy = chassisVy + (omega * wheel.x_position);
 
 		float cos_w = std::cos(wheel.wheel_angle);
 		float sin_w = std::sin(wheel.wheel_angle);
 
+		// decompose into longitudinal (drive) and transverse (roller) components
 		float v_long = localVx * cos_w + localVy * sin_w;
 		float v_tran = -localVx * sin_w + localVy * cos_w;
 
-		float cos_roller = cos(wheel.roller_angle);	
+		float cos_roller = cos(wheel.roller_angle);
 
-		if (std::abs(cos_roller) < 0.001f) {
+		if (std::abs(cos_roller) < 0.001f) { // roller at 90° — pure omni wheel
 			state.wheels[i].speed = v_long;
 			state.wheels[i].rollerSpeed = v_tran;
 		}
@@ -92,6 +98,7 @@ void PhysicsEngine::limitMovement(RobotState& state, const RobotConfig& config) 
 
 }
 
+// Scale all wheels proportionally so no motor exceeds its hardware step rate limit
 void PhysicsEngine::limitMotorSpeeds(RobotState& state, const RobotConfig& config) {
 	const auto& axles = config.getRobotDriveAxles();
 	float maxRatio = 1.0f;
@@ -132,11 +139,12 @@ void PhysicsEngine::updateDirectionVectors(RobotState& state) {
 	}
 }
 
+// Inverse kinematics: wheel speeds -> robot velocity via least-squares (J^T*J * x = J^T*b)
 void PhysicsEngine::calculateLocalVelocityFromWheelSpeed(RobotState& state, const RobotConfig& config) {
 	const auto wheels = config.getRobotWheels();
 
-	double A[3][3] = {};
-	double rhs[3] = {};
+	double A[3][3] = {};  // J^T * J  (normal equations)
+	double rhs[3] = {};   // J^T * speeds
 
 	int i = 0;
 	for (const auto& wheel : wheels) {
@@ -166,6 +174,7 @@ void PhysicsEngine::calculateLocalVelocityFromWheelSpeed(RobotState& state, cons
 		i++;
 	}
 
+	// solve 3x3 system via Gauss-Jordan elimination with partial pivoting
 	double aug[3][4] = {};
 	for (int r = 0; r < 3; r++) {
 		for (int c = 0; c < 3; c++) aug[r][c] = A[r][c];

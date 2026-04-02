@@ -56,6 +56,7 @@ std::optional<std::string> RobotConfig::validateConfig() const {
 		float x1 = _axles[1].wheel.x_position;
 		float y1 = _axles[1].wheel.y_position;
 		for (int i = 2; i < wheelCount; i++) {
+			// cross product of (p1-p0) x (pi-p0) — zero means all points lie on the same line
 			float cross = (x1 - x0) * (_axles[i].wheel.y_position - y0)
 			            - (y1 - y0) * (_axles[i].wheel.x_position - x0);
 			if (std::fabs(cross) > 0.1f) {

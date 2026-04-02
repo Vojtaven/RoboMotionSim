@@ -235,6 +235,8 @@ void InputSettingsWindow::renderContent() {
 	notifyAboutChanges(reset, commonChanged, subsectionChanged, topLevelChanged);
 }
 
+// Selectively notify only the parts of the config that actually changed,
+// so we don't trigger unnecessary reconnections (e.g. serial port reopen)
 void InputSettingsWindow::notifyAboutChanges(bool reset, bool commonChanged, bool subsectionChanged, bool topLevelChanged) {
 	if (reset) {
 		_inputSettings.set(_settings);

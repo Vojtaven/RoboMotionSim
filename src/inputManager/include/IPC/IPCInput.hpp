@@ -12,7 +12,9 @@
 class IPCInput {
 public:
 	IPCInput(ConfigSection<IPCMapping>& ipcMapping);
+	// Polls for commands, executes current command, sends telemetry. Returns error string on failure.
 	std::optional<std::string> update(RobotState& state);
+	// Checks if time/distance-based commands have finished and sends completion ACKs
 	void checkForInputCompletion(const RobotState& state, const double dt);
 
 private:

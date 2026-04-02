@@ -90,6 +90,7 @@ void Grid::addGridText(unsigned int textSize) {
 	_remapText = true;
 }
 
+// Snap to nearest "nice" value in the 1-2-5 sequence (standard for graph/ruler spacing)
 int Grid::snapGridToNiceValues() const {
 	double raw = _settings.wantedGridSpacing / _scale;
 	if (raw <= 0.0)

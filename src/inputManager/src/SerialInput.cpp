@@ -64,9 +64,9 @@ bool SerialInput::readExact(uint8_t* buffer, size_t size) {
 	return _running;
 }
 
+// Binary protocol: [1 byte motor count] [N x 4-byte float speeds]
 void SerialInput::readLoop() {
 	while (_running) {
-		// Read motor count (1 byte)
 		uint8_t motorCount = 0;
 		if (!readExact(&motorCount, 1))
 			break;

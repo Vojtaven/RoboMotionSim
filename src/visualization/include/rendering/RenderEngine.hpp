@@ -21,6 +21,7 @@ public:
 	void resetRobotPosition(sf::Vector2f pos);
 	void updateAfterSettingsChange();
 	void updateRobotShape(const RobotConfig& config, const RobotState& state);
+	// Returns the window center in world coordinates (accounting for scale)
 	Vec2f getWindowCenter() const;
 	const RenderSettings& getCurrentRenderSettings() const;
 	void clearRobotTrail() { _trail->clearTrail(); }
