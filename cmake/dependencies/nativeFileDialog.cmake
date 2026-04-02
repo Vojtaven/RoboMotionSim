@@ -5,7 +5,7 @@ include_guard(GLOBAL)
 FetchContent_Declare(
   nfd
   GIT_REPOSITORY https://github.com/btzy/nativefiledialog-extended.git
-  GIT_TAG        v1.3.0 
+  GIT_TAG        nativeFileDialog_tag_version
 )
 
 set(NFD_BUILD_TESTS OFF CACHE BOOL "" FORCE)

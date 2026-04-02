@@ -13,6 +13,7 @@ set(nlohmann_json_version v3.12.0)
 # Commit hash instead of official release for bypassing CMake minimum version issue
 set(libzmq_tag_version dbbd240) 
 set(cppzmq_tag_version v4.11.0) 
+set(nativeFileDialog_tag_version v1.3.0)
 # Individual dependencies
 include(${CMAKE_CURRENT_LIST_DIR}/dependencies/sfml.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/dependencies/imgui.cmake)
