@@ -16,7 +16,10 @@ IPCInput::IPCInput(ConfigSection<IPCMapping>& ipcMapping)
 	});
 	updateAfterSettingsChange();
 }
-void IPCInput::update(RobotState& state) {
+std::optional<std::string> IPCInput::update(RobotState& state) {
+	if( _errorMessage.has_value())
+		return _errorMessage;
+
 	if (_motorCount < 0 || _motorCount != state.wheelCount) {
 		_motorCount = state.wheelCount;
 		if (_connectedClientID.has_value())
@@ -72,7 +75,7 @@ void IPCInput::update(RobotState& state) {
 	}
 
 	if (!_connectedClientID.has_value())
-		return;
+		return "No client connected";
 
 	heartbeatCheck();
 
@@ -86,6 +89,8 @@ void IPCInput::update(RobotState& state) {
 
 	// Send telemetry
 	sendTelemetry(state);
+
+	return _errorMessage;
 }
 
 void IPCInput::checkForInputCompletion(const RobotState& state, const double dt) {
@@ -106,6 +111,8 @@ void IPCInput::checkForInputCompletion(const RobotState& state, const double dt)
 }
 
 void IPCInput::updateAfterSettingsChange() {
+	_errorMessage.reset();
+	try{
 	// Close existing sockets before rebinding/reconnecting
 	_telemetry_out.close();
 	_command_router.close();
@@ -120,6 +127,11 @@ void IPCInput::updateAfterSettingsChange() {
 
 	_telemetry_out.bind(_ipcMapping.address + ":" + std::to_string(_ipcMapping.telemetry_port));
 	_command_router.bind(_ipcMapping.address + ":" + std::to_string(_ipcMapping.command_port));
+	}
+	catch (const zmq::error_t& e) {
+		_errorMessage = std::string("ZeroMQ error during socket setup: ") + e.what();
+		std::cerr << _errorMessage.value() << std::endl;
+	}
 }
 
 

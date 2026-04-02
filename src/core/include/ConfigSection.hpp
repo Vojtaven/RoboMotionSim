@@ -100,13 +100,13 @@ public:
 	// Use when you need to modify fields directly (e.g. UI editing, deserialization)
 	// or access nested ConfigSections for subscription.
 	T& getMutable() { return _data; }
-
-private:
+	
 	void notify() {
 		for (auto& entry : _callbacks) {
 			entry.callback(_data);
 		}
 	}
+private:
 
 	struct CallbackEntry {
 		CallbackId id;

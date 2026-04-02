@@ -38,8 +38,7 @@ std::optional<std::string> InputManager::update(RobotState& state, bool hasFocus
 		}
 		return std::nullopt;
 	case InputType::IPC:
-		_ipcInput->update(state);
-		return std::nullopt;
+		return _ipcInput->update(state);
 	case InputType::Serial:
 		return _serialInput->update(state);
 	default:

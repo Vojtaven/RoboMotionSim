@@ -268,7 +268,7 @@ void InputSettingsWindow::notifyAboutChanges(bool reset, bool commonChanged, boo
 		}
 		// Notify parent-level subscribers for top-level/common changes
 		if (topLevelChanged || commonChanged) {
-			_inputSettings.set(_inputSettings.get());
+			_inputSettings.notify();
 		}
 	}
 }

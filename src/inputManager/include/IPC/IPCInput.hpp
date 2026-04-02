@@ -12,7 +12,7 @@
 class IPCInput {
 public:
 	IPCInput(ConfigSection<IPCMapping>& ipcMapping);
-	void update(RobotState& state);
+	std::optional<std::string> update(RobotState& state);
 	void checkForInputCompletion(const RobotState& state, const double dt);
 
 private:
@@ -35,7 +35,7 @@ private:
 	void sendCommandError(uint32_t id) { sendResponse(MsgType::CMD_ERROR, id); }
 	void sendCommandComplete(uint32_t id) { sendResponse(MsgType::CMD_COMPLETE, id); }
 
-
+	std::optional<std::string> _errorMessage = std::nullopt;
 	std::chrono::steady_clock clock;
 	std::chrono::steady_clock::time_point _lastHeartbeatReceived;
 	const IPCMapping& _ipcMapping;
