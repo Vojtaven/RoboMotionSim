@@ -5,12 +5,15 @@
 #include <cstring>
 
 
-IPCInput::IPCInput(const IPCMapping& ipcMapping)
-	: _ipcMapping(ipcMapping),
+IPCInput::IPCInput(ConfigSection<IPCMapping>& ipcMapping)
+	: _ipcMapping(ipcMapping.get()),
 	_context(1),
 	_telemetry_out(_context, zmq::socket_type::pub),
 	_command_router(_context, zmq::socket_type::router)
 {
+	_subscription = ipcMapping.scopedSubscribe([this](const IPCMapping&) {
+		updateAfterSettingsChange();
+	});
 	updateAfterSettingsChange();
 }
 void IPCInput::update(RobotState& state) {

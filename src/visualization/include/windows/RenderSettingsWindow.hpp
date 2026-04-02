@@ -5,26 +5,24 @@
 #include <memory>
 #include <functional>
 #include "AppConfig.hpp"
+#include "ConfigSection.hpp"
 #include "windows/SettingsWindowBase.hpp"
 
 class RenderSettingsWindow : public SettingsWindowBase {
 public:
-	using OnSettingsChanged = std::function<void(const RenderSettings&)>;
-
-	RenderSettingsWindow(const AppConfig& config, const sf::Image& icon);
+	RenderSettingsWindow(ConfigSection<RenderSettings>& renderSettings, const WindowConfig& windowConfig, const sf::Image& icon);
 	~RenderSettingsWindow() = default;
 
 	void open(const RenderSettings& settings);
 	void open();
 	void close(bool closeFromRoot = false);
 	void update(sf::Time dt);
-	void setOnSettingsChanged(OnSettingsChanged callback) { _onSettingsChanged = std::move(callback); }
 	void setClearRobotTrail(std::function<void()> clearTrailCallback) { _clearRobotTrail = std::move(clearTrailCallback); }
 private:
 	void renderContent();
+	ConfigSection<RenderSettings>& _renderSettings;
 	RenderSettings _settings;
 	std::function<void()> _clearRobotTrail;
-	OnSettingsChanged _onSettingsChanged;
 	int _colorTypeIndex = 0; // 0 for grid color, 1 for subgrid color, 2 for trail color
 };
 

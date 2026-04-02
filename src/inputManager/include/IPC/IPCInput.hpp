@@ -1,6 +1,7 @@
 #ifndef IPC_INPUT_HPP
 #define IPC_INPUT_HPP
 #include "AppConfig.hpp"
+#include "ConfigSection.hpp"
 #include "RobotState.hpp"
 #include <zmq.hpp>
 #include "Protocol.hpp"
@@ -10,12 +11,12 @@
 #include <optional>
 class IPCInput {
 public:
-	IPCInput(const IPCMapping& ipcMapping);
+	IPCInput(ConfigSection<IPCMapping>& ipcMapping);
 	void update(RobotState& state);
 	void checkForInputCompletion(const RobotState& state, const double dt);
-	void updateAfterSettingsChange();
 
 private:
+	void updateAfterSettingsChange();
 	void handleCommandStart();
 	std::unique_ptr<Command> stackMotorCommands();
 	void handleHandshake(zmq::message_t& id, const MsgHeader& header);
@@ -38,6 +39,7 @@ private:
 	std::chrono::steady_clock clock;
 	std::chrono::steady_clock::time_point _lastHeartbeatReceived;
 	const IPCMapping& _ipcMapping;
+	ScopedSubscription<IPCMapping> _subscription;
 	zmq::context_t _context;
 	uint32_t _lastID = 0;
 	uint32_t _outID = 0;

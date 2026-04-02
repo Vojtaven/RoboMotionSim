@@ -2,6 +2,7 @@
 #define SERIAL_INPUT_HPP
 
 #include "AppConfig.hpp"
+#include "ConfigSection.hpp"
 #include "RobotState.hpp"
 #include <asio.hpp>
 #include <optional>
@@ -13,18 +14,19 @@
 
 class SerialInput {
 public:
-	SerialInput(const SerialMapping& serialMapping);
+	SerialInput(ConfigSection<SerialMapping>& serialMapping);
 	~SerialInput();
 	std::optional<std::string> update(RobotState& state);
-	void updateAfterSettingsChange();
 
 private:
+	void updateAfterSettingsChange();
 	void startReading();
 	void stop();
 	void readLoop();
 	bool readExact(uint8_t* buffer, size_t size);
 
 	const SerialMapping& _serialMapping;
+	ScopedSubscription<SerialMapping> _subscription;
 	asio::io_context _ioContext;
 	std::unique_ptr<asio::serial_port> _serialPort;
 	std::thread _ioThread;

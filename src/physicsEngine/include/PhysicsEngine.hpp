@@ -2,12 +2,15 @@
 #define PHYSICS_ENGINE_HPP
 #include "RobotConfig.hpp"
 #include "RobotState.hpp"
+#include "AppConfig.hpp"
+#include "ConfigSection.hpp"
 class PhysicsEngine {
 public:
 	void update(const double dt, RobotState& state,const RobotConfig& config);
-	void setLimitMotorSpeed(bool limit) { _limitMotorSpeed = limit; }
+	void subscribeToSettings(ConfigSection<InputSettings>& inputSettings);
 private:
 	bool _limitMotorSpeed = false;
+	ScopedSubscription<InputSettings> _settingsSubscription;
 	void calculateLocalVelocityFromWheelSpeed(RobotState& state, const RobotConfig& config);
 	void updatePosition(const double dt, RobotState& state);
 	void toWheelSpeed(RobotState& state, const RobotConfig& config);

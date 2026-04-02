@@ -7,12 +7,13 @@
 #include "MathUtils.hpp"
 #include "RobotState.hpp"
 #include "AppConfig.hpp"
+#include "ConfigSection.hpp"
 #include "Grid.hpp"
 #include "RobotTrail.hpp"
 class RenderEngine
 {
 public:
-	RenderEngine(sf::RenderWindow& window,const RenderSettings& settings);
+	RenderEngine(sf::RenderWindow& window, ConfigSection<RenderSettings>& settings);
 	void update(const RobotState& state, const float dt);
 	void updateAfterResize();
 	void draw();
@@ -25,6 +26,7 @@ public:
 	void clearRobotTrail() { _trail->clearTrail(); }
 private:
 	const RenderSettings& _settings;
+	ScopedSubscription<RenderSettings> _settingsSubscription;
 	sf::Font _font;
 	sf::RenderWindow& _window;
 	std::unique_ptr<sf::View> _worldView;

@@ -8,20 +8,18 @@
 #include <vector>
 #include "AppConfig.hpp"
 #include "RobotConfig.hpp"
+#include "ConfigSection.hpp"
 #include "windows/SettingsWindowBase.hpp"
 
 class RobotDesignerWindow : public SettingsWindowBase {
 public:
-	using OnRobotConfigApplied = std::function<void(const RobotConfig&)>;
-
-	RobotDesignerWindow(const AppConfig& config,const RobotConfig& robotConfig, const sf::Image& icon);
+	RobotDesignerWindow(ConfigSection<RobotConfig>& robotConfig, const WindowConfig& windowConfig, const sf::Image& icon);
 	~RobotDesignerWindow() = default;
 
 	void open(const RobotConfig& robotConfig);
 	void open();
 	void close(bool closeFromRoot = false);
 	void update(sf::Time dt);
-	void setOnRobotConfigApplied(OnRobotConfigApplied callback) { _onRobotConfigApplied = std::move(callback); }
 private:
 	void renderContent();
 	void renderPreview();
@@ -29,7 +27,7 @@ private:
 	RobotConfig buildRobotConfig() const;
 	void renderAxleEditor(int index, bool renderRollerAngle);
 
-	OnRobotConfigApplied _onRobotConfigApplied;
+	ConfigSection<RobotConfig>& _robotConfig;
 
 	int _driveTypeIndex = 0;
 	std::vector<RobotParts::DriveAxle_t> _axles;

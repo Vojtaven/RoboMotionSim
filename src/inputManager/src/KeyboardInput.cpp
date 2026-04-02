@@ -2,9 +2,12 @@
 #include "RobotState.hpp"
 #include <SFML/Window/Keyboard.hpp>
 #include "MathUtils.hpp"
-KeyboardInput::KeyboardInput(const KeyboardMapping& keyboardMapping)
-	: _keyboardMapping(keyboardMapping)
+KeyboardInput::KeyboardInput(ConfigSection<KeyboardMapping>& keyboardMapping)
+	: _keyboardMapping(keyboardMapping.get())
 {
+	_subscription = keyboardMapping.scopedSubscribe([this](const KeyboardMapping&) {
+		updateAfterSettingsChange();
+	});
 	updateAfterSettingsChange();
 }
 void KeyboardInput::update(RobotState& state, const float maxSpeed, const float maxRotationSpeed) const{

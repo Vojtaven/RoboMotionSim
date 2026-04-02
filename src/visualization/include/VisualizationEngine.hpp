@@ -5,11 +5,12 @@
 #include "RobotConfig.hpp"
 #include "RobotState.hpp"
 #include "AppConfig.hpp"
+#include "ConfigSection.hpp"
 #include "windows/MainWindow.hpp"
 #include <chrono>
 class VisualizationEngine {
 public:
-	VisualizationEngine(AppConfig& appConfig, const RobotConfig& robotConfig = RobotConfig());
+	VisualizationEngine(AppConfig& appConfig, ConfigSection<RobotConfig>& robotConfigSection, const RobotConfig& robotConfig = RobotConfig());
 	void setRobotConfig(const RobotConfig& config, const RobotState& state) { _mainWindow->setRobotConfig(config, state); }
 	void draw() { _mainWindow->draw(); }
 	void update(float dt, const RobotState& state, const std::chrono::system_clock::time_point& timeStamp) { _mainWindow->update(dt, state, timeStamp); }
@@ -19,11 +20,8 @@ public:
 	bool hasFocus() const { return _mainWindow->getWindow().hasFocus(); }
 	// Returns in normal units
 	Vec2f getWindowCenter() const { return _mainWindow->getRenderWindowCenter(); }
-	void setOnInputSettingsChanged(std::function<void()> callback) { _mainWindow->setOnInputSettingsChanged(std::move(callback)); }
-	void setOnRobotConfigChanged(std::function<void(const RobotConfig&)> callback) { _mainWindow->setOnRobotConfigChanged(std::move(callback)); }
 	void showErrorMessage(const std::string& message) { _mainWindow->showErrorMessage(message); }
 private:
-	void createMainWindow(AppConfig& appConfig);
 	std::unique_ptr<MainWindow> _mainWindow;
 };
 

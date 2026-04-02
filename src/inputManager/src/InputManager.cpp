@@ -3,13 +3,16 @@
 #include "RobotState.hpp"
 #include "KeyboardInput.hpp"
 #include "JoystickInput.hpp"
-InputManager::InputManager(const InputSettings& inputSettings)
-	: _inputSettings(inputSettings),
-	_keyboardInput(std::make_unique<KeyboardInput>(_inputSettings.keyboardMapping)),
-	_joystickInput(std::make_unique<JoystickInput>(_inputSettings.controllerMapping)),
-	_ipcInput(std::make_unique<IPCInput>(inputSettings.ipcMapping)),
-	_serialInput(std::make_unique<SerialInput>(inputSettings.serialMapping))
+InputManager::InputManager(ConfigSection<InputSettings>& inputSettings)
+	: _inputSettings(inputSettings.get()),
+	_keyboardInput(std::make_unique<KeyboardInput>(inputSettings.getMutable().keyboardMapping)),
+	_joystickInput(std::make_unique<JoystickInput>(inputSettings.getMutable().controllerMapping)),
+	_ipcInput(std::make_unique<IPCInput>(inputSettings.getMutable().ipcMapping)),
+	_serialInput(std::make_unique<SerialInput>(inputSettings.getMutable().serialMapping))
 {
+	_settingsSubscription = inputSettings.scopedSubscribe([this](const InputSettings&) {
+		updateAfterSettingsChange();
+	});
 	updateAfterSettingsChange();
 }
 std::optional<std::string> InputManager::update(RobotState& state, bool hasFocus) const {
@@ -63,9 +66,5 @@ void InputManager::checkForInputCompletion(const RobotState& state, const double
 }
 
 void InputManager::updateAfterSettingsChange() {
-	_keyboardInput->updateAfterSettingsChange();
-	_joystickInput->updateAfterSettingsChange();
-	_ipcInput->updateAfterSettingsChange();
-	_serialInput->updateAfterSettingsChange();
 	_maxRotationSpeedRadians = static_cast<float>(DegreesToRadians(_inputSettings.maxRotationSpeed));
 }

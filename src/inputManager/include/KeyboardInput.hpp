@@ -1,15 +1,17 @@
 #ifndef KEYBOARD_INPUT_HPP
 #define KEYBOARD_INPUT_HPP
 #include "AppConfig.hpp"
+#include "ConfigSection.hpp"
 #include <SFML/Window/Keyboard.hpp>
 #include "RobotState.hpp"
 class KeyboardInput {
 public:
-	KeyboardInput(const KeyboardMapping& keyboardMapping);
+	KeyboardInput(ConfigSection<KeyboardMapping>& keyboardMapping);
 	void update(RobotState& state, const float maxSpeed, const float maxRotationSpeed) const;
-	void updateAfterSettingsChange();
 private:
+	void updateAfterSettingsChange();
 	const KeyboardMapping& _keyboardMapping;
+	ScopedSubscription<KeyboardMapping> _subscription;
 	sf::Keyboard::Key _upKey;
 	sf::Keyboard::Key _downKey;
 	sf::Keyboard::Key _leftKey;

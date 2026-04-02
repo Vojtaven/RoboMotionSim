@@ -1,9 +1,12 @@
 #include "SerialInput.hpp"
 #include <cstring>
 
-SerialInput::SerialInput(const SerialMapping& serialMapping)
-	: _serialMapping(serialMapping)
+SerialInput::SerialInput(ConfigSection<SerialMapping>& serialMapping)
+	: _serialMapping(serialMapping.get())
 {
+	_subscription = serialMapping.scopedSubscribe([this](const SerialMapping&) {
+		updateAfterSettingsChange();
+	});
 	startReading();
 }
 

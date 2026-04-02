@@ -13,12 +13,11 @@
 #include "nfd.hpp"
 #include "shapes/RobotShape.hpp"
 
-RobotDesignerWindow::RobotDesignerWindow(const AppConfig& config, const RobotConfig& robotConfig, const sf::Image& icon)
-	: SettingsWindowBase(icon)
+RobotDesignerWindow::RobotDesignerWindow(ConfigSection<RobotConfig>& robotConfig, const WindowConfig& windowConfig, const sf::Image& icon)
+	: SettingsWindowBase(icon), _robotConfig(robotConfig)
 {
-	_windowConfig = config.robotDesignerWindow;
-	// Start with one default axle
-	loadFromRobotConfig(robotConfig);
+	_windowConfig = windowConfig;
+	loadFromRobotConfig(robotConfig.get());
 	if (_windowConfig.open) {
 		open();
 	}
@@ -232,16 +231,14 @@ void RobotDesignerWindow::renderContent() {
 	ImGui::Spacing();
 
 	if (ImGui::Button("Apply to Simulation", ImVec2(-FLT_MIN, 30))) {
-		if (_onRobotConfigApplied) {
-			RobotConfig config = buildRobotConfig();
-			auto validationError = config.validateConfig();
-			if(validationError == std::nullopt) {
-				_onRobotConfigApplied(config);
-				_statusMessage = StatusMessage::Info("Config applied to simulation.");
-			}
-			else {
-				_statusMessage = StatusMessage::Error("Config validation error: " + *validationError);
-			}
+		RobotConfig config = buildRobotConfig();
+		auto validationError = config.validateConfig();
+		if(validationError == std::nullopt) {
+			_robotConfig.set(config);
+			_statusMessage = StatusMessage::Info("Config applied to simulation.");
+		}
+		else {
+			_statusMessage = StatusMessage::Error("Config validation error: " + *validationError);
 		}
 	}
 

@@ -5,33 +5,30 @@
 #include <memory>
 #include <functional>
 #include "AppConfig.hpp"
+#include "ConfigSection.hpp"
 #include "windows/SettingsWindowBase.hpp"
 
 class InputSettingsWindow : public SettingsWindowBase {
 public:
-	using OnSettingsChanged = std::function<void(const InputSettings&)>;
-
-	InputSettingsWindow(const AppConfig& config, const sf::Image& icon);
+	InputSettingsWindow(ConfigSection<InputSettings>& inputSettings, const WindowConfig& windowConfig, const sf::Image& icon);
 	~InputSettingsWindow() = default;
 
 	void open(const InputSettings& settings);
 	void open();
 	void close(bool closeFromRoot = false);
 	void update(sf::Time dt);
-	void setOnSettingsChanged(OnSettingsChanged callback) { _onSettingsChanged = std::move(callback); }
 private:
 	void renderContent();
-	//Return true if settings were changed and callback will called
 	bool renderCommonSettings();
-	bool renderKeyboardMapping();
-	bool renderControllerMapping();
+	bool renderKeyboardMapping(bool& commonChanged);
+	bool renderControllerMapping(bool& commonChanged);
 	bool renderIPCMapping();
 	bool renderSerialMapping();
-
+	void notifyAboutChanges(bool reset,bool commonChanged, bool subsectionChanged,bool topLevelChanged);
+	ConfigSection<InputSettings>& _inputSettings;
 	InputSettings _settings;
 	KeyboardMapping _keyboardMapping;
 	ControllerMapping _controllerMapping;
-	OnSettingsChanged _onSettingsChanged;
 	int _inputTypeIndex = 0; // 0 for keyboard, 1 for controller, 2 for IPC
 
 	int* _waitingForKey = nullptr;

@@ -1,6 +1,7 @@
 #ifndef APP_CONFIG_HPP
 #define APP_CONFIG_HPP
 #include "MathUtils.hpp"
+#include "ConfigSection.hpp"
 #include <string>
 #include <array>
 #include <cstdint>
@@ -22,7 +23,7 @@ struct WindowConfig {
 	bool open = false;
 	bool wasOpenedBefore = false;
 };
-
+ 
 struct TrailSettings {
 	std::array<float, 4> trailColor = { 1,1,0.45f,0.5f };
 	int trailMaxLength = 100;
@@ -51,8 +52,8 @@ struct RenderSettings {
 	bool showRollerVectors = true;
 	bool showWheelDirectionVectors = true;
 	int frameRateLimit = 60;
-	GridSettings gridSettings;
-	TrailSettings trailSettings;
+	ConfigSection<GridSettings> gridSettings;
+	ConfigSection<TrailSettings> trailSettings;
 };
 
 struct KeyboardMapping {
@@ -98,10 +99,10 @@ struct SerialMapping {
 
 struct InputSettings {
 	InputType inputType = InputType::Keyboard;
-	ControllerMapping controllerMapping;
-	KeyboardMapping keyboardMapping;
-	IPCMapping ipcMapping;
-	SerialMapping serialMapping;
+	ConfigSection<ControllerMapping> controllerMapping;
+	ConfigSection<KeyboardMapping> keyboardMapping;
+	ConfigSection<IPCMapping> ipcMapping;
+	ConfigSection<SerialMapping> serialMapping;
 	float maxSpeed = 200; // Max speed in mm/s, used to scale input values to real speeds
 	float maxRotationSpeed = 60; // Max rotation speed in degrees/s, used to scale input values to real speeds
 	bool registerInputWithoutFocus = true;
@@ -117,8 +118,8 @@ struct AppConfig {
 	WindowConfig inputSettingsWindow;
 	WindowConfig robotStatWindow;
 	WindowConfig robotDesignerWindow;
-	RenderSettings renderSettings;
-	InputSettings inputSettings;
+	ConfigSection<RenderSettings> renderSettings;
+	ConfigSection<InputSettings> inputSettings;
 };
 
 #endif // !APP_CONFIG_HPP

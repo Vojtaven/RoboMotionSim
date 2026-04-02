@@ -11,8 +11,8 @@
 #include "windows/RobotStatWindow.hpp"
 #include "windows/RobotDesignerWindow.hpp"
 #include "ColorConstants.hpp"
-MainWindow::MainWindow(AppConfig& config)
-	: _appConfig(config), _windowConfig(config.mainWindow)
+MainWindow::MainWindow(AppConfig& config, ConfigSection<RobotConfig>& robotConfigSection)
+	: _appConfig(config), _windowConfig(config.mainWindow), _robotConfigSection(robotConfigSection)
 {
 }
 
@@ -31,7 +31,7 @@ void MainWindow::open(const RobotConfig& robotConfig)
 	initImGui();
 	_renderEngine = std::make_unique<RenderEngine>(*_window, _appConfig.renderSettings);
 	setRobotConfig(robotConfig, RobotState(robotConfig.getWheelCount()));
-	initializeOtherWindows(robotConfig);
+	initializeOtherWindows();
 	_window->requestFocus();
 }
 
@@ -91,7 +91,7 @@ void MainWindow::renderImGuiMenu() {
 			_showMenu = false;
 		}
 		else if (ImGui::MenuItem("Input Settings")) {
-			const InputSettings& current = _appConfig.inputSettings;
+			const InputSettings& current = _appConfig.inputSettings.get();
 			_inputSettingsWindow->open(current);
 			_showMenu = false;
 		}
@@ -276,23 +276,6 @@ void MainWindow::update(const float dt, const RobotState& robotState, const std:
 	}
 }
 
-void MainWindow::setOnInputSettingsChanged(std::function<void()> callback) {
-	_onInputSettingsChanged = std::move(callback);
-	_inputSettingsWindow->setOnSettingsChanged([this](const InputSettings& newSettings) {
-		this->_appConfig.inputSettings = newSettings;
-		_onInputSettingsChanged();
-		});
-}
-
-void MainWindow::setOnRobotConfigChanged(std::function<void(const RobotConfig&)> callback) {
-	_onRobotConfigChanged = std::move(callback);
-	_robotDesignerWindow->setOnRobotConfigApplied([this](const RobotConfig& newConfig) {
-		setRobotConfig(newConfig, true);
-		if (_onRobotConfigChanged) {
-			_onRobotConfigChanged(newConfig);
-		}
-		});
-}
 
 void MainWindow::showErrorMessage(const std::string& message) {
 	_errorMessages.push_back(message);
@@ -301,36 +284,27 @@ void MainWindow::showErrorMessage(const std::string& message) {
 void MainWindow::saveConfig() {
 	_appConfig.mainWindow = _windowConfig;
 	_appConfig.renderSettingsWindow = _renderSettingsWindow->getSavedConfig();
-	_appConfig.renderSettings = _renderEngine->getCurrentRenderSettings();
 	_appConfig.inputSettingsWindow = _inputSettingsWindow->getSavedConfig();
 	_appConfig.robotStatWindow = _robotStatWindow->getSavedConfig();
 	_appConfig.robotDesignerWindow = _robotDesignerWindow->getSavedConfig();
 }
 
 // Other Windows management
-void MainWindow::initializeOtherWindows(const RobotConfig& robotConfig) {
+void MainWindow::initializeOtherWindows() {
 	// === SETTINGS WINDOW ===
-	_renderSettingsWindow = std::make_unique<RenderSettingsWindow>(_appConfig,_icon);
-	_renderSettingsWindow->setOnSettingsChanged([this](const RenderSettings& newSettings) {
-		this->_appConfig.renderSettings = newSettings;
-		_renderEngine->updateAfterSettingsChange();
-		});
+	_renderSettingsWindow = std::make_unique<RenderSettingsWindow>(_appConfig.renderSettings, _appConfig.renderSettingsWindow, _icon);
 	_renderSettingsWindow->setClearRobotTrail([this]() {
 		_renderEngine->clearRobotTrail();
 		});
 
 	// === INPUT SETTINGS WINDOW ===
-	_inputSettingsWindow = std::make_unique<InputSettingsWindow>(_appConfig, _icon);
-	_inputSettingsWindow->setOnSettingsChanged([this](const InputSettings& newSettings) {
-		this->_appConfig.inputSettings = newSettings;
-		_onInputSettingsChanged();
-		});
+	_inputSettingsWindow = std::make_unique<InputSettingsWindow>(_appConfig.inputSettings, _appConfig.inputSettingsWindow, _icon);
 
 	// === ROBOT STATISTICS WINDOW ===
 	_robotStatWindow = std::make_unique<RobotStatWindow>(_appConfig, _icon);
 
 	// === ROBOT DESIGNER WINDOW ===
-	_robotDesignerWindow = std::make_unique<RobotDesignerWindow>(_appConfig, robotConfig, _icon);
+	_robotDesignerWindow = std::make_unique<RobotDesignerWindow>(_robotConfigSection, _appConfig.robotDesignerWindow, _icon);
 }
 
 void MainWindow::closeOtherWindows() {

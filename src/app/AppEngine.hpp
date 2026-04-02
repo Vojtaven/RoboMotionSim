@@ -20,6 +20,7 @@ private:
 	std::unique_ptr<PhysicsEngine> _physicsEngine;
 	std::unique_ptr<RobotState> _robotState;
 	std::unique_ptr<InputManager> _inputManager;
+	ScopedSubscription<RobotConfig> _robotConfigSubscription;
 };
 
 #endif // !APP_ENGINE_HPP

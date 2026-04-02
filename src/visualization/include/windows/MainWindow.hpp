@@ -7,10 +7,11 @@
 #include "InputSettingsWindow.hpp"
 #include "RobotStatWindow.hpp"
 #include "RobotDesignerWindow.hpp"
+#include "ConfigSection.hpp"
 class MainWindow
 {
 public:
-	MainWindow(AppConfig& config);
+	MainWindow(AppConfig& config, ConfigSection<RobotConfig>& robotConfigSection);
 	void open(const RobotConfig& robotConfig);
 	void setRobotConfig(const RobotConfig& config, const RobotState& state) { _renderEngine->updateRobotShape(config, state); }
 	void close();
@@ -21,8 +22,6 @@ public:
 	sf::Window& getWindow() { return *_window; }
 	bool isOpen() const { return _isOpen; }
 	Vec2f getRenderWindowCenter() const { return _renderEngine->getWindowCenter(); }
-	void setOnInputSettingsChanged(std::function<void()> callback);
-	void setOnRobotConfigChanged(std::function<void(const RobotConfig&)> callback);
 	void showErrorMessage(const std::string& message);
 private:
 	void saveWindowConfig(WindowConfig& config) const;
@@ -37,6 +36,7 @@ private:
 	std::chrono::system_clock::time_point _timeStamp;
 	WindowConfig& _windowConfig;
 	AppConfig& _appConfig;
+	ConfigSection<RobotConfig>& _robotConfigSection;
 	std::unique_ptr<RenderEngine> _renderEngine;
 	std::unique_ptr<sf::RenderWindow> _window;
 	std::unique_ptr<RenderSettingsWindow> _renderSettingsWindow;
@@ -44,11 +44,9 @@ private:
 	std::unique_ptr<RobotStatWindow> _robotStatWindow;
 	std::unique_ptr<RobotDesignerWindow> _robotDesignerWindow;
 	std::vector<std::string> _errorMessages;
-	std::function<void()> _onInputSettingsChanged;
-	std::function<void(const RobotConfig&)> _onRobotConfigChanged;
 	sf::Image _icon;
 	// Other windows management
-	void initializeOtherWindows(const RobotConfig& robotConfig);
+	void initializeOtherWindows();
 	void closeOtherWindows();
 	void updateAllOtherWindows(sf::Time dt, const RobotState& robotState);
 	void drawAllOtherWindows();

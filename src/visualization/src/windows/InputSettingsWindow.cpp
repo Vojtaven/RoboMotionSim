@@ -54,11 +54,11 @@ static void updateControllerList(std::vector<std::string>& controllerNames, int&
 
 }
 
-InputSettingsWindow::InputSettingsWindow(const AppConfig& config, const sf::Image& icon)
-	: SettingsWindowBase(icon)
+InputSettingsWindow::InputSettingsWindow(ConfigSection<InputSettings>& inputSettings, const WindowConfig& windowConfig, const sf::Image& icon)
+	: SettingsWindowBase(icon), _inputSettings(inputSettings)
 {
-	_windowConfig = config.inputSettingsWindow;
-	_settings = config.inputSettings;
+	_windowConfig = windowConfig;
+	_settings = inputSettings.get();
 	if (_windowConfig.open) {
 		open();
 	}
@@ -177,7 +177,9 @@ void InputSettingsWindow::renderContent() {
 
 	ImGuiSliderFlags sliderFlags = ImGuiSliderFlags_AlwaysClamp;
 
-	bool changed = false;
+	bool topLevelChanged = false;
+	bool subsectionChanged = false;
+	bool commonChanged = false;
 
 	// Input type selector
 	const char* inputTypeItems[] = { "Keyboard", "Controller", "IPC", "Serial" };
@@ -187,10 +189,10 @@ void InputSettingsWindow::renderContent() {
 		_waitingForKey = nullptr;
 		_waitingForButton = nullptr;
 		_waitingForAxis = nullptr;
-		changed = true;
+		topLevelChanged = true;
 	}
 	ImGui::Spacing();
-	changed |= ImGui::Checkbox("Limit Motor Speed", &_settings.limitMotorSpeed);
+	topLevelChanged |= ImGui::Checkbox("Limit Motor Speed", &_settings.limitMotorSpeed);
 	ImGui::Spacing();
 
 	ImGui::Separator();
@@ -198,17 +200,16 @@ void InputSettingsWindow::renderContent() {
 
 	switch (_inputTypeIndex) {
 	case 0:
-		changed |= renderKeyboardMapping();
+		subsectionChanged |= renderKeyboardMapping(commonChanged);
 		break;
 	case 1:
-		changed |= renderControllerMapping();
+		subsectionChanged |= renderControllerMapping(commonChanged);
 		break;
-
 	case 2:
-		changed |= renderIPCMapping();
+		subsectionChanged |= renderIPCMapping();
 		break;
 	case 3:
-		changed |= renderSerialMapping();
+		subsectionChanged |= renderSerialMapping();
 		break;
 	default:
 		throw std::runtime_error("Invalid input type index");
@@ -219,21 +220,57 @@ void InputSettingsWindow::renderContent() {
 	ImGui::Spacing();
 
 	// Reset button
+	bool reset = false;
 	if (ImGui::Button("Reset to Defaults", ImVec2(-1, 30))) {
 		_settings = _defaultSettings;
 		_inputTypeIndex = (int)_settings.inputType;
 		_waitingForKey = nullptr;
 		_waitingForButton = nullptr;
 		_waitingForAxis = nullptr;
-		changed = true;
+		reset = true;
 	}
-
-	if (changed && _onSettingsChanged) {
-		_onSettingsChanged(_settings);
-	}
-
 	ImGui::PopItemWidth();
 	ImGui::End();
+
+	notifyAboutChanges(reset, commonChanged, subsectionChanged, topLevelChanged);
+}
+
+void InputSettingsWindow::notifyAboutChanges(bool reset, bool commonChanged, bool subsectionChanged, bool topLevelChanged) {
+	if (reset) {
+		_inputSettings.set(_settings);
+	}
+	else {
+		// Sync common/top-level fields without notifying — they don't have their own subscribers
+		if (topLevelChanged || commonChanged) {
+			auto& raw = _inputSettings.getMutable();
+			raw.inputType = _settings.inputType;
+			raw.limitMotorSpeed = _settings.limitMotorSpeed;
+			raw.maxSpeed = _settings.maxSpeed;
+			raw.maxRotationSpeed = _settings.maxRotationSpeed;
+			raw.registerInputWithoutFocus = _settings.registerInputWithoutFocus;
+		}
+		// Notify only the specific subsection that changed
+		if (subsectionChanged) {
+			switch (_inputTypeIndex) {
+			case 0:
+				_inputSettings.getMutable().keyboardMapping.set(_settings.keyboardMapping.get());
+				break;
+			case 1:
+				_inputSettings.getMutable().controllerMapping.set(_settings.controllerMapping.get());
+				break;
+			case 2:
+				_inputSettings.getMutable().ipcMapping.set(_settings.ipcMapping.get());
+				break;
+			case 3:
+				_inputSettings.getMutable().serialMapping.set(_settings.serialMapping.get());
+				break;
+			}
+		}
+		// Notify parent-level subscribers for top-level/common changes
+		if (topLevelChanged || commonChanged) {
+			_inputSettings.set(_inputSettings.get());
+		}
+	}
 }
 
 bool InputSettingsWindow::renderCommonSettings() {
@@ -254,12 +291,13 @@ bool InputSettingsWindow::renderCommonSettings() {
 	return changed;
 }
 
-bool InputSettingsWindow::renderKeyboardMapping() {
-	bool changed = _bindingChanged || renderCommonSettings();
+bool InputSettingsWindow::renderKeyboardMapping(bool& commonChanged) {
+	commonChanged |= renderCommonSettings();
+	bool changed = _bindingChanged;
 	ImGui::TextColored(Colors::WindowHeader, "Keyboard Mapping");
 	ImGui::Separator();
 	ImGui::Spacing();
-	KeyboardMapping& km = _settings.keyboardMapping;
+	KeyboardMapping& km = _settings.keyboardMapping.getMutable();
 
 	auto renderKeyBind = [&](const char* label, int& keyCode) {
 		ImGui::TableNextRow();
@@ -305,12 +343,13 @@ bool InputSettingsWindow::renderKeyboardMapping() {
 	return changed;
 }
 
-bool InputSettingsWindow::renderControllerMapping() {
-	bool changed = _bindingChanged || renderCommonSettings();
+bool InputSettingsWindow::renderControllerMapping(bool& commonChanged) {
+	commonChanged |= renderCommonSettings();
+	bool changed = _bindingChanged;
 	ImGui::TextColored(Colors::WindowHeader, "Controller Mapping");
 	ImGui::Separator();
 	ImGui::Spacing();
-	ControllerMapping& cm = _settings.controllerMapping;
+	ControllerMapping& cm = _settings.controllerMapping.getMutable();
 	ImGuiSliderFlags sliderFlags = ImGuiSliderFlags_AlwaysClamp;
 
 	if (_controllerNames.empty() || _controllerRefreshAccumulator >= sf::seconds(1.0f)) {
@@ -427,7 +466,7 @@ bool InputSettingsWindow::renderIPCMapping() {
 	ImGui::Separator();
 	ImGui::Spacing();
 	bool changed = false;
-	IPCMapping& ipc = _settings.ipcMapping;
+	IPCMapping& ipc = _settings.ipcMapping.getMutable();
 	ImGuiSliderFlags sliderFlags = ImGuiSliderFlags_AlwaysClamp;
 
 	ImGui::Text("Address");
@@ -467,7 +506,7 @@ bool InputSettingsWindow::renderSerialMapping() {
 	ImGui::Separator();
 	ImGui::Spacing();
 	bool changed = false;
-	SerialMapping& serial = _settings.serialMapping;
+	SerialMapping& serial = _settings.serialMapping.getMutable();
 
 	ImGui::Text("Port Name");
 	char portBuf[64] = {};

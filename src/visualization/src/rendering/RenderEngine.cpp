@@ -5,23 +5,26 @@
 #include "SFML/System.hpp"
 #include <iostream>
 
-RenderEngine::RenderEngine(sf::RenderWindow& window, const RenderSettings& settings) :
-	_settings(settings),
+RenderEngine::RenderEngine(sf::RenderWindow& window, ConfigSection<RenderSettings>& settingsSection) :
+	_settings(settingsSection.get()),
 	_window(window),
 	_worldView(std::make_unique<sf::View>(sf::FloatRect({ 0.f, 0.f }, (sf::Vector2f)_window.getSize()))),
 	_uiView(std::make_unique<sf::View>(sf::FloatRect({ 0.f, 0.f }, (sf::Vector2f)_window.getSize()))),
 	_robotShape(std::make_unique<RobotShape>(RobotConfig())),
-	_trail(std::make_unique<RobotTrail>(settings.trailSettings))
+	_trail(std::make_unique<RobotTrail>(_settings.trailSettings.get()))
 {
 	_robotShape->setPosition({ 0,0 });
-	_robotShape->setVectorsVisibility(settings.showForwardVectors, settings.showRollerVectors, settings.showWheelDirectionVectors);
+	_robotShape->setVectorsVisibility(_settings.showForwardVectors, _settings.showRollerVectors, _settings.showWheelDirectionVectors);
 	_worldView->setCenter({ 0,0 });
 	_window.setView(*_worldView);
 
 	if (!_font.openFromMemory(DEFAULT_FONT_DATA, DEFAULT_FONT_DATA_SIZE)) {
 		throw std::runtime_error("Failed to load font from memory");
 	}
-	_grid = std::make_unique<Grid>(settings.gridSettings, settings.scaleFactor, _font, *_worldView);
+	_grid = std::make_unique<Grid>(_settings.gridSettings.get(), _settings.scaleFactor, _font, *_worldView);
+	_settingsSubscription = settingsSection.scopedSubscribe([this](const RenderSettings&) {
+		updateAfterSettingsChange();
+	});
 	updateAfterSettingsChange();
 }
 

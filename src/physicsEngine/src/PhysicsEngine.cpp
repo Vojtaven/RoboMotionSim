@@ -197,3 +197,10 @@ void PhysicsEngine::calculateLocalVelocityFromWheelSpeed(RobotState& state, cons
 	state.localVelocity = Vec2d{chassisVx, chassisVy}.rotatedInverse(state.frontAngle);
 	state.angularVelocity = omega;
 }
+
+void PhysicsEngine::subscribeToSettings(ConfigSection<InputSettings>& inputSettings) {
+	_limitMotorSpeed = inputSettings.get().limitMotorSpeed;
+	_settingsSubscription = inputSettings.scopedSubscribe([this](const InputSettings& settings) {
+		_limitMotorSpeed = settings.limitMotorSpeed;
+	});
+}

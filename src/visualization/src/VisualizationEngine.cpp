@@ -8,12 +8,8 @@
 #include <imgui-SFML.h>
 #include <cstdint>
 
-void  VisualizationEngine::createMainWindow(AppConfig& appConfig) {
-	_mainWindow = std::make_unique<MainWindow>(appConfig);
-}
-
-VisualizationEngine::VisualizationEngine(AppConfig& appConfig, const RobotConfig& robotConfig)
+VisualizationEngine::VisualizationEngine(AppConfig& appConfig, ConfigSection<RobotConfig>& robotConfigSection, const RobotConfig& robotConfig)
 {
-	_mainWindow = std::make_unique<MainWindow>(appConfig);
+	_mainWindow = std::make_unique<MainWindow>(appConfig, robotConfigSection);
 	_mainWindow->open(robotConfig);
 }

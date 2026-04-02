@@ -1,10 +1,9 @@
 #include "JoystickInput.hpp"
 #include "RobotState.hpp"
 #include <SFML/Window/Joystick.hpp>
-JoystickInput::JoystickInput(const ControllerMapping& controllerMapping)
-	: _controllerMapping(controllerMapping)
+JoystickInput::JoystickInput(ConfigSection<ControllerMapping>& controllerMapping)
+	: _controllerMapping(controllerMapping.get())
 {
-	updateAfterSettingsChange();
 }
 std::optional<std::string> JoystickInput::update(RobotState& state, const float maxSpeed, const float maxRotationSpeed) {
 	const int id = _controllerMapping.controllerId;

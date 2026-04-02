@@ -7,11 +7,11 @@
 #include "embeddedFont.h"
 #include "windows/WindowHelper.hpp"
 #include "ColorConstants.hpp"
-RenderSettingsWindow::RenderSettingsWindow(const AppConfig& config, const sf::Image& icon)
-	: SettingsWindowBase(icon)
+RenderSettingsWindow::RenderSettingsWindow(ConfigSection<RenderSettings>& renderSettings, const WindowConfig& windowConfig, const sf::Image& icon)
+	: SettingsWindowBase(icon), _renderSettings(renderSettings)
 {
-	_windowConfig = config.renderSettingsWindow;
-	_settings = config.renderSettings;
+	_windowConfig = windowConfig;
+	_settings = renderSettings.get();
 	if (_windowConfig.open) {
 		open();
 	}
@@ -71,7 +71,8 @@ void RenderSettingsWindow::renderContent() {
 	ImGui::Separator();
 	ImGui::Spacing();
 
-	GridSettings& gridSettings = _settings.gridSettings;
+	GridSettings& gridSettings = _settings.gridSettings.getMutable();
+	TrailSettings& trailSettings = _settings.trailSettings.getMutable();
 	ImGui::Spacing();
 	ImGui::Text("Grid Settings");
 	ImGui::Spacing();
@@ -109,7 +110,7 @@ void RenderSettingsWindow::renderContent() {
 		dataToUse = gridSettings.subGridColor.data();
 		break;
 	case 2:
-		dataToUse = _settings.trailSettings.trailColor.data();
+		dataToUse = trailSettings.trailColor.data();
 		break;
 	}
 	ImGui::Spacing();
@@ -121,15 +122,15 @@ void RenderSettingsWindow::renderContent() {
 	ImGui::Text("Trail Settings");
 	ImGui::Spacing();
 	ImGui::PopItemWidth();
-	changed |= ImGui::InputFloat("Point Size", &_settings.trailSettings.trailPointSize, 0.5f, 2.0f, "%.2f");
-	changed |= ImGui::InputFloat("Spawn interval", &_settings.trailSettings.pointSpawnInterval, 0.05f, 0.5f, "%.2f");
-	changed |= ImGui::InputInt("Max length", &_settings.trailSettings.trailMaxLength);
+	changed |= ImGui::InputFloat("Point Size", &trailSettings.trailPointSize, 0.5f, 2.0f, "%.2f");
+	changed |= ImGui::InputFloat("Spawn interval", &trailSettings.pointSpawnInterval, 0.05f, 0.5f, "%.2f");
+	changed |= ImGui::InputInt("Max length", &trailSettings.trailMaxLength);
 	ImGui::PushItemWidth(-FLT_MIN);
 	changed |= ImGui::Checkbox("Show Trail", &_settings.showTrail);
 
-	_settings.trailSettings.trailPointSize = std::max(_settings.trailSettings.trailPointSize, 0.0f);
-	_settings.trailSettings.pointSpawnInterval = std::max(_settings.trailSettings.pointSpawnInterval, 0.0f);
-	_settings.trailSettings.trailMaxLength = std::clamp(_settings.trailSettings.trailMaxLength, 0, 10000);
+	trailSettings.trailPointSize = std::max(trailSettings.trailPointSize, 0.0f);
+	trailSettings.pointSpawnInterval = std::max(trailSettings.pointSpawnInterval, 0.0f);
+	trailSettings.trailMaxLength = std::clamp(trailSettings.trailMaxLength, 0, 10000);
 	if (ImGui::Button("Reset Trail", ImVec2(-1, 30))) {
 		_clearRobotTrail();
 	}
@@ -158,8 +159,8 @@ void RenderSettingsWindow::renderContent() {
 		changed = true;
 	}
 
-	if (changed && _onSettingsChanged) {
-		_onSettingsChanged(_settings);
+	if (changed) {
+		_renderSettings.set(_settings);
 	}
 
 	ImGui::PopItemWidth();
