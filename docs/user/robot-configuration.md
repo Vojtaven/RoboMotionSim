@@ -19,6 +19,10 @@ MOTOR_1 = 2, 3, 1000, 200
 
 > **Note**: Wheels and motors are 0-indexed (`WHEEL_0`, `MOTOR_0`, etc.).
 
+## Examples
+
+There are some examples in the github repository in [Config folder](../../src/configManager/ConfigFiles/).
+
 ## Drive Types
 
 ### Differential (`DIFFERENTIAL`)
@@ -45,7 +49,7 @@ Uses wheels with angled rollers (typically ±45°) for omnidirectional movement.
 
 ### Custom (`CUSTOM`)
 
-Bypasses drive-type validation and allows setting roller angles per wheel. Use this for non-standard configurations. **This configuration doesn;t support any validation**
+Bypasses drive-type validation and allows setting roller angles per wheel. Use this for non-standard configurations. **This drive type skips all validation.**
 
 ## Wheel Parameters
 
