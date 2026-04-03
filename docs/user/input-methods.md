@@ -48,6 +48,13 @@ Control the robot remotely over a network using the ZMQ protocol. This is the pr
 - **Telemetry port**: Port for broadcasting odometry data (default: 5556).
 - **Heartbeat timeout**: Time in seconds to wait without a heartbeat before considering the connection lost (default: 5.0s).
 
+**Client libraries:**
+
+Ready-to-use client libraries are available so you don't have to implement the ZMQ protocol yourself. They handle connection management, heartbeats, telemetry parsing, and expose a simple movement API. Both libraries convert user-friendly units (degrees) to the wire-format units (radians) automatically.
+
+- [C++ client](https://github.com/Vojtaven/RoboMotionSim-CppClient) — Header-only CMake library (C++23). Dependencies fetched automatically via FetchContent.
+- [Python client](https://github.com/Vojtaven/RoboMotionSim-PyClient) — Lightweight Python package. Only requires `pyzmq`.
+
 **Protocol overview:**
 
 1. Client sends `HANDSHAKE` → Simulator responds with `HANDSHAKE_ACK` + `MOTOR_COUNT`.
