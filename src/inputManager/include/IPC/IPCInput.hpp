@@ -19,6 +19,7 @@ public:
 
 private:
 	void updateAfterSettingsChange();
+	bool validateConfig() const;
 	void handleCommandStart();
 	std::unique_ptr<Command> stackMotorCommands();
 	void handleHandshake(zmq::message_t& id, const MsgHeader& header);

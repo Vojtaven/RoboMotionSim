@@ -110,8 +110,67 @@ void IPCInput::checkForInputCompletion(const RobotState& state, const double dt)
 	}
 }
 
+bool IPCInput::validateConfig() const {
+	const auto& addr = _ipcMapping.address;
+	if (addr.empty())
+		return false;
+
+	// Must use a supported ZMQ transport
+	if (addr.find("tcp://") != 0 && addr.find("ipc://") != 0)
+		return false;
+
+	// Validate TCP host portion (e.g. "tcp://127.0.0.1")
+	if (addr.find("tcp://") == 0) {
+		std::string host = addr.substr(6);
+		if (host.empty())
+			return false;
+
+		// Reject whitespace or obviously invalid characters
+		for (char c : host) {
+			if (std::isspace(static_cast<unsigned char>(c)) || c == ':' || c == '/')
+				return false;
+		}
+
+		// If it looks like an IP (starts with digit), validate the octets
+		if (std::isdigit(static_cast<unsigned char>(host[0]))) {
+			int octets = 0;
+			size_t start = 0;
+			for (size_t i = 0; i <= host.size(); i++) {
+				if (i == host.size() || host[i] == '.') {
+					if (i == start)
+						return false; // empty segment
+					std::string segment = host.substr(start, i - start);
+					for (char c : segment) {
+						if (!std::isdigit(static_cast<unsigned char>(c)))
+							return false;
+					}
+					int val = std::stoi(segment);
+					if (val < 0 || val > 255)
+						return false;
+					octets++;
+					start = i + 1;
+				}
+			}
+			if (octets != 4)
+				return false;
+		}
+	}
+
+	// Validate ports
+	if (_ipcMapping.command_port < 1024 || _ipcMapping.telemetry_port < 1024)
+		return false;
+	if (_ipcMapping.command_port == _ipcMapping.telemetry_port)
+		return false;
+
+	return true;
+}
+
 void IPCInput::updateAfterSettingsChange() {
 	_errorMessage.reset();
+	if (!validateConfig()) {
+		_errorMessage = "Invalid IPC configuration: check address scheme and port values";
+		return;
+	}
 	try{
 	// Close existing sockets before rebinding/reconnecting
 	_telemetry_out.close();
