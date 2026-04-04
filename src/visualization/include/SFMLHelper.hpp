@@ -7,17 +7,9 @@
 #include <cstdint>
 #include "MathUtils.hpp"
 
-static inline sf::Vector2f ToSFMLVector2f(const Vec2f vec) { return { vec.x, vec.y }; }
-static inline sf::Vector2f ToSFMLVector2f(const Vec2d vec) { return { (float)vec.x, (float)vec.y }; }
-static inline sf::Vector2f ToSFMLVector2f(const Vec2i vec) { return { (float)vec.x, (float)vec.y }; }
-static inline sf::Vector2i ToSFMLVector2i(const Vec2f vec) { return { (int)vec.x, (int)vec.y }; }
-static inline sf::Vector2i ToSFMLVector2i(const Vec2i vec) { return { (int)vec.x, (int)vec.y }; }
-static inline sf::Vector2u ToSFMLVector2u(const Vec2f vec) { return { (unsigned int)vec.x, (unsigned int)vec.y }; }
-static inline sf::Vector2u ToSFMLVector2u(const Vec2i vec) { return { (unsigned int)vec.x, (unsigned int)vec.y }; }
-
-static inline Vec2f FromSFMLVector(const sf::Vector2f vec) { return { vec.x, vec.y }; }
-static inline Vec2i FromSFMLVector(const sf::Vector2i vec) { return { vec.x, vec.y }; }
-static inline Vec2i FromSFMLVector(const sf::Vector2u vec) { return { (int)vec.x, (int)vec.y }; }
+// Use static_cast to convert between Vec2 and sf::Vector2 types, e.g.:
+//   static_cast<sf::Vector2f>(myVec2f)
+//   static_cast<Vec2i>(sfmlVec)
 
 static inline sf::Angle ToSFMLAngle(const double angle) { return sf::radians(static_cast<float>(angle)); }
 

@@ -22,11 +22,11 @@ void MainWindow::open(const RobotConfig& robotConfig)
 	sanitizeWindowConfig();
 
 	_window = std::make_unique<sf::RenderWindow>(
-		sf::VideoMode(ToSFMLVector2u(_windowConfig.size)),
+		sf::VideoMode(static_cast<sf::Vector2u>(_windowConfig.size)),
 		_appConfig.appName,
 		_windowConfig.resizable ? sf::Style::Default : sf::Style::Titlebar | sf::Style::Close);
 
-	_window->setPosition(ToSFMLVector2i(_windowConfig.position));
+	_window->setPosition(static_cast<sf::Vector2i>(_windowConfig.position));
 
 	if (_icon.loadFromMemory(APP_ICON_DATA, APP_ICON_DATA_SIZE))
 		_window->setIcon(_icon);
@@ -238,8 +238,8 @@ void MainWindow::draw() {
 }
 
 void MainWindow::saveWindowConfig(WindowConfig& config) const {
-	config.position = FromSFMLVector(_window->getPosition());
-	config.size = FromSFMLVector(_window->getSize());
+	config.position = static_cast<Vec2i>(_window->getPosition());
+	config.size = static_cast<Vec2i>(_window->getSize());
 	config.open = true;
 	config.resizable = true;
 }

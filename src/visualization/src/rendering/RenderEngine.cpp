@@ -30,7 +30,7 @@ RenderEngine::RenderEngine(sf::RenderWindow& window, ConfigSection<RenderSetting
 
 void RenderEngine::update(const RobotState& state, const float dt) {
 	_robotShape->update(state);
-	_trail->addTrailPoint(ToSFMLVector2f(state.position),dt);
+	_trail->addTrailPoint(static_cast<sf::Vector2f>(state.position),dt);
 }
 
 Vec2f RenderEngine::getWindowCenter() const {

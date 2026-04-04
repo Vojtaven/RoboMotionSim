@@ -75,8 +75,8 @@ void SettingsWindowBase::draw() {
 }
 
 void SettingsWindowBase::saveWindowConfig() {
-	_windowConfig.position = FromSFMLVector(_window->getPosition());
-	_windowConfig.size = FromSFMLVector(_window->getSize());
+	_windowConfig.position = static_cast<Vec2i>(_window->getPosition());
+	_windowConfig.size = static_cast<Vec2i>(_window->getSize());
 	_windowConfig.resizable = true;
 }
 

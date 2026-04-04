@@ -8,6 +8,17 @@ struct Vec2 {
     T x = 0;
     T y = 0;
 
+    Vec2() = default;
+    Vec2(T x, T y) : x(x), y(y) {}
+
+    // Convert from any type with .x and .y (e.g. sf::Vector2f)
+    template<typename U, typename = decltype(U::x, U::y)>
+    explicit Vec2(const U& v) : x(static_cast<T>(v.x)), y(static_cast<T>(v.y)) {}
+
+    // Convert to any type constructible from (x, y)
+    template<typename U, typename = decltype(U(std::declval<T>(), std::declval<T>()))>
+    explicit operator U() const { return U(static_cast<decltype(U::x)>(x), static_cast<decltype(U::y)>(y)); }
+
     // Basic vector math (Operator Overloading)
     Vec2 operator+(const Vec2& other) const { return { x + other.x, y + other.y }; }
     Vec2 operator-(const Vec2& other) const { return { x - other.x, y - other.y }; }

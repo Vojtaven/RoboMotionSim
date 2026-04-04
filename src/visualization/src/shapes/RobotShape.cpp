@@ -127,7 +127,7 @@ void RobotShape::draw(sf::RenderTarget& target, sf::RenderStates states) const {
 }
 
 void RobotShape::update(const RobotState& state) {
-	setPosition(ToSFMLVector2f(state.position));
+	setPosition(static_cast<sf::Vector2f>(state.position));
 	setRotation(ToSFMLAngle(state.chassisAngle));
 	_frontVector->setRotation(static_cast<float>(state.frontAngle));
 
@@ -152,7 +152,7 @@ void RobotShape::updateDirectionVectors(const RobotState& state) {
 		// Add new direction vectors
 		for (const auto& dirVec : state.directionVectors) {
 			auto pointVec = std::make_unique<PointVector>(
-				ToSFMLVector2f(dirVec.position),
+				static_cast<sf::Vector2f>(dirVec.position),
 				dirVec.angle,
 				dirVec.length,
 				Colors::DirectionVector,
@@ -167,7 +167,7 @@ void RobotShape::updateDirectionVectors(const RobotState& state) {
 		// Update existing direction vectors
 		for (size_t i = 0; i < state.directionVectors.size(); ++i) {
 			const auto& dirVec = state.directionVectors[i];
-			_directionVectors[i]->setPosition(ToSFMLVector2f(dirVec.position));
+			_directionVectors[i]->setPosition(static_cast<sf::Vector2f>(dirVec.position));
 			_directionVectors[i]->setRotation(dirVec.angle);
 			_directionVectors[i]->setLength(dirVec.length);
 		}

@@ -71,7 +71,7 @@ public:
 
         if (offScreen) {
             // We will put of screen windows in center of main screen
-			Vec2i screenSize = FromSFMLVector(sf::VideoMode::getDesktopMode().size);
+			Vec2i screenSize = static_cast<Vec2i>(sf::VideoMode::getDesktopMode().size);
 
             config.position = {
                 (screenSize.x - config.size.x) / 2,
