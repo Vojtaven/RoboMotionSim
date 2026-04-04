@@ -1,5 +1,6 @@
 #include "windows/SettingsWindowBase.hpp"
 #include <imgui.h>
+#include <imgui_internal.h>
 #include <imgui-SFML.h>
 #include <cstdint>
 #include "SFMLHelper.hpp"
@@ -22,6 +23,7 @@ void SettingsWindowBase::openWindow(const char* title) {
 	}
 
 	_pendingClose = false;
+	sanitizeWindowConfig();
 
 	_window = std::make_unique<sf::RenderWindow>(
 		sf::VideoMode({ (uint32_t)_windowConfig.size.x, (uint32_t)_windowConfig.size.y }),
@@ -38,6 +40,8 @@ void SettingsWindowBase::openWindow(const char* title) {
 	ImGuiIO& io = ImGui::GetIO();
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 	io.IniFilename = nullptr;
+	ImGui::GetCurrentContext()->ConfigNavWindowingKeyNext = 0;
+	ImGui::GetCurrentContext()->ConfigNavWindowingKeyPrev = 0;
 	WindowHelper::SetScaledFont(io, DEFAULT_FONT_DATA, DEFAULT_FONT_DATA_SIZE, _windowConfig.defaultFontSize);
 	_windowConfig.open = true;
 	_isOpen = true;
@@ -84,6 +88,10 @@ void SettingsWindowBase::firstTimeSetup(Vec2i defaultSize) {
 	_windowConfig.resizable = true;
 	_windowConfig.open = false;
 	_windowConfig.wasOpenedBefore = true;
+}
+
+void SettingsWindowBase::sanitizeWindowConfig() {
+	WindowHelper::sanitizeWindowConfig(_windowConfig, 200, 150);
 }
 
 bool SettingsWindowBase::processEvents() {

@@ -25,6 +25,7 @@ public:
 	void showErrorMessage(const std::string& message);
 private:
 	void saveWindowConfig(WindowConfig& config) const;
+	void sanitizeWindowConfig();
 	void renderImGuiMenu();
 	void renderErrorMessages();
 	void initImGui();

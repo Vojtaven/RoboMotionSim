@@ -3,6 +3,7 @@
 #include "SFMLHelper.hpp"
 #include <imgui.h>
 #include <imgui-SFML.h>
+#include <imgui_internal.h>
 #include "embeddedFont.h"
 #include "embeddedIcon.h"
 #include "windows/WindowHelper.hpp"
@@ -18,6 +19,8 @@ MainWindow::MainWindow(AppConfig& config, ConfigSection<RobotConfig>& robotConfi
 
 void MainWindow::open(const RobotConfig& robotConfig)
 {
+	sanitizeWindowConfig();
+
 	_window = std::make_unique<sf::RenderWindow>(
 		sf::VideoMode(ToSFMLVector2u(_windowConfig.size)),
 		_appConfig.appName,
@@ -203,6 +206,8 @@ void MainWindow::initImGui() {
 
 	ImGuiIO& io = ImGui::GetIO();
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+	ImGui::GetCurrentContext()->ConfigNavWindowingKeyNext = 0;                                                                  
+	ImGui::GetCurrentContext()->ConfigNavWindowingKeyPrev = 0;
 	io.IniFilename = nullptr; // Disable automatic .ini saving/loading
 	WindowHelper::SetScaledFont(io, DEFAULT_FONT_DATA, DEFAULT_FONT_DATA_SIZE, _windowConfig.defaultFontSize);
 	// Configure ImGui style
@@ -237,6 +242,10 @@ void MainWindow::saveWindowConfig(WindowConfig& config) const {
 	config.size = FromSFMLVector(_window->getSize());
 	config.open = true;
 	config.resizable = true;
+}
+
+void MainWindow::sanitizeWindowConfig() {
+	WindowHelper::sanitizeWindowConfig(_windowConfig, 400, 300);
 }
 
 void MainWindow::update(const float dt, const RobotState& robotState, const std::chrono::system_clock::time_point& timeStamp) {

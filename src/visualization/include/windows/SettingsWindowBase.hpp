@@ -19,6 +19,7 @@ protected:
 	void closeWindow(bool closeFromRoot = false);
 	void saveWindowConfig();
 	void firstTimeSetup(Vec2i defaultSize);
+	void sanitizeWindowConfig();
 
 	// Common event processing: polls events, processes ImGui events, detects close.
 	// Returns false if the window was closed (caller should return early).
