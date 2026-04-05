@@ -75,7 +75,6 @@ void Grid::addGridLines(const sf::Color& color, const float spacing) {
 void Grid::addGridText(unsigned int textSize) {
 	_text.clear();
 	TextLabelFactory factory(*_font, textSize, _gridColor, Colors::GridTextBackground);
-	//sf::Color(0, 0, 0, 100)
 	for (float x = _startPos.x; x <= _bounds.right; x += _spacing)
 	{
 		_text.push_back(factory.createNumberLabel(x, AnchorPoint::TopCenter));

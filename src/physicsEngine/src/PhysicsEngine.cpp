@@ -82,7 +82,7 @@ void PhysicsEngine::toWheelSpeed(RobotState& state, const RobotConfig& config) {
 		}
 		else {
 			state.wheels[i].speed = v_long + v_tran * std::tan(wheel.roller_angle);
-			state.wheels[i].rollerSpeed = (driveType == RobotDriveType::DIFFERENTIAL) ? 0 : v_tran / cos_roller;
+			state.wheels[i].rollerSpeed = v_tran / cos_roller;
 		}
 
 		i++;

@@ -144,7 +144,6 @@ void MainWindow::renderImGuiMenu() {
 		auto ms = duration_cast<milliseconds>(_timeStamp - sec).count();
 		std::string timeStr = std::format("{:%H:%M:%S}", sec);
 
-		ImGui::SetNextWindowSize(ImVec2(160, 30), ImGuiCond_Always);
 		ImGui::SetNextWindowPos(ImVec2(padding, padding), ImGuiCond_Always);
 		ImGui::SetNextWindowBgAlpha(0.6f);
 		ImGui::Begin("##Timestamp", nullptr,

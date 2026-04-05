@@ -7,7 +7,7 @@
 #include <cstdint>
 
 // Here to discard configs with old version
-#define CONFIG_VERSION "0.7.0"
+#define CONFIG_VERSION "0.7.1"
 enum class InputType {
 	Keyboard = 0,
 	Controller = 1,
@@ -34,7 +34,7 @@ struct TrailSettings {
 struct GridSettings {
 	int spacing = 50;
 	int wantedGridSpacing = 200; // Used for auto spacing, the grid will try to keep the spacing close to this value
-	unsigned int defaultGridFontSize = 30;
+	unsigned int defaultGridFontSize = 32;
 	bool autoSpacing = true;
 	std::array<float, 4> color = { 80.0f / 255.0f, 80.0f / 255.0f, 80.0f / 255.0f, 1 };
 	int subdivisionsCount = 0;

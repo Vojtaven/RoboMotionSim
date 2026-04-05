@@ -27,6 +27,7 @@ void ConfigManager::loadDefaultConfigs(const Vec2i screenSize) {
         }
     }
     catch (const std::exception&) { // config missing or outdated — reset to defaults
+		_appConfig = AppConfig(); // Reset to default values
 		_appConfig.configVersion = CONFIG_VERSION;
 		_appConfig.appName = APP_NAME;
 		_appConfig.mainWindow.position = { screenSize.x / 4, screenSize.y / 4 };
