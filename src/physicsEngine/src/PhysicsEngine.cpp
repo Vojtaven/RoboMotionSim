@@ -49,7 +49,7 @@ void PhysicsEngine::toGlobalFrame(RobotState& state) {
 	state.globalVelocity = state.localVelocity.rotated(state.frontAngle + state.chassisAngle);
 }
 
-// Forward kinematics: robot velocity + angular velocity -> individual wheel speeds
+// Inverse kinematics: robot velocity + angular velocity -> individual wheel speeds
 void PhysicsEngine::toWheelSpeed(RobotState& state, const RobotConfig& config) {
 	const auto wheels = config.getRobotWheels();
 	const RobotDriveType driveType = config.getRobotDriveType();
@@ -139,7 +139,7 @@ void PhysicsEngine::updateDirectionVectors(RobotState& state) {
 	}
 }
 
-// Inverse kinematics: wheel speeds -> robot velocity via least-squares (J^T*J * x = J^T*b)
+// Forward kinematics: wheel speeds -> robot velocity via least-squares (J^T*J * x = J^T*b)
 void PhysicsEngine::calculateLocalVelocityFromWheelSpeed(RobotState& state, const RobotConfig& config) {
 	const auto wheels = config.getRobotWheels();
 
