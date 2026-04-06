@@ -25,7 +25,7 @@ RobotStatLogger::~RobotStatLogger() {
 }
 void RobotStatLogger::writeHeader(int wheelCount)
 {
-    _logFile << "time,pos_x,pos_y,chassis_angle,vel_x,vel_y,angular_vel,distance_x,distance_y";
+    _logFile << "time,pos_x,pos_y,chassis_angle,glob_vel_x,glob_vel_y,loc_vel_x,loc_vel_y,angular_vel,distance_x,distance_y";
 
     for (int i = 0; i < wheelCount; i++)
     {
@@ -62,6 +62,8 @@ void RobotStatLogger::logStats(
         << robotState.chassisAngle << ","
         << robotState.globalVelocity.x << ","
         << robotState.globalVelocity.y << ","
+        << robotState.localVelocity.x << ","
+        << robotState.localVelocity.y << ","
         << robotState.angularVelocity << ","
         << robotState.distanceTraveled.x << ","
 		<< robotState.distanceTraveled.y;

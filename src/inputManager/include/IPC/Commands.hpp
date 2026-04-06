@@ -2,6 +2,7 @@
 #define COMMANDS_HPP
 
 #include <cstdint>
+#include <cmath>
 #include "CommandParameters.hpp"
 #include "Protocol.hpp"
 #include "RobotState.hpp"
@@ -37,8 +38,9 @@ protected:
 	Vec2f _speed; // mm/s
 	float _rotationSpeed; // rad/s
 	float _frontRotationSpeed; // rad/s
+	bool _chassisFrameVelocity = false; // when true, _speed is in chassis frame and gets converted to front frame each tick
 public:
-	RawMoveCommand(Vec2f speed, float rotationSpeed, float frontRotationSpeed);
+	RawMoveCommand(Vec2f speed, float rotationSpeed, float frontRotationSpeed, bool chassisFrameVelocity = false);
 	void execute(RobotState& state);
 	virtual ~RawMoveCommand() = default;
 };
@@ -74,9 +76,9 @@ public:
 class MoveByTimeRaw : public TimeCommand, public RawMoveCommand
 {
 public:
-	MoveByTimeRaw(uint32_t id, MoveByTimeRawParams params) :
+	MoveByTimeRaw(uint32_t id, MoveByTimeRawParams params, bool chassisFrameVelocity = false) :
 		TimeCommand(id, params.time_s),
-		RawMoveCommand({ params.x_speed, params.y_speed }, params.rotation_speed, params.front_rotation_speed) {
+		RawMoveCommand({ params.x_speed, params.y_speed }, params.rotation_speed, params.front_rotation_speed, chassisFrameVelocity) {
 	}
 	void execute(RobotState& state) override { RawMoveCommand::execute(state); }
 	static std::unique_ptr<Command> create(uint32_t id, const uint8_t* data, size_t size);
@@ -114,9 +116,9 @@ public:
 class MoveByDistanceRaw : public DistanceCommand, public RawMoveCommand
 {
 public:
-	MoveByDistanceRaw(uint32_t id, MoveByDistanceRawParams params) :
+	MoveByDistanceRaw(uint32_t id, MoveByDistanceRawParams params, bool chassisFrameVelocity = false) :
 		DistanceCommand(id, params.distance_mm),
-		RawMoveCommand({ params.x_speed, params.y_speed }, params.rotation_speed, params.front_rotation_speed) {
+		RawMoveCommand({ params.x_speed, params.y_speed }, params.rotation_speed, params.front_rotation_speed, chassisFrameVelocity) {
 	}
 	void execute(RobotState& state) override { RawMoveCommand::execute(state); }
 	static std::unique_ptr<Command> create(uint32_t id, const uint8_t* data, size_t size);
@@ -155,9 +157,9 @@ public:
 class MoveAtSpeedRaw : public SpeedCommand, public RawMoveCommand
 {
 public:
-	MoveAtSpeedRaw(uint32_t id, MoveAtSpeedRawParams params) :
+	MoveAtSpeedRaw(uint32_t id, MoveAtSpeedRawParams params, bool chassisFrameVelocity = false) :
 		SpeedCommand(id),
-		RawMoveCommand({ params.x_speed, params.y_speed }, params.rotation_speed, params.front_rotation_speed) {
+		RawMoveCommand({ params.x_speed, params.y_speed }, params.rotation_speed, params.front_rotation_speed, chassisFrameVelocity) {
 	}
 	void execute(RobotState& state) override { RawMoveCommand::execute(state); }
 	static std::unique_ptr<Command> create(uint32_t id, const uint8_t* data, size_t size);
@@ -205,9 +207,11 @@ public:
 class MoveByAngleRaw : public AngleCommand, public RawMoveCommand
 {
 public:
-	MoveByAngleRaw(uint32_t id, MoveByAngleRawParams params) :
-		AngleCommand(id, params.angle_rad),
-		RawMoveCommand({ params.x_speed, params.y_speed }, params.rotation_speed, params.front_rotation_speed) {
+	MoveByAngleRaw(uint32_t id, MoveByAngleRawParams params, bool chassisFrameVelocity = false) :
+		AngleCommand(id, std::abs(params.angle_rad)),
+		RawMoveCommand({ params.x_speed, params.y_speed },
+			params.angle_rad < 0 ? -std::abs(params.rotation_speed) : std::abs(params.rotation_speed),
+			params.front_rotation_speed, chassisFrameVelocity) {
 	}
 public:
 	void execute(RobotState& state) override { RawMoveCommand::execute(state); }

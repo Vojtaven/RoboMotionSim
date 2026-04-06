@@ -1,5 +1,6 @@
 #include "IPC/Commands.hpp"
 #include "IPC/CommandParameters.hpp"
+#include <cmath>
 #include <unordered_map>
 #include <functional>
 #include <memory>
@@ -49,13 +50,20 @@ std::unique_ptr<Command> Command::create(uint32_t id, CommandType type, const ui
 // RAW COMMANDS
 // ================================================
 
-RawMoveCommand::RawMoveCommand(Vec2f speed, float rotationSpeed, float frontRotationSpeed) :
+RawMoveCommand::RawMoveCommand(Vec2f speed, float rotationSpeed, float frontRotationSpeed, bool chassisFrameVelocity) :
 	_speed(speed),
 	_rotationSpeed(rotationSpeed),
-	_frontRotationSpeed(frontRotationSpeed) {
+	_frontRotationSpeed(frontRotationSpeed),
+	_chassisFrameVelocity(chassisFrameVelocity) {
 }
 void RawMoveCommand::execute(RobotState& state) {
-	state.localVelocity = { static_cast<double>(_speed.x), static_cast<double>(_speed.y) };
+	Vec2d vel = { static_cast<double>(_speed.x), static_cast<double>(_speed.y) };
+	if (_chassisFrameVelocity) {
+		// Velocity was computed in chassis frame (e.g. pivot transform).
+		// Convert to front frame so the physics engine handles it correctly.
+		vel = vel.rotatedInverse(state.frontAngle);
+	}
+	state.localVelocity = vel;
 	state.angularVelocity = _rotationSpeed;
 	state.frontAngularVelocity = _frontRotationSpeed;
 }
@@ -110,7 +118,7 @@ std::unique_ptr<Command> RunMotorForDistance::create(uint32_t id, const uint8_t*
 
 void RunMotorForDistance::validate(int wheelCount) const { validateMotorId(motor_id, wheelCount); }
 bool RunMotorForDistance::updateAndCheckCompletion(const RobotState& state, const double dt) {
-	_distanceRemaining -= state.wheels[motor_id].lastDistanceDisplacement;
+	_distanceRemaining -= std::abs(state.wheels[motor_id].lastDistanceDisplacement);
 	return isMoveCompleted();
 }
 
@@ -164,7 +172,7 @@ std::unique_ptr<Command>  MoveByAngleRaw::create(uint32_t id, const uint8_t* dat
 }
 
 bool AngleCommand::updateAndCheckCompletion(const RobotState& state, const double dt) {
-	_targetAngle -= state.lastFrontDisplacement + state.lastChassisDisplacement;
+	_targetAngle -= std::abs(state.lastChassisDisplacement);
 	return this->isMoveCompleted();
 }
 
@@ -222,21 +230,21 @@ std::unique_ptr<MoveByDistanceRaw> CommandFactory::createMoveByDistance(uint32_t
 	auto params = CommandParameters::parseParams<MoveByDistanceParams>(data, size);
 	auto raw = applyPivotTransform<MoveByDistanceRawParams>(params);
 	raw.distance_mm = params.distance_mm;
-	return std::make_unique<MoveByDistanceRaw>(id, raw);
+	return std::make_unique<MoveByDistanceRaw>(id, raw, true);
 }
 std::unique_ptr<MoveByTimeRaw> CommandFactory::createMoveByTime(uint32_t id, const uint8_t* data, size_t size) {
 	auto params = CommandParameters::parseParams<MoveByTimeParams>(data, size);
 	auto raw = applyPivotTransform<MoveByTimeRawParams>(params);
 	raw.time_s = params.time_s;
-	return std::make_unique<MoveByTimeRaw>(id, raw);
+	return std::make_unique<MoveByTimeRaw>(id, raw, true);
 }
 std::unique_ptr<MoveAtSpeedRaw> CommandFactory::createMoveAtSpeed(uint32_t id, const uint8_t* data, size_t size) {
 	auto params = CommandParameters::parseParams<MoveAtSpeedParams>(data, size);
-	return std::make_unique<MoveAtSpeedRaw>(id, applyPivotTransform<MoveAtSpeedRawParams>(params));
+	return std::make_unique<MoveAtSpeedRaw>(id, applyPivotTransform<MoveAtSpeedRawParams>(params), true);
 }
 std::unique_ptr<MoveByAngleRaw> CommandFactory::createTurnRelative(uint32_t id, const uint8_t* data, size_t size) {
 	auto params = CommandParameters::parseParams<MoveByAngleParams>(data, size);
 	auto raw = applyPivotTransform<MoveByAngleRawParams>(params);
 	raw.angle_rad = params.angle_rad;
-	return std::make_unique<MoveByAngleRaw>(id, raw);
+	return std::make_unique<MoveByAngleRaw>(id, raw, true);
 }

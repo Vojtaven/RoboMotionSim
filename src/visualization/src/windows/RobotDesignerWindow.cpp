@@ -71,13 +71,12 @@ RobotConfig RobotDesignerWindow::buildRobotConfig() const {
 	switch ((RobotDriveType)_driveTypeIndex) {
 	case RobotDriveType::DIFFERENTIAL:	rollerAngle = 0.0f;						break;
 	case RobotDriveType::OMNI_WHEEL:	rollerAngle = static_cast<float>(DegreesToRadians(90.0));	break;
-	case RobotDriveType::MECANUM:		rollerAngle = static_cast<float>(DegreesToRadians(45.0));	break;
 	default:							rollerAngle = 0.0f;						break;
 	}
 
 	for (auto& axel : _axles) {
 		RobotParts::DriveAxle_t copy = axel;
-		if ((RobotDriveType)_driveTypeIndex != RobotDriveType::CUSTOM)
+		if ((RobotDriveType)_driveTypeIndex != RobotDriveType::CUSTOM && (RobotDriveType)_driveTypeIndex != RobotDriveType::MECANUM)
 			copy.wheel.roller_angle = rollerAngle;
 		config.addAxle(copy);
 	}
@@ -200,7 +199,7 @@ void RobotDesignerWindow::renderContent() {
 	ImGui::Spacing();
 
 	for (int i = 0; i < (int)_axles.size(); i++) {
-		renderAxleEditor(i, _driveTypeIndex == (int)RobotDriveType::CUSTOM);
+		renderAxleEditor(i, _driveTypeIndex == (int)RobotDriveType::CUSTOM || _driveTypeIndex == (int)RobotDriveType::MECANUM);
 		if (i < (int)_axles.size() - 1) {
 			ImGui::Separator();
 		}
