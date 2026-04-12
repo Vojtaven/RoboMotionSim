@@ -1,3 +1,7 @@
+// Author: Vojtech Venzara
+// Date: 2026-04-05
+// Description: Background grid visualization component providing visual reference frame for the simulation workspace
+
 #include "rendering/Grid.hpp"
 #include "SFMLHelper.hpp"
 #include "windows/WindowHelper.hpp"

@@ -1,3 +1,8 @@
+// Author: Vojtech Venzara
+// Date: 2026-04-02
+// Description: Settings window for controlling visualization options including rendering quality and
+//              visual element toggles
+
 #include "windows/RenderSettingsWindow.hpp"
 #include <imgui.h>
 #include <imgui-SFML.h>

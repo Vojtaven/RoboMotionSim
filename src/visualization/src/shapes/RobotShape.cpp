@@ -1,3 +1,7 @@
+// Author: Vojtech Venzara
+// Date: 2026-04-04
+// Description: Visual representation of the robot body, wheels, and orientation indicators
+
 #include "shapes/RobotShape.hpp"
 #include <format>
 #include "shapes/PointVector.hpp"

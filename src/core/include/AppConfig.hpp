@@ -1,3 +1,8 @@
+// Author: Vojtech Venzara
+// Date: 2026-04-05
+// Description: Data structure defining global application-level configuration settings used
+//              throughout the simulation
+
 #ifndef APP_CONFIG_HPP
 #define APP_CONFIG_HPP
 #include "MathUtils.hpp"

@@ -1,3 +1,7 @@
+// Author: Vojtech Venzara
+// Date: 2026-04-03
+// Description: Inter-process communication input handler for receiving commands from external applications
+
 #include "IPC/IPCInput.hpp"
 #include "IPC/CommandParameters.hpp"
 #include <zmq.hpp>

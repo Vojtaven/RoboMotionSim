@@ -1,3 +1,7 @@
+// Author: Vojtech Venzara
+// Date: 2026-03-24
+// Description: Background grid visualization component providing visual reference frame for the simulation workspace
+
 #ifndef GRID_HPP
 #define GRID_HPP
 

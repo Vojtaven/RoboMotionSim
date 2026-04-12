@@ -1,3 +1,7 @@
+// Author: Vojtech Venzara
+// Date: 2026-04-02
+// Description: Central configuration management system handling loading, storage and disctribution of configs
+
 #ifndef CONFIG_MANAGER_HPP
 #define CONFIG_MANAGER_HPP
 

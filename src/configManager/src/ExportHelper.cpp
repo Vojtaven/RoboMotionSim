@@ -1,3 +1,7 @@
+// Author: Vojtech Venzara
+// Date: 2026-03-24
+// Description: Utility module for exporting current robot configuration and app configuration to files
+
 #include "ExportHelper.hpp"
 #include <format>
 #include <fstream>

@@ -1,3 +1,7 @@
+// Author: Vojtech Venzara
+// Date: 2026-04-02
+// Description: UI window for creating and modifying robot designs with interactive parameter adjustment
+
 #ifndef ROBOT_DESIGNER_WINDOW_HPP
 #define ROBOT_DESIGNER_WINDOW_HPP
 

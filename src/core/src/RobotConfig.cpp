@@ -1,3 +1,8 @@
+// Author: Vojtech Venzara
+// Date: 2026-04-02
+// Description: Data structure containing all robot-specific configuration parameters including wheel
+//              layout, dynamics, and constraints
+
 #include "RobotConfig.hpp"
 
 #include <cmath>

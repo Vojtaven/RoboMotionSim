@@ -1,3 +1,8 @@
+// Author: Vojtech Venzara
+// Date: 2026-04-12
+// Description: Physics simulation engine calculating robot kinematics, wheel dynamics, velocity,
+//              position updates, and movement constraints
+
 #include "PhysicsEngine.hpp"
 #include "RobotState.hpp"
 #include "RobotConfig.hpp"

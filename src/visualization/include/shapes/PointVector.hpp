@@ -1,3 +1,7 @@
+// Author: Vojtech Venzara
+// Date: 2026-02-18
+// Description: Point and vector rendering utility for displaying position vectors and directional information
+
 #ifndef POINT_VECTOR_HPP
 #define POINT_VECTOR_HPP
 #include "Arrow.hpp"

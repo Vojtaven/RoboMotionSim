@@ -1,3 +1,7 @@
+// Author: Vojtech Venzara
+// Date: 2026-03-24
+// Description: General utility functions and helper methods used across the configuration system for common operations
+
 #ifndef UTILS_HPP
 #define UTILS_HPP
 

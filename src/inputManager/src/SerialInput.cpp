@@ -1,3 +1,7 @@
+// Author: Vojtech Venzara
+// Date: 2026-04-02
+// Description: Input handler for serial port communication, allowing external devices to control the robot
+
 #include "SerialInput.hpp"
 #include <cstring>
 

@@ -1,3 +1,7 @@
+// Author: Vojtech Venzara
+// Date: 2026-03-29
+// Description: Text rendering system providing font management and dynamic text display in the visualization
+
 #include "rendering/Text.hpp"
 #include <SFML/Graphics.hpp>
 #include <cmath>

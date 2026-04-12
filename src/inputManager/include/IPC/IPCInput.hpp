@@ -1,3 +1,7 @@
+// Author: Vojtech Venzara
+// Date: 2026-04-03
+// Description: Inter-process communication input handler for receiving commands from external applications
+
 #ifndef IPC_INPUT_HPP
 #define IPC_INPUT_HPP
 #include "AppConfig.hpp"

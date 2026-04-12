@@ -1,3 +1,7 @@
+// Author: Vojtech Venzara
+// Date: 2026-04-06
+// Description: Logging system for recording robot state samples over time for analysis and debugging
+
 #include "RobotStatLogger.hpp"
 #include <fstream>
 #include <filesystem>

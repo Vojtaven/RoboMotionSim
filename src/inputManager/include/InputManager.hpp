@@ -1,3 +1,7 @@
+// Author: Vojtech Venzara
+// Date: 2026-04-02
+// Description: Central input handling system that aggregates inputs from keyboard, joystick, serial and IPC sources
+
 #ifndef INPUT_MANAGER_HPP
 #define INPUT_MANAGER_HPP
 #include "AppConfig.hpp"

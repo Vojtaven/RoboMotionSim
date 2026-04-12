@@ -1,3 +1,8 @@
+// Author: Vojtech Venzara
+// Date: 2026-03-19
+// Description: Program entry point that initializes the NFD framework, creates the application
+//              engine, and handles graceful shutdown and error management
+
 #include "AppEngine.hpp"
 #include <iostream>
 #include <nfd.hpp>

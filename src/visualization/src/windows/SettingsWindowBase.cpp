@@ -1,3 +1,7 @@
+// Author: Vojtech Venzara
+// Date: 2026-04-04
+// Description: Abstract base class providing common functionality for all settings windows
+
 #include "windows/SettingsWindowBase.hpp"
 #include <imgui.h>
 #include <imgui_internal.h>

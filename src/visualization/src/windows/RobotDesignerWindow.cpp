@@ -1,11 +1,11 @@
+// Author: Vojtech Venzara
+// Date: 2026-04-12
+// Description: UI window for creating and modifying robot designs with interactive parameter adjustment
+
 #include "windows/RobotDesignerWindow.hpp"
 #include <imgui.h>
 #include <imgui-SFML.h>
-#include <cstdint>
 #include <sstream>
-#include "SFMLHelper.hpp"
-#include "embeddedFont.h"
-#include "windows/WindowHelper.hpp"
 #include "ColorConstants.hpp"
 #include "MathUtils.hpp"
 #include "ExportHelper.hpp"

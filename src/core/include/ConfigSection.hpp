@@ -1,3 +1,8 @@
+// Author: Vojtech Venzara
+// Date: 2026-04-02
+// Description: Generic configuration section container providing subscription-based change
+//              notifications for reactive updates
+
 #ifndef CONFIG_SECTION_HPP
 #define CONFIG_SECTION_HPP
 

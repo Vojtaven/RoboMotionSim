@@ -1,3 +1,7 @@
+// Author: Vojtech Venzara
+// Date: 2026-04-12
+// Description: Centralized color palette definition used consistently throughout the visualization system
+
 #pragma once
 
 #include <imgui.h>

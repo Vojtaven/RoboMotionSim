@@ -1,3 +1,8 @@
+// Author: Vojtech Venzara
+// Date: 2026-04-02
+// Description: Utility module for importing and validating robot configuration from external files
+//              with error handling
+
 #include "ImportHelper.hpp"
 #include "RobotConfig.hpp"
 #include "ConfigJsonSerialization.hpp"

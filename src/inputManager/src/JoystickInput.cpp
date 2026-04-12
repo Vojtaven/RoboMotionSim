@@ -1,3 +1,7 @@
+// Author: Vojtech Venzara
+// Date: 2026-04-02
+// Description: Input handler for gamepad/joystick input with support for multiple axes and button mapping
+
 #include "JoystickInput.hpp"
 #include "RobotState.hpp"
 #include <SFML/Window/Joystick.hpp>

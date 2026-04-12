@@ -1,3 +1,8 @@
+// Author: Vojtech Venzara
+// Date: 2026-04-12
+// Description: Specialized visualization component displaying individual wheel velocities and
+//              direction vectors
+
 #include "shapes/WheelVectors.hpp"
 #include "RobotState.hpp"
 #include "MathUtils.hpp"

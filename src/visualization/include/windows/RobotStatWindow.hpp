@@ -1,3 +1,7 @@
+// Author: Vojtech Venzara
+// Date: 2026-03-21
+// Description: Statistics and telemetry display window showing real-time robot state data and performance metrics
+
 #ifndef ROBOT_STAT_WINDOW_HPP
 #define ROBOT_STAT_WINDOW_HPP
 

@@ -6,6 +6,15 @@ set(APP_VERSION "0.6.0")
 
 project(${APP_NAME} VERSION ${APP_VERSION} LANGUAGES CXX)
 
+# Configure git hooks path so pre-commit hook runs from the tracked git-hooks/ directory
+find_package(Git QUIET)
+if(GIT_FOUND AND EXISTS "${CMAKE_SOURCE_DIR}/.git")
+    execute_process(
+        COMMAND ${GIT_EXECUTABLE} config core.hooksPath git-hooks
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    )
+endif()
+
 # Set startup project for Visual Studio
 if(MSVC)
     set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${APP_NAME})

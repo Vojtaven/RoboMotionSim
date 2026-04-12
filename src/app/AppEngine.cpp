@@ -1,3 +1,8 @@
+// Author: Vojtech Venzara
+// Date: 2026-04-02
+// Description: Main application orchestrator that coordinates initialization and execution of all
+//              simulation subsystems including physics, visualization, input, and configuration management
+
 #include "AppEngine.hpp"
 
 #include <chrono>

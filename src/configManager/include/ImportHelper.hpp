@@ -1,3 +1,8 @@
+// Author: Vojtech Venzara
+// Date: 2026-03-18
+// Description: Utility module for importing and validating robot configuration from external files
+//              with error handling
+
 #ifndef IMPORT_HELPER_HPP
 #define IMPORT_HELPER_HPP
 #include <string>

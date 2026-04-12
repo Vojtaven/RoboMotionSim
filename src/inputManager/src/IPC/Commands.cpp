@@ -1,3 +1,7 @@
+// Author: Vojtech Venzara
+// Date: 2026-04-06
+// Description: Definition of IPC command types and structures used for inter-process communication
+
 #include "IPC/Commands.hpp"
 #include "IPC/CommandParameters.hpp"
 #include <cmath>

@@ -1,3 +1,8 @@
+// Author: Vojtech Venzara
+// Date: 2026-04-04
+// Description: Primary application window containing the main render view and coordinating all
+//              visualization components
+
 #ifndef MAIN_WINDOW_HPP
 #define MAIN_WINDOW_HPP
 

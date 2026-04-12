@@ -1,3 +1,8 @@
+// Author: Vojtech Venzara
+// Date: 2026-04-02
+// Description: High-level rendering orchestrator managing windows, scenes, input display, and
+//              integration with the SFML rendering pipeline
+
 #ifndef ROBOT_VISUALIZATION_HPP
 #define ROBOT_VISUALIZATION_HPP
 

@@ -1,3 +1,8 @@
+// Author: Vojtech Venzara
+// Date: 2026-03-25
+// Description: Vector visualization component using arrows to represent forces, velocities, and
+//              other vector quantities
+
 #ifndef ARROW_HPP
 #define ARROW_HPP
 #include <SFML/Graphics.hpp>

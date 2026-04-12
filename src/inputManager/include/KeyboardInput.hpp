@@ -1,3 +1,7 @@
+// Author: Vojtech Venzara
+// Date: 2026-04-02
+// Description: Input handler for capturing keyboard events and converting them to robot control commands
+
 #ifndef KEYBOARD_INPUT_HPP
 #define KEYBOARD_INPUT_HPP
 #include "AppConfig.hpp"

@@ -1,3 +1,7 @@
+// Author: Vojtech Venzara
+// Date: 2026-03-12
+// Description: IPC protocol specification defining message formats and communication handshake procedures
+
 #ifndef PROTOCOL_HPP
 #define PROTOCOL_HPP
 #include <cstdint>

@@ -1,3 +1,7 @@
+// Author: Vojtech Venzara
+// Date: 2026-04-04
+// Description: Low-level rendering engine responsible for drawing shapes, text, and visual elements to the window
+
 #include "rendering/RenderEngine.hpp"
 #include <cmath>
 #include "AppConfig.hpp"

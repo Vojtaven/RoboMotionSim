@@ -1,3 +1,8 @@
+// Author: Vojtech Venzara
+// Date: 2026-04-12
+// Description: Data structure containing all robot-specific configuration parameters including wheel
+//              layout, dynamics, and constraints
+
 #ifndef ROBO_CONFIG_H
 #define ROBO_CONFIG_H
 

@@ -1,3 +1,7 @@
+// Author: Vojtech Venzara
+// Date: 2026-04-02
+// Description: Low-level rendering engine responsible for drawing shapes, text, and visual elements
+
 #ifndef RENDER_ENGINE_HPP
 #define RENDER_ENGINE_HPP
 #include <SFML/Graphics.hpp>

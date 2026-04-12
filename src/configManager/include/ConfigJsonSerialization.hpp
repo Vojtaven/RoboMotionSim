@@ -1,3 +1,8 @@
+// Author: Vojtech Venzara
+// Date: 2026-04-02
+// Description: JSON serialization and deserialization module for converting configuration objects
+//              to/from JSON format for persistent storage
+
 #ifndef CONFIG_JSON_SERIALIZATION_HPP
 #define CONFIG_JSON_SERIALIZATION_HPP
 #include "AppConfig.hpp"

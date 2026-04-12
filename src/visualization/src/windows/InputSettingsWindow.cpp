@@ -1,3 +1,7 @@
+// Author: Vojtech Venzara
+// Date: 2026-04-02
+// Description: Configuration window for input device selection and input sensitivity/mapping adjustments
+
 #include "windows/InputSettingsWindow.hpp"
 #include <imgui.h>
 #include <imgui-SFML.h>

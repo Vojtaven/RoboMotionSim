@@ -1,3 +1,8 @@
+// Author: Vojtech Venzara
+// Date: 2026-04-12
+// Description: Runtime representation of robot state including position, velocity, wheel states, and
+//              direction vectors updated each physics tick
+
 #ifndef ROBOTSTATE_HPP
 #define ROBOTSTATE_HPP
 

@@ -1,3 +1,7 @@
+// Author: Vojtech Venzara
+// Date: 2026-04-05
+// Description: Central configuration management system handling loading, storage and disctribution of configs
+
 #include "ConfigManager.hpp"
 #include "MathUtils.hpp"
 #include <filesystem>

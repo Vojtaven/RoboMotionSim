@@ -1,3 +1,7 @@
+// Author: Vojtech Venzara
+// Date: 2026-04-04
+// Description: Utility functions for window management, event handling, and UI layout operations
+
 #ifndef WINDOW_HELPER_HPP
 #define WINDOW_HELPER_HPP
 

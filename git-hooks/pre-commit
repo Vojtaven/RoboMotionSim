@@ -1,0 +1,36 @@
+#!/bin/bash
+# Pre-commit hook to update file header dates before committing
+
+update_header_date() {
+    local file="$1"
+    local today=$(date +%Y-%m-%d)
+    
+    # Check if file has a header with date
+    if head -2 "$file" | grep -q "// Date:"; then
+        # Update only the date line
+        sed -i "0,/^\/\/ Date: /s/^\/\/ Date: .*/\/\/ Date: $today/" "$file"
+        
+        # Re-stage the updated file
+        git add "$file"
+        echo "Updated date in: $file"
+    fi
+}
+
+# Get all staged files
+staged_files=$(git diff --cached --name-only --diff-filter=ACMR)
+
+# Check if there are any staged files
+if [ -z "$staged_files" ]; then
+    exit 0
+fi
+
+# Update dates for all staged C++ source files
+for file in $staged_files; do
+    if [[ "$file" =~ \.(cpp|hpp|h)$ ]] && [[ ! "$file" =~ 3rdPartyLibs ]]; then
+        if [ -f "$file" ]; then
+            update_header_date "$file"
+        fi
+    fi
+done
+
+exit 0

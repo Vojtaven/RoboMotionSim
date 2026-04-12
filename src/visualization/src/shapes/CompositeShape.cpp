@@ -1,3 +1,7 @@
+// Author: Vojtech Venzara
+// Date: 2026-03-18
+// Description: Composition container for combining multiple geometric shapes into complex visual entities
+
 #include "shapes/CompositeShape.hpp"
 
 

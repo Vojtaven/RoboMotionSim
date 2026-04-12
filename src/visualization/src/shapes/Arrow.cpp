@@ -1,3 +1,8 @@
+// Author: Vojtech Venzara
+// Date: 2026-04-02
+// Description: Vector visualization component using arrows to represent forces, velocities, and
+//              other vector quantities
+
 #include "shapes/Arrow.hpp"
 
 Arrow::Arrow(float length, sf::Color color, float thickness,sf::Vector2f headSize) {

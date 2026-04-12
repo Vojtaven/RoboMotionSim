@@ -1,3 +1,7 @@
+// Author: Vojtech Venzara
+// Date: 2026-02-28
+// Description: Text rendering system providing font management and dynamic text display in the visualization
+
 #ifndef TEXT_HPP
 #define TEXT_HPP
 

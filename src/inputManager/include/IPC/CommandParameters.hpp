@@ -1,3 +1,7 @@
+// Author: Vojtech Venzara
+// Date: 2026-03-24
+// Description: Parameter structures for various IPC commands with validation
+
 #ifndef COMMAND_ARGUMENTS_HPP
 #define COMMAND_ARGUMENTS_HPP
 

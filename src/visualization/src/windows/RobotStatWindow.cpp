@@ -1,3 +1,8 @@
+// Author: Vojtech Venzara
+// Date: 2026-04-12
+// Description: Statistics and telemetry display window showing real-time robot state data and
+//              performance metrics
+
 #include "windows/RobotStatWindow.hpp"
 #include <imgui.h>
 #include "MathUtils.hpp"

@@ -1,3 +1,8 @@
+// Author: Vojtech Venzara
+// Date: 2026-04-12
+// Description: Mathematical utility library providing Vec2 template, trigonometric constants, and
+//              vector manipulation operations
+
 #ifndef MATHUTILS_HPP
 #define MATHUTILS_HPP
 #include <cmath>

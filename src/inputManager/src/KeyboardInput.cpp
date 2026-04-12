@@ -1,3 +1,7 @@
+// Author: Vojtech Venzara
+// Date: 2026-04-02
+// Description: Input handler for capturing keyboard events and converting them to robot control commands
+
 #include "KeyboardInput.hpp"
 #include "RobotState.hpp"
 #include <SFML/Window/Keyboard.hpp>

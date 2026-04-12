@@ -1,3 +1,7 @@
+// Author: Vojtech Venzara
+// Date: 2026-04-04
+// Description: Helper functions and wrappers for SFML graphics operations to simplify common rendering tasks
+
 #ifndef SFMLHELPER_HPP
 #define SFMLHELPER_HPP
 #include <SFML/System/Angle.hpp>

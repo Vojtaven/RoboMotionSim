@@ -1,3 +1,7 @@
+// Author: Vojtech Venzara
+// Date: 2026-03-24
+// Description: Rendering component that draws the historical path trajectory of the robot during simulation
+
 #ifndef ROBOT_TRAIL_HPP
 #define ROBOT_TRAIL_HPP
 #include <SFML/Graphics.hpp>
