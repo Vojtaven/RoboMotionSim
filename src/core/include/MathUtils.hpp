@@ -3,6 +3,9 @@
 #include <cmath>
 #include <numbers>
 
+constexpr float HALF_PI_F = static_cast<float>(std::numbers::pi / 2.0);
+constexpr double HALF_PI = std::numbers::pi / 2.0;
+
 template<typename T>
 struct Vec2 {
     T x = 0;
@@ -57,11 +60,11 @@ using Vec2i = Vec2<int>;
 using Vec2f = Vec2<float>;
 using Vec2d = Vec2<double>;
 
-static inline double DegreesToRadians(double degrees) {
+static constexpr inline double DegreesToRadians(double degrees) {
     return degrees * (std::numbers::pi / 180.0);
 }
 
-static inline double RadiansToDegrees(double radians) {
+static constexpr inline double RadiansToDegrees(double radians) {
     return radians / (std::numbers::pi / 180.0);
 }
 

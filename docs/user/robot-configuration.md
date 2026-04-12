@@ -65,7 +65,7 @@ WHEEL_N = diameter, x_position, y_position, wheel_angle, roller_angle
 | `x_position`   | mm      | X offset from robot center (forward axis)               |
 | `y_position`   | mm      | Y offset from robot center (lateral axis)               |
 | `wheel_angle`  | degrees | Direction the wheel drives in (0° = forward)            |
-| `roller_angle` | degrees | Roller angle relative to wheel axis (0 for standard wheels, 90 for omni, ±45 for mecanum) |
+| `roller_angle` | degrees | Roller angle: deviation from pure omni (0 for omni, ±45 for mecanum, 90 for standard wheels) |
 
 ## Motor Parameters
 

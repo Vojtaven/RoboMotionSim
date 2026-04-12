@@ -74,14 +74,14 @@ void PhysicsEngine::toWheelSpeed(RobotState& state, const RobotConfig& config) {
 		float v_long = localVx * cos_w + localVy * sin_w;
 		float v_tran = -localVx * sin_w + localVy * cos_w;
 
-		float cos_roller = cos(wheel.roller_angle);
+		float cos_roller = std::cos(wheel.roller_angle);
 
-		if (std::abs(cos_roller) < 0.001f) { // roller at 90° — pure omni wheel
+		if (std::abs(cos_roller) < 0.001f) { // roller at 90° — standard wheel, no rollers
 			state.wheels[i].speed = v_long;
-			state.wheels[i].rollerSpeed = v_tran;
+			state.wheels[i].rollerSpeed = 0.0f;
 		}
 		else {
-			state.wheels[i].speed = v_long + v_tran * std::tan(wheel.roller_angle);
+			state.wheels[i].speed = v_long - v_tran * std::tan(wheel.roller_angle);
 			state.wheels[i].rollerSpeed = v_tran / cos_roller;
 		}
 
@@ -153,14 +153,14 @@ void PhysicsEngine::calculateLocalVelocityFromWheelSpeed(RobotState& state, cons
 		const float cos_roller = std::cos(wheel.roller_angle);
 
 		double jvx, jvy;
-		if (std::abs(cos_roller) < 0.001f) {
+		if (std::abs(cos_roller) < 0.001f) { // roller at 90° — standard wheel
 			jvx = cos_w;
 			jvy = sin_w;
 		}
 		else {
 			const double tan_r = std::tan(wheel.roller_angle);
-			jvx = cos_w - sin_w * tan_r;
-			jvy = sin_w + cos_w * tan_r;
+			jvx = cos_w + sin_w * tan_r;
+			jvy = sin_w - cos_w * tan_r;
 		}
 		const double jw = -wheel.y_position * jvx + wheel.x_position * jvy;
 		const double j[3] = { jvx, jvy, jw };

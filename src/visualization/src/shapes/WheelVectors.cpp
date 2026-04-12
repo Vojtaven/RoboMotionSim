@@ -2,6 +2,7 @@
 #include "RobotState.hpp"
 #include <cmath>
 #include <numbers>
+#include "MathUtils.hpp"
 
 WheelVectors::WheelVectors(const RobotParts::Wheel& wheel,
 	sf::Color forwardColor, sf::Color rollerColor, sf::Color directionColor,
@@ -12,11 +13,7 @@ WheelVectors::WheelVectors(const RobotParts::Wheel& wheel,
 	auto position = sf::Vector2f{ wheel.x_position, wheel.y_position };
 
 	auto fwdVec = std::make_unique<PointVector>(position, wheel.wheel_angle,0.0f, forwardColor, thickness, headSize);
-	// The physics decomposition places the roller direction at (π/2 + roller_angle) from forward,
-	// except for omni wheels (roller_angle ≈ 90°) where it uses roller_angle directly.
-	constexpr float halfPi = static_cast<float>(std::numbers::pi / 2.0);
-	const float rollerOffset = std::abs(std::cos(wheel.roller_angle)) < 0.001f ? 0.0f : halfPi;
-	auto rollVec = std::make_unique<PointVector>(position, rollerOffset + wheel.roller_angle + wheel.wheel_angle, 0.0f, rollerColor, thickness, headSize);
+	auto rollVec = std::make_unique<PointVector>(position, HALF_PI_F - wheel.roller_angle + wheel.wheel_angle, 0.0f, rollerColor, thickness, headSize);
 	auto dirVec = std::make_unique<PointVector>(position, wheel.wheel_angle, 0.0f, directionColor, thickness, headSize);
 	_forwardVector = fwdVec.get();
 	_rollerVector = rollVec.get();
@@ -61,11 +58,8 @@ void WheelVectors::draw(sf::RenderTarget& target, sf::RenderStates states) const
 
 // Combine forward and roller velocity vectors using the law of cosines / atan2
 void WheelVectors::updateDirectionVector() {
-	// The physics decomposition places the roller direction at (π/2 + roller_angle) from forward,
-	// except for omni wheels (roller_angle ≈ 90°) where it uses roller_angle directly.
 	constexpr float halfPi = static_cast<float>(std::numbers::pi / 2.0);
-	const float rollerOffset = std::abs(std::cos(_rollerAngle)) < 0.001f ? 0.0f : halfPi;
-	const float angleBetween = rollerOffset + _rollerAngle;
+	const float angleBetween = halfPi - _rollerAngle;
 
 	const float directionVectorLength = std::sqrtf(_rollerLength * _rollerLength
 		+ _forwardLength * _forwardLength

@@ -55,18 +55,13 @@ For each wheel at position `(wx, wy)` with wheel angle `θ_w` and roller angle `
    v_tran = -v_local_x · sin(θ_w) + v_local_y · cos(θ_w)
    ```
 
-4. Compute wheel and roller speeds:
-   - If `|cos(θ_r)| < 0.001` (roller perpendicular to wheel — pure omni wheel):
+4. Compute wheel and roller speeds (where `θ_r` is the roller angle: 0° = omni, ±45° = mecanum):
      ```
-     wheel_speed = v_long
-     roller_speed = v_tran
-     ```
-   - Otherwise:
-     ```
-     wheel_speed = v_long + v_tran · tan(θ_r)
+     wheel_speed = v_long − v_tran · tan(θ_r)
      roller_speed = v_tran / cos(θ_r)
      ```
-   - For differential drive, roller speed is forced to 0.
+   At `θ_r = 0` (omni): `wheel_speed = v_long`, `roller_speed = v_tran`.
+   For differential drive, roller speed is forced to 0.
 
 ## Inverse Kinematics: `calculateLocalVelocityFromWheelSpeed()`
 

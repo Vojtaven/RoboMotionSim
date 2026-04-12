@@ -69,8 +69,8 @@ RobotConfig RobotDesignerWindow::buildRobotConfig() const {
 	config.changeDriveType((RobotDriveType)_driveTypeIndex);
 	float rollerAngle;
 	switch ((RobotDriveType)_driveTypeIndex) {
-	case RobotDriveType::DIFFERENTIAL:	rollerAngle = 0.0f;						break;
-	case RobotDriveType::OMNI_WHEEL:	rollerAngle = static_cast<float>(DegreesToRadians(90.0));	break;
+	case RobotDriveType::DIFFERENTIAL:	rollerAngle = static_cast<float>(DegreesToRadians(90.0));	break;
+	case RobotDriveType::OMNI_WHEEL:	rollerAngle = 0.0f;						break;
 	default:							rollerAngle = 0.0f;						break;
 	}
 

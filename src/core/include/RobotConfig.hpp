@@ -30,7 +30,7 @@ namespace RobotParts {
 		float y_position;
 		// Angle of the wheel's driving direction relative to robot frame in radians
 		float wheel_angle;
-		// Angle of the rollers on the omni wheel in radians
+		// Roller angle: deviation from pure omni in radians (0 = omni, ±45° = mecanum, 90° = standard)
 		float roller_angle;
 	};
 
