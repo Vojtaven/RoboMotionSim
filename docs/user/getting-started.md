@@ -79,3 +79,4 @@ Open **Robot Stats** from the menu to see real-time data:
 - [Input Methods](input-methods.md) — Set up gamepad, network, or serial control.
 - [Visualization Settings](visualization-settings.md) — Customize the display.
 - [Data Logging](data-logging.md) — Record and analyze simulation data.
+- [ImGui Interface Tips](imgui-interface.md) — Tricks for sliders, rebinding, windows, and more.
