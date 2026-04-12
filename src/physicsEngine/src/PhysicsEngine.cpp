@@ -85,6 +85,10 @@ void PhysicsEngine::toWheelSpeed(RobotState& state, const RobotConfig& config) {
 			state.wheels[i].rollerSpeed = v_tran / cos_roller;
 		}
 
+		// direction vector = actual contact-point velocity relative to wheel forward
+		state.wheels[i].directionSpeed = std::hypot(localVx, localVy);
+		state.wheels[i].directionAngle = std::atan2(localVy, localVx) - wheel.wheel_angle;
+
 		i++;
 	}
 }

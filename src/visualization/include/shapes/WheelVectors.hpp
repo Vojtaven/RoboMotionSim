@@ -13,12 +13,8 @@ private:
 	bool _directionVectorVisible = true;
 	bool _rollerVectorVisible = true;
 	bool _forwardVectorVisible = true;
-	float _forwardLength = 0, _rollerLength = 0;
-	const float _rollerAngle = 0, _wheelAngle = 0;
+	const float _wheelAngle = 0;
 	sf::Color _forwardColor, _rollerColor, _directionColor;
-
-
-	void updateDirectionVector();
 public:
 	WheelVectors(const RobotParts::Wheel& wheel,
 		sf::Color forwardColor = sf::Color::White,
@@ -27,8 +23,6 @@ public:
 		float thickness = 8.f,
 		sf::Vector2f headSize = { 25,25 });
 
-	void setForwardLength(float length);
-	void setRollerLength(float length);
 	void update(const WheelState& state);
 
 	void setVectorsVisible(bool forwardVisible, bool rollerVisible, bool directionVisible) {

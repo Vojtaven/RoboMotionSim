@@ -5,9 +5,11 @@
 #include "MathUtils.hpp"
 
 struct WheelState {
+	double distanceTraveled = 0; // mm
 	float speed = 0; // mm/s
 	float rollerSpeed = 0; // mm/s
-	double distanceTraveled = 0; // mm
+	float directionSpeed = 0; // mm/s — resultant of speed + rollerSpeed
+	float directionAngle = 0; // rad — angle of resultant relative to wheel forward
 	float lastDistanceDisplacement = 0; // mm
 	bool powered = false; // true when wheel is actively commanded
 };

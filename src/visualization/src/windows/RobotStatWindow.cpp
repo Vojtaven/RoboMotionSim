@@ -259,6 +259,7 @@ void RobotStatWindow::renderWheelsSection(const RobotState& robotState, float pa
         ImGui::TextColored(Colors::WheelSectionTitle, "W%d", i + 1);
         WheelProgressBar(wheel.speed, colW, Colors::WheelSpeedBar, "speed mm/s", "spd");
         WheelProgressBar(wheel.rollerSpeed, colW, Colors::RollerSpeedBar, "rol mm/s", "rol");
+        WheelProgressBar(wheel.directionAngle, colW, Colors::DirectionSpeedBar, "dir mm/s", "dir");
 
         ImGui::EndGroup();
         ImGui::PopID();

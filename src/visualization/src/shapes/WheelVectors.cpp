@@ -1,13 +1,11 @@
 #include "shapes/WheelVectors.hpp"
 #include "RobotState.hpp"
-#include <cmath>
-#include <numbers>
 #include "MathUtils.hpp"
 
 WheelVectors::WheelVectors(const RobotParts::Wheel& wheel,
 	sf::Color forwardColor, sf::Color rollerColor, sf::Color directionColor,
 	float thickness, sf::Vector2f headSize)
-	: _rollerAngle(wheel.roller_angle), _wheelAngle(wheel.wheel_angle),
+	: _wheelAngle(wheel.wheel_angle),
 	  _forwardColor(forwardColor), _rollerColor(rollerColor), _directionColor(directionColor)
 {
 	auto position = sf::Vector2f{ wheel.x_position, wheel.y_position };
@@ -22,20 +20,11 @@ WheelVectors::WheelVectors(const RobotParts::Wheel& wheel,
 	add(std::move(rollVec));
 	add(std::move(dirVec));
 }
-void WheelVectors::setForwardLength(float length) {
-	_forwardLength = length;
-	_forwardVector->setLength(length);
-}
-void WheelVectors::setRollerLength(float length) {
-	_rollerLength = length;
-	_rollerVector->setLength(length);
-}
-
-// X = forward length, Y = roller length
 void WheelVectors::update(const WheelState& state) {
-	setForwardLength(state.speed);
-	setRollerLength(state.rollerSpeed);
-	updateDirectionVector();
+	_forwardVector->setLength(state.speed);
+	_rollerVector->setLength(state.rollerSpeed);
+	_directionVector->setLength(state.directionSpeed);
+	_directionVector->setRotation(state.directionAngle + _wheelAngle);
 
 	auto applyPowered = [&](sf::Color c) -> sf::Color {
 		if (!state.powered) return sf::Color(150, 150, 150, 180);
@@ -56,20 +45,3 @@ void WheelVectors::draw(sf::RenderTarget& target, sf::RenderStates states) const
 		_directionVector->draw(target, states);
 }
 
-// Combine forward and roller velocity vectors using the law of cosines / atan2
-void WheelVectors::updateDirectionVector() {
-	constexpr float halfPi = static_cast<float>(std::numbers::pi / 2.0);
-	const float angleBetween = halfPi - _rollerAngle;
-
-	const float directionVectorLength = std::sqrtf(_rollerLength * _rollerLength
-		+ _forwardLength * _forwardLength
-		+ 2 * _forwardLength * _rollerLength * std::cos(angleBetween));
-
-
-	_directionVector->setLength(directionVectorLength);
-
-	const float directionVectorAngle = std::atan2f(_rollerLength * std::sinf(angleBetween),
-		_forwardLength + _rollerLength * std::cosf(angleBetween));
-
-	_directionVector->setRotation(directionVectorAngle + _wheelAngle);
-}

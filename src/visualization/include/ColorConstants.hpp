@@ -52,6 +52,7 @@ constexpr ImVec4 HighVelocityBar(1.0f, 0.5f, 0.2f, 1.0f);
 constexpr ImVec4 NormalVelocityBar(0.2f, 0.8f, 0.45f, 1.0f);
 constexpr ImVec4 WheelSpeedBar(1.0f, 0.0f, 0.0f, 1.0f);
 constexpr ImVec4 RollerSpeedBar(0.0f, 1.0f, 0.0f, 1.0f);
+constexpr ImVec4 DirectionSpeedBar(1.0f, 1.0f, 0.0f, 1.0f);
 
 // ── Line / Separator Colors (ImU32) ────────────────────────────────
 constexpr ImU32 HeaderLine = IM_COL32(0, 180, 255, 60);
