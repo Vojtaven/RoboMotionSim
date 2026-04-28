@@ -1,5 +1,5 @@
 // Author: Vojtech Venzara
-// Date: 2026-04-12
+// Date: 2026-04-28
 // Description: UI window for creating and modifying robot designs with interactive parameter adjustment
 
 #include "windows/RobotDesignerWindow.hpp"
@@ -277,9 +277,15 @@ void RobotDesignerWindow::renderContent() {
 
 		if (result == NFD_OKAY) {
 			std::string selectedPath = outPath.get();
-			RobotConfig loaded = ImportHelper::loadRobotConfigFrom(selectedPath);
-			loadFromRobotConfig(loaded);
-			_statusMessage = StatusMessage::Info("Loaded successfully.");
+			try {
+				RobotConfig loaded = ImportHelper::loadRobotConfigFrom(selectedPath);
+				loadFromRobotConfig(loaded);
+
+				_statusMessage = StatusMessage::Info("Loaded successfully.");
+			}
+			catch (const std::exception& ex) {
+				_statusMessage = StatusMessage::Error(std::string("Failed to load config: ") + ex.what());
+			}
 		}
 		else  if (result == NFD_ERROR) {
 			_statusMessage = StatusMessage::Error(std::string("Error: ") + NFD::GetError());
