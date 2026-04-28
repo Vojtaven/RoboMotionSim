@@ -1,5 +1,5 @@
 // Author: Vojtech Venzara
-// Date: 2026-04-12
+// Date: 2026-04-28
 // Description: Runtime representation of robot state including position, velocity, wheel states, and
 //              direction vectors updated each physics tick
 
@@ -16,6 +16,7 @@ struct WheelState {
 	float directionSpeed = 0; // mm/s — resultant of speed + rollerSpeed
 	float directionAngle = 0; // rad — angle of resultant relative to wheel forward
 	float lastDistanceDisplacement = 0; // mm
+	float previousSpeed = 0; // mm/s — speed at end of previous physics tick, used for acceleration limiting
 	bool powered = false; // true when wheel is actively commanded
 };
 

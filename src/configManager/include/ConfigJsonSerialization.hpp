@@ -1,5 +1,5 @@
 // Author: Vojtech Venzara
-// Date: 2026-04-02
+// Date: 2026-04-28
 // Description: JSON serialization and deserialization module for converting configuration objects
 //              to/from JSON format for persistent storage
 
@@ -40,7 +40,7 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(KeyboardMapping, upKey, downKey,
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(ControllerMapping, controllerId, yAxisControl,xAxisControl, chassisRotateControl, frontRotateControl, deadzone)
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(IPCMapping, heartbeatTimeout, address, command_port, telemetry_port)
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(SerialMapping, portName, baudRate)
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(InputSettings, inputType, controllerMapping, keyboardMapping, ipcMapping, serialMapping, maxSpeed, maxRotationSpeed, registerInputWithoutFocus, limitMotorSpeed)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(InputSettings, inputType, controllerMapping, keyboardMapping, ipcMapping, serialMapping, maxSpeed, maxRotationSpeed, registerInputWithoutFocus, limitMotorSpeed, limitAcceleration, maxAcceleration, proportionalAccelerationLimit)
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(TrailSettings, trailPointSize, trailColor, trailMaxLength, pointSpawnInterval)
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(GridSettings, spacing, wantedGridSpacing, defaultGridFontSize, autoSpacing, color, subdivisionsCount, subGridColor, backgroundColor, textBackgroundOpacity)
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(WindowConfig, position, size, defaultFontSize, resizable, open, wasOpenedBefore)

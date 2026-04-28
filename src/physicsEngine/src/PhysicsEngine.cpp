@@ -1,5 +1,5 @@
 // Author: Vojtech Venzara
-// Date: 2026-04-12
+// Date: 2026-04-28
 // Description: Physics simulation engine calculating robot kinematics, wheel dynamics, velocity,
 //              position updates, and movement constraints
 
@@ -13,26 +13,29 @@ void PhysicsEngine::update(const double dt, RobotState& state, const RobotConfig
 {
 	limitMovement(state, config);
 
-	if (state.fromWheelSpeeds) {
-		// input gave us wheel speeds directly — derive robot velocity from them
-		if (_limitMotorSpeed)
-			limitMotorSpeeds(state, config);
-		calculateLocalVelocityFromWheelSpeed(state, config);
-	}
-	else {
+	if (!state.fromWheelSpeeds) {
 		// input gave us robot velocity — convert to wheel speeds first
 		toWheelSpeed(state, config);
-		if (_limitMotorSpeed) {
-			// clamp, then back-calculate the actual velocity we can achieve
-			limitMotorSpeeds(state, config);
-			calculateLocalVelocityFromWheelSpeed(state, config);
-		}
 	}
+
+	if (_limitMotorSpeed)
+		limitMotorSpeeds(state, config);
+	if (_limitAcceleration)
+		limitWheelAcceleration(dt, state);
+
+	if (state.fromWheelSpeeds || _limitMotorSpeed || _limitAcceleration)
+	{
+		// Calculates local velocity from wheel speeds, which may have been modified by limits or directly input as wheel speeds
+		calculateLocalVelocityFromWheelSpeed(state, config);
+	}
+
 	toWheelSpeed(state, config); // final pass to keep wheel speeds consistent with velocity
 	toGlobalFrame(state);
 
 	updatePosition(dt, state);
 	updateDirectionVectors(state);
+
+	for (auto& w : state.wheels) w.previousSpeed = w.speed;
 }
 
 void PhysicsEngine::updatePosition(const double dt, RobotState& state) {
@@ -131,6 +134,31 @@ void PhysicsEngine::limitMotorSpeeds(RobotState& state, const RobotConfig& confi
 	}
 }
 
+void PhysicsEngine::limitWheelAcceleration(double dt, RobotState& state) {
+	if (dt <= 0.0 || _maxAcceleration <= 0.0f) return;
+	const float maxDelta = _maxAcceleration * static_cast<float>(dt);
+
+	if (_proportionalAccelerationLimit) {
+		float maxRatio = 1.0f;
+		for (auto& w : state.wheels) {
+			const float dv = std::fabs(w.speed - w.previousSpeed);
+			if (dv > maxDelta) maxRatio = std::max(maxRatio, dv / maxDelta);
+		}
+		if (maxRatio > 1.0f) {
+			for (auto& w : state.wheels) {
+				w.speed = w.previousSpeed + (w.speed - w.previousSpeed) / maxRatio;
+			}
+		}
+	}
+	else {
+		for (auto& w : state.wheels) {
+			const float dv = w.speed - w.previousSpeed;
+			if (dv > maxDelta) w.speed = w.previousSpeed + maxDelta;
+			else if (dv < -maxDelta) w.speed = w.previousSpeed - maxDelta;
+		}
+	}
+}
+
 void PhysicsEngine::updateDirectionVectors(RobotState& state) {
 	for (auto& dirVec : state.directionVectors) {
 		const Vec2f& localPos = dirVec.position;
@@ -217,8 +245,15 @@ void PhysicsEngine::calculateLocalVelocityFromWheelSpeed(RobotState& state, cons
 }
 
 void PhysicsEngine::subscribeToSettings(ConfigSection<InputSettings>& inputSettings) {
-	_limitMotorSpeed = inputSettings.get().limitMotorSpeed;
+	const auto& s = inputSettings.get();
+	_limitMotorSpeed = s.limitMotorSpeed;
+	_limitAcceleration = s.limitAcceleration;
+	_maxAcceleration = s.maxAcceleration;
+	_proportionalAccelerationLimit = s.proportionalAccelerationLimit;
 	_settingsSubscription = inputSettings.scopedSubscribe([this](const InputSettings& settings) {
 		_limitMotorSpeed = settings.limitMotorSpeed;
+		_limitAcceleration = settings.limitAcceleration;
+		_maxAcceleration = settings.maxAcceleration;
+		_proportionalAccelerationLimit = settings.proportionalAccelerationLimit;
 	});
 }

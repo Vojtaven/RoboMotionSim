@@ -1,5 +1,5 @@
 // Author: Vojtech Venzara
-// Date: 2026-04-05
+// Date: 2026-04-28
 // Description: Data structure defining global application-level configuration settings used
 //              throughout the simulation
 
@@ -112,6 +112,9 @@ struct InputSettings {
 	float maxRotationSpeed = 60; // Max rotation speed in degrees/s, used to scale input values to real speeds
 	bool registerInputWithoutFocus = true;
 	bool limitMotorSpeed = false;
+	bool limitAcceleration = false;
+	float maxAcceleration = 500.0f; // mm/s^2 applied to wheel speeds
+	bool proportionalAccelerationLimit = true;
 };
 
 struct AppConfig {

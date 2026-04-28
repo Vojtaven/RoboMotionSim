@@ -1,5 +1,5 @@
 // Author: Vojtech Venzara
-// Date: 2026-04-02
+// Date: 2026-04-28
 // Description: Configuration window for input device selection and input sensitivity/mapping adjustments
 
 #include "windows/InputSettingsWindow.hpp"
@@ -199,6 +199,16 @@ void InputSettingsWindow::renderContent() {
 	topLevelChanged |= ImGui::Checkbox("Limit Motor Speed", &_settings.limitMotorSpeed);
 	ImGui::Spacing();
 
+	topLevelChanged |= ImGui::Checkbox("Limit Acceleration", &_settings.limitAcceleration);
+	if (_settings.limitAcceleration) {
+		ImGui::Indent();
+		ImGui::Text("Max Acceleration (mm/s^2)");
+		topLevelChanged |= ImGui::SliderFloat("##MaxAccel", &_settings.maxAcceleration, 1.0f, 5000.0f, "%.1f", sliderFlags);
+		topLevelChanged |= ImGui::Checkbox("Proportional (off = individual clamp)", &_settings.proportionalAccelerationLimit);
+		ImGui::Unindent();
+	}
+	ImGui::Spacing();
+
 	ImGui::Separator();
 	ImGui::Spacing();
 
@@ -254,6 +264,9 @@ void InputSettingsWindow::notifyAboutChanges(bool reset, bool commonChanged, boo
 			raw.maxSpeed = _settings.maxSpeed;
 			raw.maxRotationSpeed = _settings.maxRotationSpeed;
 			raw.registerInputWithoutFocus = _settings.registerInputWithoutFocus;
+			raw.limitAcceleration = _settings.limitAcceleration;
+			raw.maxAcceleration = _settings.maxAcceleration;
+			raw.proportionalAccelerationLimit = _settings.proportionalAccelerationLimit;
 		}
 		// Notify only the specific subsection that changed
 		if (subsectionChanged) {

@@ -1,5 +1,5 @@
 // Author: Vojtech Venzara
-// Date: 2026-04-02
+// Date: 2026-04-28
 // Description: Physics simulation engine calculating robot kinematics, wheel dynamics, velocity,
 //              position updates, and movement constraints
 
@@ -15,6 +15,9 @@ public:
 	void subscribeToSettings(ConfigSection<InputSettings>& inputSettings);
 private:
 	bool _limitMotorSpeed = false;
+	bool _limitAcceleration = false;
+	float _maxAcceleration = 500.0f;
+	bool _proportionalAccelerationLimit = true;
 	ScopedSubscription<InputSettings> _settingsSubscription;
 	void calculateLocalVelocityFromWheelSpeed(RobotState& state, const RobotConfig& config);
 	void updatePosition(const double dt, RobotState& state);
@@ -22,6 +25,7 @@ private:
 	void toGlobalFrame(RobotState& state);
 	void limitMovement(RobotState& state, const RobotConfig& config);
 	void limitMotorSpeeds(RobotState& state, const RobotConfig& config);
+	void limitWheelAcceleration(double dt, RobotState& state);
 	void updateDirectionVectors(RobotState& state);
 };
 #endif // PHYSICS_ENGINE_HPP
