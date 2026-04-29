@@ -1,5 +1,5 @@
 // Author: Vojtech Venzara
-// Date: 2026-04-04
+// Date: 2026-04-29
 // Description: Visual representation of the robot body, wheels, and orientation indicators
 
 #include "shapes/RobotShape.hpp"
@@ -7,6 +7,7 @@
 #include "shapes/PointVector.hpp"
 #include <memory>
 #include "shapes/WheelVectors.hpp"
+#include "shapes/CurvedArrow.hpp"
 #include "SFMLHelper.hpp"
 #include "ColorConstants.hpp"
 
@@ -152,7 +153,9 @@ void RobotShape::updateDirectionVectors(const RobotState& state) {
 	// If the number of direction vectors changed, rebuild them
 	if (_directionVectors.size() != state.directionVectors.size()) {
 		_directionVectors.clear();
-		
+		_rotationIndicators.clear();
+		_rotationBaseAngles.clear();
+
 		// Add new direction vectors
 		for (const auto& dirVec : state.directionVectors) {
 			auto pointVec = std::make_unique<PointVector>(
@@ -165,6 +168,13 @@ void RobotShape::updateDirectionVectors(const RobotState& state) {
 			);
 			_directionVectors.push_back(pointVec.get());
 			add(std::move(pointVec));
+
+			auto rotInd = std::make_unique<CurvedArrow>(30.f, Colors::RotationIndicator, 4.f, sf::Vector2f{ 15, 15 });
+			rotInd->setPosition(static_cast<sf::Vector2f>(dirVec.position));
+			rotInd->setRotation(sf::radians(dirVec.angle));
+			_rotationIndicators.push_back(rotInd.get());
+			_rotationBaseAngles.push_back(dirVec.angle);
+			add(std::move(rotInd));
 		}
 	}
 	else {
@@ -174,6 +184,16 @@ void RobotShape::updateDirectionVectors(const RobotState& state) {
 			_directionVectors[i]->setPosition(static_cast<sf::Vector2f>(dirVec.position));
 			_directionVectors[i]->setRotation(dirVec.angle);
 			_directionVectors[i]->setLength(dirVec.length);
+
+			// Only refresh the base angle when linear motion is strong enough to define one;
+			// below the threshold we hold the last angle so the arc doesn't jitter on noise.
+			constexpr float kBaseAngleUpdateThreshold = 5.f; // mm/s
+			if (dirVec.length > kBaseAngleUpdateThreshold)
+				_rotationBaseAngles[i] = dirVec.angle;
+
+			_rotationIndicators[i]->setPosition(static_cast<sf::Vector2f>(dirVec.position));
+			_rotationIndicators[i]->setRotation(sf::radians(_rotationBaseAngles[i]));
+			_rotationIndicators[i]->setSweep(static_cast<float>(state.angularVelocity));
 		}
 	}
 }

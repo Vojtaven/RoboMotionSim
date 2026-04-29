@@ -1,5 +1,5 @@
 // Author: Vojtech Venzara
-// Date: 2026-04-12
+// Date: 2026-04-29
 // Description: Centralized color palette definition used consistently throughout the visualization system
 
 #pragma once
@@ -103,6 +103,7 @@ inline const sf::Color GridTextBackground(0, 0, 0, 150);
 inline const sf::Color RobotOutline       = sf::Color::Cyan;
 inline const sf::Color FrontVector        = sf::Color::White;
 inline const sf::Color DirectionVector    = sf::Color::Magenta;
+inline const sf::Color RotationIndicator  = sf::Color(0,191, 255); // Light blue
 inline const sf::Color WheelForwardVector = sf::Color::Red;
 inline const sf::Color WheelRollerVector  = sf::Color::Green;
 inline const sf::Color WheelDirVector     = sf::Color::Yellow;

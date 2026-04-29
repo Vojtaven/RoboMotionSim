@@ -1,5 +1,5 @@
 // Author: Vojtech Venzara
-// Date: 2026-03-18
+// Date: 2026-04-29
 // Description: Visual representation of the robot body, wheels, and orientation indicators
 
 #ifndef ROBOTSHAPE_HPP
@@ -9,6 +9,7 @@
 #include "RobotShape.hpp"
 #include "WheelVectors.hpp"
 #include "PointVector.hpp"
+#include "CurvedArrow.hpp"
 #include <vector>
 
 class RobotShape : public CompositeShape {
@@ -31,5 +32,7 @@ private:
 	std::vector<WheelVectors*> _speedOfWheels;
 	std::vector<sf::Vector2f> _wheelMountingPoints;
 	std::vector<PointVector*> _directionVectors;
+	std::vector<CurvedArrow*> _rotationIndicators;
+	std::vector<float> _rotationBaseAngles; // last linear-direction angle, held when motion is too small
 };
 #endif // !ROBOTSHAPE_HPP
