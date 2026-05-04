@@ -1,5 +1,5 @@
 // Author: Vojtech Venzara
-// Date: 2026-04-28
+// Date: 2026-05-04
 // Description: Data structure defining global application-level configuration settings used
 //              throughout the simulation
 
@@ -122,7 +122,6 @@ struct AppConfig {
 	std::string configVersion = "";
 	WindowConfig mainWindow;
 	WindowConfig renderSettingsWindow;
-	WindowConfig appSettingsWindow;
 	WindowConfig inputSettingsWindow;
 	WindowConfig robotStatWindow;
 	WindowConfig robotDesignerWindow;

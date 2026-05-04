@@ -1,5 +1,5 @@
 // Author: Vojtech Venzara
-// Date: 2026-04-28
+// Date: 2026-05-04
 // Description: JSON serialization and deserialization module for converting configuration objects
 //              to/from JSON format for persistent storage
 
@@ -45,6 +45,6 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(TrailSettings, trailPointSize, t
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(GridSettings, spacing, wantedGridSpacing, defaultGridFontSize, autoSpacing, color, subdivisionsCount, subGridColor, backgroundColor, textBackgroundOpacity)
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(WindowConfig, position, size, defaultFontSize, resizable, open, wasOpenedBefore)
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(RenderSettings, scaleFactor, showGrid, showTrail, lockViewOnRobot, showForwardVectors, showRollerVectors, showWheelDirectionVectors, frameRateLimit, gridSettings, trailSettings)
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(AppConfig, appName, configVersion, mainWindow, inputSettingsWindow, robotStatWindow, robotDesignerWindow, renderSettingsWindow, appSettingsWindow, renderSettings, inputSettings)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(AppConfig, appName, configVersion, mainWindow, inputSettingsWindow, robotStatWindow, robotDesignerWindow, renderSettingsWindow, renderSettings, inputSettings)
 
 #endif // !CONFIG_JSON_SERIALIZATION_HPP
